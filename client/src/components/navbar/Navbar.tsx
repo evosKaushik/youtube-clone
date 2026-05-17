@@ -9,95 +9,52 @@ import {
 } from "react-icons/fa";
 
 import { IoCreateOutline } from "react-icons/io5";
+import YoutubeLogo from "./YoutubeLogo";
+import SearchBar from "./SearchBar";
+import Image from "next/image";
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 h-[56px] bg-[#0f0f0f] border-b border-[#272727]">
+    <header className="sticky top-0 z-50 h-14 ">
       <div className="h-full flex items-center justify-between px-4">
         {/* LEFT */}
-        <div className="flex items-center gap-4 min-w-fit">
-          <button className="w-10 h-10 rounded-full hover:bg-[#272727] flex items-center justify-center transition">
-            <FaBars className="text-white text-lg" />
+        <div className="flex items-center gap-4 ">
+          <button className="w-11 h-11 rounded-full hover:bg-text/10 flex items-center justify-center transition cursor-pointer">
+            <FaBars className="text-white text-lg" size={24} />
           </button>
 
-          <div className="flex items-center cursor-pointer select-none">
-            <FaYoutube className="text-[#ff0000] text-[32px]" />
-
-            <div className="flex items-start ml-1">
-              <span className="text-white font-medium text-[22px] tracking-[-1px] leading-none">
-                YouTube
-              </span>
-
-              <span className="text-[#aaa] text-[10px] ml-1 mt-[2px]">
-                IN
-              </span>
-            </div>
-          </div>
+          <YoutubeLogo />
         </div>
 
         {/* CENTER */}
-        <div className="hidden md:flex flex-1 justify-center px-10">
-          <div className="flex items-center w-full max-w-[720px]">
-            {/* SEARCH BOX */}
-            <div className="flex flex-1 h-[40px]">
-              <input
-                type="text"
-                placeholder="Search"
-                className="
-                  flex-1
-                  bg-[#121212]
-                  border
-                  border-[#303030]
-                  rounded-l-full
-                  px-4
-                  text-white
-                  text-[16px]
-                  outline-none
-                  focus:border-blue-500
-                "
-              />
+     {/* CENTER */}
+<div className="flex flex-1 justify-center px-2 md:px-10 min-w-0">
+  <div className="flex items-center w-full max-w-[720px] min-w-0">
+    <SearchBar />
 
-              <button
-                className="
-                  w-[64px]
-                  bg-[#222222]
-                  border
-                  border-l-0
-                  border-[#303030]
-                  rounded-r-full
-                  flex
-                  items-center
-                  justify-center
-                  hover:bg-[#2f2f2f]
-                  transition
-                "
-              >
-                <FaSearch className="text-white text-lg" />
-              </button>
-            </div>
-
-            {/* MIC */}
-            <button
-              className="
-                ml-4
-                min-w-[40px]
-                h-[40px]
-                rounded-full
-                bg-[#181818]
-                hover:bg-[#2a2a2a]
-                flex
-                items-center
-                justify-center
-                transition
-              "
-            >
-              <FaMicrophone className="text-white text-sm" />
-            </button>
-          </div>
-        </div>
+    <button
+      className="
+        ml-2 md:ml-4
+        min-w-10
+        w-10
+        h-10
+        rounded-full
+        bg-[#181818]
+        hover:bg-[#2a2a2a]
+        flex
+        items-center
+        justify-center
+        transition
+        shrink-0
+      "
+    >
+      <FaMicrophone className="text-white text-sm" />
+    </button>
+  </div>
+</div>
 
         {/* RIGHT */}
-        <div className="flex items-center gap-2 min-w-fit">
+        <div className="flex items-center gap-2 ">
           <button
             className="
               hidden
@@ -114,16 +71,14 @@ export default function Navbar() {
           >
             <IoCreateOutline className="text-white text-xl" />
 
-            <span className="text-white text-sm font-medium">
-              Create
-            </span>
+            <span className="text-white text-sm font-medium">Create</span>
           </button>
-
+ 
           <button className="w-10 h-10 rounded-full hover:bg-[#272727] flex items-center justify-center transition">
             <FaBell className="text-white text-lg" />
           </button>
 
-          <img
+          <Image
             src="https://i.pravatar.cc/100"
             alt="profile"
             className="
@@ -133,6 +88,8 @@ export default function Navbar() {
               object-cover
               cursor-pointer
             "
+            width={100}
+            height={100}
           />
         </div>
       </div>

@@ -19,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-full flex flex-col">
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.variable}>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
