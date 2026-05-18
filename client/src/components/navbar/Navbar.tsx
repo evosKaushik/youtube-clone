@@ -12,28 +12,26 @@ import { IoCreateOutline } from "react-icons/io5";
 import YoutubeLogo from "./YoutubeLogo";
 import SearchBar from "./SearchBar";
 import Image from "next/image";
+import SidebarButton from "./SidebarButton";
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 h-14 ">
+    <header className="sticky top-0 z-50 h-14 bg-background shadow-md shadow-text/10">
       <div className="h-full flex items-center justify-between px-4">
         {/* LEFT */}
         <div className="flex items-center gap-4 ">
-          <button className="w-11 h-11 rounded-full hover:bg-text/10 flex items-center justify-center transition cursor-pointer">
-            <FaBars className="text-white text-lg" size={24} />
-          </button>
-
+          <SidebarButton />
           <YoutubeLogo />
         </div>
 
         {/* CENTER */}
-     {/* CENTER */}
-<div className="flex flex-1 justify-center px-2 md:px-10 min-w-0">
-  <div className="flex items-center w-full max-w-[720px] min-w-0">
-    <SearchBar />
+        {/* CENTER */}
+        <div className="flex flex-1 justify-center px-2 md:px-10 min-w-0">
+          <div className="flex items-center w-full max-w-[720px] min-w-0">
+            <SearchBar />
 
-    <button
-      className="
+            <button
+              className="
         ml-2 md:ml-4
         min-w-10
         w-10
@@ -47,11 +45,11 @@ export default function Navbar() {
         transition
         shrink-0
       "
-    >
-      <FaMicrophone className="text-white text-sm" />
-    </button>
-  </div>
-</div>
+            >
+              <FaMicrophone className="text-white text-sm" />
+            </button>
+          </div>
+        </div>
 
         {/* RIGHT */}
         <div className="flex items-center gap-2 ">
@@ -73,7 +71,7 @@ export default function Navbar() {
 
             <span className="text-white text-sm font-medium">Create</span>
           </button>
- 
+
           <button className="w-10 h-10 rounded-full hover:bg-[#272727] flex items-center justify-center transition">
             <FaBell className="text-white text-lg" />
           </button>
