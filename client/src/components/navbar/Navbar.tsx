@@ -1,30 +1,24 @@
-// components/navbar/Navbar.tsx
-
-import {
-  FaBars,
-  FaYoutube,
-  FaBell,
-  FaMicrophone,
-  FaSearch,
-} from "react-icons/fa";
+import { FaBell, FaMicrophone } from "react-icons/fa";
 
 import { IoCreateOutline } from "react-icons/io5";
 import YoutubeLogo from "./YoutubeLogo";
 import SearchBar from "./SearchBar";
 import Image from "next/image";
 import SidebarButton from "./SidebarButton";
+import Link from "next/link";
 
-export default function Navbar() {
+export default async function Navbar() {
   return (
-    <header className="sticky top-0 z-50 h-14 bg-background shadow-md shadow-text/10">
+    <header className="sticky top-0 z-50 h-14 bg-background ">
       <div className="h-full flex items-center justify-between px-4">
         {/* LEFT */}
-        <div className="flex items-center gap-4 ">
+        <div  className="flex items-center gap-4 ">
           <SidebarButton />
+          <Link href="/">
           <YoutubeLogo />
+          </Link>
         </div>
 
-        {/* CENTER */}
         {/* CENTER */}
         <div className="flex flex-1 justify-center px-2 md:px-10 min-w-0">
           <div className="flex items-center w-full max-w-[720px] min-w-0">

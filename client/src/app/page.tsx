@@ -1,7 +1,6 @@
 "use client";
 
-import VideoContainer from "@/components/home/VideoContainer";
-import Navbar from "@/components/navbar/Navbar";
+import VideoContainer from "@/components/VideoContainer";
 import Sidebar from "@/components/Sidebar";
 import { useSidebarStore } from "@/store/useSidebarStore";
 import clsx from "clsx";
@@ -11,8 +10,6 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
-
       <main className="flex">
         {/* Sidebar */}
         <Sidebar />
@@ -32,7 +29,14 @@ export default function Home() {
           )}
         >
           <div className="p-6">
-            <VideoContainer />
+            <VideoContainer
+              className="        
+              grid 
+              grid-cols-[repeat(auto-fit,minmax(300px,1fr))] 
+              gap-5
+              thin-scrollbar
+              "
+            />
           </div>
         </div>
       </main>
