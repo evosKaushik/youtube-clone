@@ -21,6 +21,7 @@ import { AiOutlineLike } from "react-icons/ai";
 import { IoPersonOutline } from "react-icons/io5";
 
 import { useSidebarStore } from "@/store/useSidebarStore";
+import { usePathname } from "next/navigation";
 
 const subscriptions = [
   "CodeWithAJ Official",
@@ -65,10 +66,10 @@ const youSection = [
 
 const Sidebar = () => {
   const isOpen = useSidebarStore((s) => s.isOpen);
-
   const isOverlay = useSidebarStore((s) => s.isOverlay);
-
   const closeOverlay = useSidebarStore((s) => s.closeOverlay);
+  const pathname = usePathname();
+  const isWatchPage = pathname === "/watch";
 
   const showText = isOpen || isOverlay;
 
@@ -81,7 +82,6 @@ const Sidebar = () => {
           className="
             fixed inset-0 z-40
             bg-black/50
-            lg:hidden
           "
         />
       )}
@@ -101,7 +101,8 @@ const Sidebar = () => {
             "w-60 px-3": isOpen && !isOverlay,
             "w-20 px-2 overflow-x-hidden": !isOpen && !isOverlay,
             "w-60 px-3 translate-x-0": isOverlay,
-            "-translate-x-full lg:translate-x-0": !isOverlay,
+            "-translate-x-full": !isOverlay,
+            "lg:translate-x-0": !isWatchPage,
           },
         )}
       >

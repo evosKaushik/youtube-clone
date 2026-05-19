@@ -2,21 +2,24 @@
 
 import useMedia from "@/hooks/useMedia";
 import { useSidebarStore } from "@/store/useSidebarStore";
+
 import { FaBars } from "react-icons/fa";
+import { usePathname } from "next/navigation";
 
 const SidebarButton = () => {
   const isLgScreen = useMedia("lg");
+  const pathname = usePathname();
+  const isWatchPage = pathname === "/watch";
+
   const toggleSidebar = useSidebarStore((s) => s.toggleSidebar);
 
   const openOverlay = useSidebarStore((s) => s.openOverlay);
-
   const closeOverlay = useSidebarStore((s) => s.closeOverlay);
 
   const isOverlay = useSidebarStore((s) => s.isOverlay);
 
   const handleSidebar = () => {
-   
-    if (!isLgScreen) {
+    if (!isLgScreen || isWatchPage) {
       if (isOverlay) {
         closeOverlay();
       } else {
