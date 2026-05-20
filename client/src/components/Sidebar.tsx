@@ -55,6 +55,7 @@ const youSection = [
   {
     name: "Liked videos",
     icon: <AiOutlineLike size={24} />,
+    href: "/liked-video",
   },
   {
     name: "Your videos",
