@@ -50,6 +50,7 @@ const youSection = [
   {
     name: "Watch later",
     icon: <MdOutlineWatchLater size={24} />,
+    href: "/watch-later",
   },
   {
     name: "Liked videos",
