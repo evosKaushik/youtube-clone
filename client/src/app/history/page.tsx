@@ -1,10 +1,4 @@
-"use client";
-
-
 import PlaylistVideoContainer from "@/components/PlaylistVideoContainer";
-import { useSidebarStore } from "@/store/useSidebarStore";
-import { clsx } from "clsx";
-
 import {
   RiHistoryLine,
   RiSearchLine,
@@ -12,26 +6,20 @@ import {
   RiSettings3Line,
 } from "react-icons/ri";
 
+import { Metadata } from 'next';
+import AppShell from "@/layout/AppShell";
+
+export const metadata: Metadata = {
+  title: 'Youtube | History',
+  description: 'Watch your YouTube watch history, manage it, and clear it if you want. See all the videos you have watched on YouTube in one place.',
+};
+
+
 const HistoryPage = () => {
-  const isOpen = useSidebarStore((s) => s.isOpen);
+
 
   return (
-    <section
-      className={clsx(
-        `
-          min-h-screen
-          bg-black
-          text-white
-          transition-all
-          duration-300
-          pt-2
-        `,
-        {
-          "ml-0 lg:ml-20": !isOpen,
-          "ml-0 lg:ml-60": isOpen,
-        },
-      )}
-    >
+    <AppShell>
       <div
         className="
           mx-auto
@@ -169,7 +157,7 @@ const HistoryPage = () => {
           </div>
         </aside>
       </div>
-    </section>
+    </AppShell>
   );
 };
 

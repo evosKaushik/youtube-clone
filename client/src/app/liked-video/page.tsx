@@ -1,32 +1,18 @@
-"use client";
-
-
 import PlaylistVideoContainer from "@/components/PlaylistVideoContainer";
-import { useSidebarStore } from "@/store/useSidebarStore";
-import { clsx } from "clsx";
 import { AiOutlineLike } from "react-icons/ai";
-import { MdOutlineWatchLater } from "react-icons/md";
+import { Metadata } from 'next';
+import AppShell from "@/layout/AppShell";
+
+export const metadata: Metadata = {
+    title: 'Youtube | Liked Videos',
+    description: 'View and manage your liked videos on YouTube.',
+};
 
 const LikedVideoPage = () => {
-    const isOpen = useSidebarStore((s) => s.isOpen);
+
 
     return (
-        <section
-            className={clsx(
-                `
-          min-h-screen
-          bg-black
-          text-white
-          transition-all
-          duration-300
-          pt-2
-        `,
-                {
-                    "ml-0 lg:ml-20": !isOpen,
-                    "ml-0 lg:ml-60": isOpen,
-                },
-            )}
-        >
+        <AppShell>
             <div
                 className="
           mx-auto
@@ -63,7 +49,7 @@ const LikedVideoPage = () => {
 
 
             </div>
-        </section>
+        </AppShell>
     );
 };
 

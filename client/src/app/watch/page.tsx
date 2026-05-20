@@ -4,6 +4,12 @@ import Image from "next/image";
 import { BsSave } from "react-icons/bs";
 import { PiShareFat } from "react-icons/pi";
 import { SlDislike, SlLike } from "react-icons/sl";
+import { Metadata } from 'next';
+ 
+export const metadata: Metadata = {
+  title: 'Youtube | Watch',
+  description: 'Watch your favorite YouTube videos anytime, anywhere.',
+};
 
 const WatchPage = async () => {
   return (
