@@ -41,6 +41,7 @@ const youSection = [
   {
     name: "History",
     icon: <RiHistoryLine size={24} />,
+    href: "/history",
   },
   {
     name: "Playlists",
@@ -228,7 +229,7 @@ const Sidebar = () => {
             {youSection.map((item, index) => (
               <li key={index}>
                 <Link
-                  href="/"
+                  href={item?.href || "/"}
                   className={clsx(
                     `
                       flex rounded-xl py-3
