@@ -8,7 +8,7 @@ type props = {
   className?: string;
 };
 
-const HistoryCard = ({ className }: props) => {
+const PlaylistCard = ({ className }: props) => {
   return (
     <article className={cn("w-full", className ?? "")}>
       <Link
@@ -105,4 +105,4 @@ const HistoryCard = ({ className }: props) => {
   );
 };
 
-export default HistoryCard;
+export default PlaylistCard;

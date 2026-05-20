@@ -1,6 +1,7 @@
 "use client";
 
-import HistoryVideoContainer from "@/components/history/HistoryVideoContainer";
+
+import PlaylistVideoContainer from "@/components/PlaylistVideoContainer";
 import { useSidebarStore } from "@/store/useSidebarStore";
 import { clsx } from "clsx";
 
@@ -56,7 +57,7 @@ const HistoryPage = () => {
           <div>
             <h2 className="mb-5 text-xl font-semibold">Today</h2>
 
-            <HistoryVideoContainer
+            <PlaylistVideoContainer
               className="
                 flex
                 flex-col

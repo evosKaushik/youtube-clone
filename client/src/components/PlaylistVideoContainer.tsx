@@ -1,18 +1,18 @@
-import HistoryCard from "./HistoryCard";
+import PlaylistCard from "./PlaylistCard";
 
 type props = {
   className?: string;
   cardClassName?: string;
 };
 
-const HistoryVideoContainer = ({
+const PlaylistVideoContainer = ({
   className,
   cardClassName,
 }: props) => {
   return (
     <section className={className}>
       {Array.from({ length: 10 }).map((_, index) => (
-        <HistoryCard
+        <PlaylistCard
           key={index}
           className={cardClassName}
         />
@@ -21,4 +21,4 @@ const HistoryVideoContainer = ({
   );
 };
 
-export default HistoryVideoContainer;
+export default PlaylistVideoContainer;
