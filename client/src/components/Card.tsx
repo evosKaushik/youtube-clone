@@ -1,10 +1,14 @@
+import { cn } from "@/libs/utils";
 import Image from "next/image";
 import Link from "next/link";
 
+type props = {
+  className?: string ;
+};
 
-const Card = () => {
+const Card = ({ className }: props) => {
   return (
-    <article className="w-full cursor-pointer">
+    <article className={cn("w-full cursor-pointer", className ?? "")}>
       <Link href={`/watch?v=123`}>
         {/* Thumbnail Container */}
         <div className="relative w-full overflow-hidden rounded-xl">
@@ -28,7 +32,6 @@ const Card = () => {
           {/* Avatar */}
           <div className="shrink-0">
             <Image
-           
               src="https://yt3.googleusercontent.com/QQi62BHmnTzE4t3QuLXYAbhbOJXz3Xs0dqps_u_9S4BKutYQ0uL-r2gPxDbU3JFVnKpW69pcqA=s160-c-k-c0x00ffffff-no-rj"
               alt="Channel Avatar"
               width={40}

@@ -41,6 +41,7 @@ const youSection = [
   {
     name: "History",
     icon: <RiHistoryLine size={24} />,
+    href: "/history",
   },
   {
     name: "Playlists",
@@ -49,10 +50,12 @@ const youSection = [
   {
     name: "Watch later",
     icon: <MdOutlineWatchLater size={24} />,
+    href: "/watch-later",
   },
   {
     name: "Liked videos",
     icon: <AiOutlineLike size={24} />,
+    href: "/liked-video",
   },
   {
     name: "Your videos",
@@ -228,7 +231,7 @@ const Sidebar = () => {
             {youSection.map((item, index) => (
               <li key={index}>
                 <Link
-                  href="/"
+                  href={item?.href || "/"}
                   className={clsx(
                     `
                       flex rounded-xl py-3
