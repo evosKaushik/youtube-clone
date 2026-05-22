@@ -12,7 +12,7 @@ const AppShell = ({ children }: Props) => {
   const isOpen = useSidebarStore((s) => s.isOpen);
 
   return (
-    <section
+    <main
       className={clsx(
         `
           min-h-screen
@@ -29,7 +29,7 @@ const AppShell = ({ children }: Props) => {
       )}
     >
       {children}
-    </section>
+    </main>
   );
 };
 
