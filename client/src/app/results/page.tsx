@@ -1,3 +1,4 @@
+import PlaylistVideoContainer from "@/components/PlaylistVideoContainer";
 import VideoContainer from "@/components/VideoContainer";
 import AppShell from "@/layout/AppShell";
 import { Metadata } from "next";
@@ -25,9 +26,10 @@ const ResultsPage = async ({ searchParams }: Props) => {
           <span className="text-white font-medium">{search_query}</span>
         </p>
 
-        <div>
-          <VideoContainer className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" />
+        <div className="hidden md:flex">
+          <PlaylistVideoContainer className="gap-2" />
         </div>
+        <VideoContainer className="grid  grid-cols-1 sm:grid-cols-2 md:hidden gap-4" />
       </div>
     </AppShell>
   );
