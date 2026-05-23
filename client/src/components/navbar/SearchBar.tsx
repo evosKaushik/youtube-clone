@@ -1,13 +1,36 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { FaSearch } from "react-icons/fa";
 
 export default function SearchBar() {
+  const router = useRouter();
+
+  const [search, setSearch] = useState("");
+
+  const handleSearch = () => {
+    if (!search.trim()) return;
+
+    router.push(`/results?search_query=${encodeURIComponent(search)}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
     <div className="flex flex-1 h-10 min-w-0">
       <input
         type="text"
         placeholder="Search"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        onKeyDown={handleKeyDown}
         className="
-        
           flex-1
           min-w-0
           bg-[#121212]
@@ -23,6 +46,7 @@ export default function SearchBar() {
       />
 
       <button
+        onClick={handleSearch}
         className="
           w-16
           shrink-0
