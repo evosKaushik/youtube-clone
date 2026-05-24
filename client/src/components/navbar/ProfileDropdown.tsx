@@ -6,17 +6,17 @@ import { MdOutlineVideoCall } from "react-icons/md";
 import { BiHistory } from "react-icons/bi";
 import { AiOutlineClockCircle } from "react-icons/ai";
 import { FiLogOut } from "react-icons/fi";
+import { useUser } from "@/libs/AuthContext";
 
 type Props = {
   open: boolean;
   onCreateChannel: () => void;
 };
 
-export default function ProfileDropdown({
-  open,
-  onCreateChannel,
-}: Props) {
+export default function ProfileDropdown({ open, onCreateChannel }: Props) {
+  const { logout } = useUser();
   if (!open) return null;
+
 
   return (
     <div
@@ -43,9 +43,7 @@ export default function ProfileDropdown({
         />
 
         <div>
-          <h3 className="text-white text-sm font-semibold">
-            John Doe
-          </h3>
+          <h3 className="text-white text-sm font-semibold">John Doe</h3>
 
           <p className="text-gray-400 text-xs">@johndoe</p>
         </div>
@@ -120,6 +118,7 @@ export default function ProfileDropdown({
             text-sm
             text-red-400
           "
+          onClick={logout}
         >
           <FiLogOut className="text-lg" />
           Sign out

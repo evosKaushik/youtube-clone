@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { clsx } from "clsx";
 import { useSidebarStore } from "@/store/useSidebarStore";
 
+
 type Props = {
   children: ReactNode;
 };
@@ -12,6 +13,7 @@ const AppShell = ({ children }: Props) => {
   const isOpen = useSidebarStore((s) => s.isOpen);
 
   return (
+    
     <main
       className={clsx(
         `
@@ -30,6 +32,7 @@ const AppShell = ({ children }: Props) => {
     >
       {children}
     </main>
+   
   );
 };
 
