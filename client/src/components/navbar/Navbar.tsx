@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+
 import Link from "next/link";
 import Image from "next/image";
 
@@ -13,26 +14,50 @@ import SidebarButton from "./SidebarButton";
 import ProfileDropdown from "./ProfileDropdown";
 import CreateChannelDialog from "./CreateChannelDialog";
 
-export default function Navbar() {
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [channelDialogOpen, setChannelDialogOpen] = useState(false);
+import { useUser } from "@/libs/AuthContext";
 
-  const profileRef = useRef<HTMLDivElement>(null);
+export default function Navbar() {
+  const {
+    user,
+    loading,
+    loginWithGoogle,
+  } = useUser();
+
+  const [profileOpen, setProfileOpen] =
+    useState(false);
+
+  const [
+    channelDialogOpen,
+    setChannelDialogOpen,
+  ] = useState(false);
+
+  const profileRef =
+    useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handleClickOutside = (
+      e: MouseEvent,
+    ) => {
       if (
         profileRef.current &&
-        !profileRef.current.contains(e.target as Node)
+        !profileRef.current.contains(
+          e.target as Node,
+        )
       ) {
         setProfileOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside,
+    );
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside,
+      );
     };
   }, []);
 
@@ -101,37 +126,92 @@ export default function Navbar() {
               </span>
             </button>
 
-            <button className="w-10 h-10 rounded-full hover:bg-[#272727] flex items-center justify-center transition">
+            <button
+              className="
+                w-10
+                h-10
+                rounded-full
+                hover:bg-[#272727]
+                flex
+                items-center
+                justify-center
+                transition
+              "
+            >
               <FaBell className="text-white text-lg" />
             </button>
 
-            <button
-              onClick={() => setProfileOpen((prev) => !prev)}
-              className="rounded-full"
-            >
-              <Image
-                src="https://i.pravatar.cc/100"
-                alt="profile"
-                width={100}
-                height={100}
-                className="w-8 h-8 rounded-full object-cover"
+            {loading ? (
+              <div
+                className="
+                  w-20
+                  h-9
+                  rounded-full
+                  bg-[#272727]
+                  animate-pulse
+                "
               />
-            </button>
+            ) : user ? (
+              <>
+                <button
+                  onClick={() =>
+                    setProfileOpen(
+                      (prev) => !prev,
+                    )
+                  }
+                  className="rounded-full overflow-hidden"
+                >
+                  <Image
+                    src={
+                      user.profilePicture ||
+                      "https://github.com/shadcn.png"
+                    }
+                    alt={user.name}
+                    width={100}
+                    height={100}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                </button>
 
-            <ProfileDropdown
-              open={profileOpen}
-              onCreateChannel={() => {
-                setChannelDialogOpen(true);
-                setProfileOpen(false);
-              }}
-            />
+                <ProfileDropdown
+                  open={profileOpen}
+                  onCreateChannel={() => {
+                    setChannelDialogOpen(
+                      true,
+                    );
+
+                    setProfileOpen(false);
+                  }}
+                />
+              </>
+            ) : (
+              <button
+                onClick={loginWithGoogle}
+                className="
+                  px-4
+                  h-9
+                  rounded-full
+                  border
+                  border-[#3f3f3f]
+                  text-blue-500
+                  hover:bg-[#263850]
+                  transition
+                  text-sm
+                  font-medium
+                "
+              >
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       </header>
 
       <CreateChannelDialog
         open={channelDialogOpen}
-        onClose={() => setChannelDialogOpen(false)}
+        onClose={() =>
+          setChannelDialogOpen(false)
+        }
       />
     </>
   );

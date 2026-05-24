@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeProvider from "@/providers/ThemeProvider";
 import Navbar from "@/components/navbar/Navbar";
 import Sidebar from "@/components/Sidebar";
+import { UserProvider } from "@/libs/AuthContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,9 +24,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable}`}>
-        <Navbar />
-        <Sidebar />
-        <ThemeProvider>{children}</ThemeProvider>
+        <UserProvider>
+          <Navbar />
+          <Sidebar />
+          <ThemeProvider>{children}</ThemeProvider>
+        </UserProvider>
       </body>
     </html>
   );
