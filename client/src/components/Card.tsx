@@ -3,21 +3,57 @@ import Image from "next/image";
 import Link from "next/link";
 
 type props = {
-  className?: string ;
+  className?: string;
+  video: any;
 };
 
-const Card = ({ className }: props) => {
+const Card = ({ className, video }: props) => {
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    const intervals = [
+      { label: "year", seconds: 31536000 },
+      { label: "month", seconds: 2592000 },
+      { label: "day", seconds: 86400 },
+      { label: "hour", seconds: 3600 },
+      { label: "minute", seconds: 60 },
+      { label: "second", seconds: 1 },
+    ];
+
+    const rtf = new Intl.RelativeTimeFormat("en", {
+      numeric: "auto",
+    });
+
+    for (const interval of intervals) {
+      const count = Math.floor(seconds / interval.seconds);
+
+      if (count >= 1) {
+        return rtf.format(
+          -count,
+          interval.label as Intl.RelativeTimeFormatUnit,
+        );
+      }
+    }
+
+    return "just now";
+  };
+
+  const timeAgo = formatTimeAgo(video?.createdAt);
+
   return (
     <article className={cn("w-full cursor-pointer", className ?? "")}>
-      <Link href={`/watch?v=123`}>
+      <Link href={`/watch?v=${video?._id}`}>
         {/* Thumbnail Container */}
         <div className="relative w-full overflow-hidden rounded-xl">
           <Image
-            src="https://i.ytimg.com/vi/RdkoOdZYNGw/hqdefault.jpg?sqp=-oaymwEnCNACELwBSFryq4qpAxkIARUAAIhCGAHYAQHiAQoIGBACGAY4AUAB&rs=AOn4CLCdUVo7N0hXbrFzY-336pq9ztcUNw"
+            src={video?.thumbnailURL || ""}
             alt="Video Thumbnail"
             width={500}
             height={300}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover aspect-video"
             loading="eager"
           />
 
@@ -44,15 +80,16 @@ const Card = ({ className }: props) => {
           <div className="flex flex-col">
             {/* Title */}
             <h3 className="line-clamp-2 text-sm font-semibold text-white">
-              The Fundamentals of Node.js Course Trailer | Master the Core
-              Concepts
+              {video.name}
             </h3>
 
             {/* Channel Name */}
-            <p className="mt-1 text-sm text-zinc-400">Anurag Singh Procodrr</p>
+            <p className="mt-1 text-sm text-zinc-400">
+              {video?.creatorId.channelName}
+            </p>
 
             {/* Views + Time */}
-            <p className="text-sm text-zinc-400">29K views • 1 year ago</p>
+            <p className="text-sm text-zinc-400">29K views • {timeAgo || ""}</p>
           </div>
         </div>
       </Link>

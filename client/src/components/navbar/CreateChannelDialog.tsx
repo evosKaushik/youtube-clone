@@ -1,15 +1,16 @@
 "use client";
 
+import { createChannelApi } from "@/api/userApi";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 
 export const validateChannel = ({
   channelName,
-  channelHandle,
+  channelUsername,
   channelDescription,
 }: {
   channelName: string;
-  channelHandle: string;
+  channelUsername: string;
   channelDescription: string;
 }) => {
   const errors = {
@@ -26,17 +27,15 @@ export const validateChannel = ({
   }
 
   // HANDLE
-  if (!channelHandle.trim()) {
+  if (!channelUsername.trim()) {
     errors.handle = "Handle is required";
-  } else if (!/^[a-zA-Z0-9_]+$/.test(channelHandle)) {
-    errors.handle =
-      "Only letters numbers and underscore allowed";
+  } else if (!/^[a-zA-Z0-9_]+$/.test(channelUsername)) {
+    errors.handle = "Only letters numbers and underscore allowed";
   }
 
   // DESCRIPTION
   if (channelDescription.length > 200) {
-    errors.description =
-      "Description must be below 200 characters";
+    errors.description = "Description must be below 200 characters";
   }
 
   return errors;
@@ -47,14 +46,10 @@ type Props = {
   onClose: () => void;
 };
 
-export default function CreateChannelDialog({
-  open,
-  onClose,
-}: Props) {
+export default function CreateChannelDialog({ open, onClose }: Props) {
   const [channelName, setChannelName] = useState("");
-  const [channelHandle, setChannelHandle] = useState("");
-  const [channelDescription, setChannelDescription] =
-    useState("");
+  const [channelUsername, setChannelUsername] = useState("");
+  const [channelDescription, setChannelDescription] = useState("");
 
   const [errors, setErrors] = useState({
     name: "",
@@ -64,35 +59,33 @@ export default function CreateChannelDialog({
 
   if (!open) return null;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const validationErrors = validateChannel({
       channelName,
-      channelHandle,
+      channelUsername,
       channelDescription,
     });
 
     setErrors(validationErrors);
 
     const hasErrors = Object.values(validationErrors).some(
-      (value) => value !== ""
+      (value) => value !== "",
     );
 
     if (hasErrors) return;
 
-    const channelData = {
+    const payload = {
       channelName,
-      channelHandle,
+      channelUsername,
       channelDescription,
     };
 
-    console.log(channelData);
+    console.log(payload);
+    const data = await createChannelApi(payload);
 
-    /*
-      TODO:
-      Add API here
-    */
+    console.log(data);
 
-    onClose();
+    data && onClose();
   };
 
   return createPortal(
@@ -152,9 +145,7 @@ export default function CreateChannelDialog({
             <input
               type="text"
               value={channelName}
-              onChange={(e) =>
-                setChannelName(e.target.value)
-              }
+              onChange={(e) => setChannelName(e.target.value)}
               placeholder="John Doe"
               className="
                 w-full
@@ -170,17 +161,13 @@ export default function CreateChannelDialog({
             />
 
             {errors.name && (
-              <p className="text-red-500 text-xs mt-2">
-                {errors.name}
-              </p>
+              <p className="text-red-500 text-xs mt-2">{errors.name}</p>
             )}
           </div>
 
           {/* HANDLE */}
           <div>
-            <label className="text-sm text-gray-300 mb-2 block">
-              Handle
-            </label>
+            <label className="text-sm text-gray-300 mb-2 block">Handle</label>
 
             <div
               className="
@@ -193,16 +180,12 @@ export default function CreateChannelDialog({
                 overflow-hidden
               "
             >
-              <span className="px-4 text-gray-400 text-sm">
-                youtube.com/@
-              </span>
+              <span className="px-4 text-gray-400 text-sm">youtube.com/@</span>
 
               <input
                 type="text"
-                value={channelHandle}
-                onChange={(e) =>
-                  setChannelHandle(e.target.value)
-                }
+                value={channelUsername}
+                onChange={(e) => setChannelUsername(e.target.value)}
                 placeholder="johndoe"
                 className="
                   flex-1
@@ -216,9 +199,7 @@ export default function CreateChannelDialog({
             </div>
 
             {errors.handle && (
-              <p className="text-red-500 text-xs mt-2">
-                {errors.handle}
-              </p>
+              <p className="text-red-500 text-xs mt-2">{errors.handle}</p>
             )}
           </div>
 
@@ -231,9 +212,7 @@ export default function CreateChannelDialog({
             <textarea
               rows={5}
               value={channelDescription}
-              onChange={(e) =>
-                setChannelDescription(e.target.value)
-              }
+              onChange={(e) => setChannelDescription(e.target.value)}
               placeholder="Tell viewers about your channel..."
               className="
                 w-full
@@ -250,9 +229,7 @@ export default function CreateChannelDialog({
 
             <div className="flex justify-between mt-2">
               {errors.description ? (
-                <p className="text-red-500 text-xs">
-                  {errors.description}
-                </p>
+                <p className="text-red-500 text-xs">{errors.description}</p>
               ) : (
                 <div />
               )}
@@ -301,6 +278,6 @@ export default function CreateChannelDialog({
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }

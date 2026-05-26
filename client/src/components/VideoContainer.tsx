@@ -1,15 +1,15 @@
-import clsx from "clsx";
-import Card from "./Card";
+  import Card from "./Card";
 
 type props = {
   className?: string;
+  videos: Array<any>;
 };
 
-const VideoContainer = ({ className }: props) => {
+const VideoContainer = ({ className, videos }: props) => {
   return (
     <section className={className}>
-      {Array.from({ length: 10 }).map((_, index) => (
-        <Card key={index} />
+      {videos?.map((video, index) => (
+        <Card key={index} video={video} />
       ))}
     </section>
   );
