@@ -1,20 +1,19 @@
-
-
+import { fetchAllVideos } from "@/api/videoApi";
 import VideoContainer from "@/components/VideoContainer";
-
 
 import AppShell from "@/layout/AppShell";
 
-export default function Home() {
-
-
+export default async function Home() {
+  const videos = await fetchAllVideos();
+  // console.log(videos)
   return (
     <AppShell>
       <section className="p-6">
         <VideoContainer
+          videos={videos}
           className="        
               grid 
-              grid-cols-[repeat(auto-fit,minmax(300px,1fr))] 
+              grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
               gap-5
               thin-scrollbar
               "

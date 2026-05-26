@@ -105,7 +105,8 @@ export default function Navbar() {
             className="flex items-center gap-2 relative"
             ref={profileRef}
           >
-            <button
+            <Link
+            href="/upload"
               className="
                 hidden
                 sm:flex
@@ -124,7 +125,7 @@ export default function Navbar() {
               <span className="text-white text-sm font-medium">
                 Create
               </span>
-            </button>
+            </Link>
 
             <button
               className="

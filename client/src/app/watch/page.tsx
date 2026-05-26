@@ -4,26 +4,48 @@ import Image from "next/image";
 import { BsSave } from "react-icons/bs";
 import { PiShareFat } from "react-icons/pi";
 import { SlDislike, SlLike } from "react-icons/sl";
-import { Metadata } from 'next';
- 
+import { Metadata } from "next";
+import {
+  fetchAllVideos,
+  fetchVideoByIdApi,
+  updateLikesApi,
+} from "@/api/videoApi";
+import Button from "@/components/Button";
+
 export const metadata: Metadata = {
-  title: 'Youtube | Watch',
-  description: 'Watch your favorite YouTube videos anytime, anywhere.',
+  title: "Youtube | Watch",
+  description: "Watch your favorite YouTube videos anytime, anywhere.",
 };
 
-const WatchPage = async () => {
+type WatchPageProps = {
+  searchParams: Promise<{
+    v: string;
+  }>;
+};
+
+const WatchPage = async ({ searchParams }: WatchPageProps) => {
+  const { v } = await searchParams;
+
+  const videos = await fetchAllVideos();
+
+  let currentVideo = null;
+
+  if (v) {
+    currentVideo = await fetchVideoByIdApi(v);
+    console.log(currentVideo);
+  }
+
   return (
     <main className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8 px-3 sm:px-5 lg:px-8 py-5 lg:py-8 max-w-[1800px] mx-auto">
       {/* LEFT SIDE */}
       <section className="min-w-0">
-        <VideoStreamingContainer />
+        <VideoStreamingContainer videoUrl={currentVideo?.videoURL || ""} />
 
         {/* VIDEO INFO */}
         <div className="mt-4">
           {/* TITLE */}
           <h1 className="text-lg sm:text-xl lg:text-2xl font-semibold leading-snug">
-            The Fundamentals of Node.js Course Trailer | Master the Core
-            Concepts
+            {currentVideo?.name || "Video Title"}
           </h1>
 
           {/* CHANNEL + ACTIONS */}
@@ -44,7 +66,7 @@ const WatchPage = async () => {
               {/* DETAILS */}
               <div>
                 <h2 className="font-medium text-sm sm:text-base">
-                  Anurag Singh Procodrr
+                  {currentVideo?.creatorId?.channelName || "Channel Name"}
                 </h2>
 
                 <p className="text-xs sm:text-sm text-zinc-400">
@@ -62,10 +84,15 @@ const WatchPage = async () => {
             <div className="flex flex-wrap items-center gap-3">
               {/* LIKE/DISLIKE */}
               <div className="flex items-center rounded-full bg-white/10 overflow-hidden">
-                <button className="flex items-center gap-2 px-4 py-2 hover:bg-white/10 transition border-r border-white/10">
+                <Button
+                id={currentVideo?._id}
+                >
                   <SlLike className="size-5" />
-                  <span className="font-medium text-sm">15K</span>
-                </button>
+                  <span className="font-medium text-sm">
+                    {" "}
+                    {currentVideo?.likes || 0}
+                  </span>
+                </Button>
 
                 <button className="px-4 py-2 hover:bg-white/10 transition">
                   <SlDislike className="size-5" />
@@ -89,8 +116,7 @@ const WatchPage = async () => {
           {/* DESCRIPTION */}
           <div className="mt-5 rounded-xl bg-white/5 p-4">
             <p className="text-sm leading-relaxed text-zinc-300">
-              Learn the fundamentals of Node.js and backend development in this
-              beginner-friendly course trailer.
+              {currentVideo?.description || "No description available"}
             </p>
           </div>
         </div>
@@ -99,6 +125,7 @@ const WatchPage = async () => {
       {/* RIGHT SIDE */}
       <aside className="xl:sticky xl:top-20 h-fit">
         <VideoContainer
+          videos={videos}
           className="
             grid
             grid-cols-1
