@@ -5,11 +5,9 @@ import { isValidObjectId } from "mongoose";
 import Video from "../model/video.model.js";
 import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
+import Playlist from "../model/playlist.model.js";
 
-const uploadVideoController = async (
-  req: Request,
-  res: Response
-) => {
+const uploadVideoController = async (req: Request, res: Response) => {
   try {
 
     const { title, description } = req.body;
@@ -125,12 +123,10 @@ const uploadVideoController = async (
   }
 };
 
-const updateLikes = async (
-  req: Request,
-  res: Response
-) => {
+const updateLikes = async (req: Request, res: Response) => {
   try {
     const { vid: videoId } = req.params;
+      const userId = req?.user?._id
 
     if (!isValidObjectId(videoId)) {
       return res.status(400).json({
@@ -139,6 +135,14 @@ const updateLikes = async (
       });
     }
 
+    const existingPlaylist = await Playlist.findOne({
+      videoId,
+      userId,
+      type: "like"
+    })
+    
+    if(existingPlaylist) return res.status(400).json({error: "You already like the video"})
+    
     const video = await Video.findById(
       videoId
     );
@@ -155,6 +159,13 @@ const updateLikes = async (
     video.likes += 1;
 
     await video.save();
+    
+    
+    await Playlist.create({
+      videoId,
+      userId,
+      type: "like"
+    })
 
     return res.status(200).json({
       success: true,
@@ -178,7 +189,7 @@ const updateLikes = async (
 
 const getAllVideos = async (req: Request, res: Response) => {
   try {
-    const videos = await Video.find().populate("creatorId", "channelName channelUsername").limit(10).select("-_v -updatedAt").lean()
+    const videos = await Video.find().populate("creatorId", "channelName channelUsername profilePicture").limit(10).select("-_v -updatedAt").lean()
     if (!videos) return res.status(404).json({
       error: "no Video Found"
     })
@@ -200,7 +211,7 @@ const getVideoById = async (req: Request, res: Response) => {
 
     if (!isValidObjectId(vid)) return res.status(400).json({ error: "Not valid Video Id" })
 
-    const video = await Video.findById(vid).populate("creatorId", "channelName channelUsername channelDescription").lean()
+    const video = await Video.findById(vid).populate("creatorId", "channelName channelUsername channelDescription profilePicture").lean()
 
     if (!video) {
       return res.status(404).json({
@@ -219,10 +230,58 @@ const getVideoById = async (req: Request, res: Response) => {
     });
   }
 }
+const searchController = async (req: Request, res: Response) => {
+  try {
+
+    const { q } = req.query;
+
+    // validation
+    if (!q || typeof q !== "string") {
+      return res.status(400).json({
+        success: false,
+        message: "Search query is required",
+      });
+    }
+
+    const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    // regex search
+    const results = await Video.find({
+      $or: [
+        {
+          name: {
+            $regex: escapedQuery,
+            $options: "i", // case insensitive
+          },
+        },
+        {
+          description: {
+            $regex: escapedQuery,
+            $options: "i",
+          },
+        },
+      ],
+    }).populate("creatorId", "channelName channelUsername profilePicture").limit(10).lean();
+
+    return res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
 
 export {
   uploadVideoController,
   updateLikes,
   getAllVideos,
-  getVideoById
+  getVideoById,
+  searchController
 };

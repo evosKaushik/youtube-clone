@@ -31,10 +31,14 @@ const userLogin = async (req: Request, res: Response,) => {
       });
     }
 
+    const username = email.split("@")[0]
+
+
     // Create new user
     user = await User.create({
       name,
       email,
+      username,
       profilePicture,
     });
 

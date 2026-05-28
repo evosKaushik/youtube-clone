@@ -8,9 +8,7 @@ const fetchAllVideos = async () => {
         console.error(error)
     }
 }
-
 const fetchVideoByIdApi = async (payload: string) => {
-
     try {
         const { data } = await axiosInstance.get(`/video/${payload}`)
         return data
@@ -19,7 +17,7 @@ const fetchVideoByIdApi = async (payload: string) => {
     }
 }
 const updateLikesApi = async (payload: string) => {
-   
+
     try {
         const { data } = await axiosInstance.put(`/video/like/${payload}`)
         return data
@@ -27,5 +25,12 @@ const updateLikesApi = async (payload: string) => {
         console.error(error)
     }
 }
-
-export { fetchAllVideos , fetchVideoByIdApi, updateLikesApi}
+const getVideosBySearchApi = async (payload: string) => {
+    try {
+        const { data } = await axiosInstance.get(`/video/search?q=${payload}`)
+        return data
+    } catch (error) {
+        console.error(error)
+    }
+}
+export { fetchAllVideos, fetchVideoByIdApi, updateLikesApi, getVideosBySearchApi }

@@ -24,6 +24,7 @@ type UserType = {
   name: string;
   email: string;
   profilePicture?: string;
+  username: string
 };
 
 type UserContextType = {

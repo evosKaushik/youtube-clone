@@ -1,15 +1,27 @@
-  import Card from "./Card";
+import VideoCard, { Video } from "./VideoCard";
 
-type props = {
+type Props = {
   className?: string;
-  videos: Array<any>;
+  cardClassName?: string;
+  videos: Video[];
+  variant?: "grid" | "playlist";
 };
 
-const VideoContainer = ({ className, videos }: props) => {
+const VideoContainer = ({
+  className,
+  cardClassName,
+  videos,
+  variant = "grid",
+}: Props) => {
   return (
     <section className={className}>
-      {videos?.map((video, index) => (
-        <Card key={index} video={video} />
+      {videos?.map((video) => (
+        <VideoCard
+          key={video._id}
+          video={video}
+          variant={variant}
+          className={cardClassName}
+        />
       ))}
     </section>
   );

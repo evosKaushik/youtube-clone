@@ -4,7 +4,8 @@ import {
   updateLikes,
   uploadVideoController,
   getAllVideos,
-  getVideoById
+  getVideoById,
+  searchController
 } from "../controllers/video.controller.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -34,8 +35,9 @@ router.post(
   uploadVideoController
 );
 
-router.put("/like/:vid", updateLikes);
+router.put("/like/:vid",authMiddleware, updateLikes);
 router.get("/", getAllVideos);
+router.get("/search", searchController);
 router.get("/:vid", getVideoById);
 
 export default router;
