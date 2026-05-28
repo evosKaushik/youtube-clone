@@ -1,9 +1,16 @@
-const VideoStreamingContainer = () => {
+type Props = {
+  videoUrl: string;
+};
+
+const VideoStreamingContainer = ({ videoUrl }: Props) => {
   return (
-    <div className="relative w-full aspect-video overflow-hidden rounded-2xl bg-zinc-800">
-      <div className="absolute inset-0 flex items-center justify-center text-zinc-400">
-        Video Player
-      </div>
+    <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black">
+      <video
+        src={videoUrl}
+        controls
+        autoPlay={false}
+        className="w-full h-full"
+      />
     </div>
   );
 };

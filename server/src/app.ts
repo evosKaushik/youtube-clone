@@ -2,6 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import userRoutes from "./routes/user.route.js";
+import videoRoutes from "./routes/video.route.js";
+import commentRoutes from "./routes/comment.route.js";
+import playlistRoutes from "./routes/playlist.route.js";
 
 dotenv.config();
 import cors from "cors";
@@ -17,6 +20,9 @@ app.use(cors({
 }));
 
 app.use("/api/users", userRoutes);
+app.use("/api/video", videoRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/playlist", playlistRoutes);
 
 app.get("/api/hello", (req: express.Request, res: express.Response) => {
   res.json({

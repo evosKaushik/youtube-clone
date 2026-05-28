@@ -15,6 +15,13 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
 
     profilePicture: {
       type: String,
@@ -24,11 +31,17 @@ const userSchema = new mongoose.Schema(
 
     channelName: {
       type: String,
-      unique: true,
-      sparse: true,
-      default: null,
-      trim: true,
+      default: null
     },
+    channelUsername: {
+      type: String,
+      unique: true,
+      default: null,
+    },
+    channelDescription: {
+      type: String,
+      default: null
+    }
   },
   {
     timestamps: true,

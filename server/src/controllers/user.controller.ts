@@ -1,10 +1,7 @@
-import express from "express";
+import { Request, Response } from "express";
 import User from "../model/user.model.js";
 
-const userLogin = async (
-  req: express.Request,
-  res: express.Response,
-) => {
+const userLogin = async (req: Request, res: Response,) => {
   try {
     const {
       name,
@@ -34,10 +31,14 @@ const userLogin = async (
       });
     }
 
+    const username = email.split("@")[0]
+
+
     // Create new user
     user = await User.create({
       name,
       email,
+      username,
       profilePicture,
     });
 
@@ -59,4 +60,40 @@ const userLogin = async (
   }
 };
 
-export { userLogin };
+const createChannel = async (req: Request, res: Response) => {
+  const { channelName, channelDescription, channelUsername } = req.body
+
+  if (!channelName || !channelDescription || !channelUsername) {
+    return res.status(400).json({ error: "All fields are required" })
+  }
+  try {
+
+    const existingChannelName = await User.findOne({ channelUsername }).lean()
+
+    if (existingChannelName) {
+      return res.status(400).json({
+        error: "Channel name already taken",
+        success: false
+      })
+    }
+
+    const userId = req.user._id
+    const user = await User.findByIdAndUpdate(userId, { channelName, channelDescription, channelUsername }, { returnDocument: true }).lean()
+
+    res.status(201).json({
+      success: true,
+      user,
+    })
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      error:
+        "Internal Server Error",
+    });
+  }
+}
+
+export { userLogin, createChannel };

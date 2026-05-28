@@ -33,22 +33,6 @@ export default function ProfileDropdown({ open, onCreateChannel }: Props) {
         overflow-hidden
       "
     >
-      <div className="flex gap-3 p-4 border-b border-[#303030]">
-        <Image
-          src="https://i.pravatar.cc/100"
-          alt="profile"
-          width={50}
-          height={50}
-          className="rounded-full"
-        />
-
-        <div>
-          <h3 className="text-white text-sm font-semibold">John Doe</h3>
-
-          <p className="text-gray-400 text-xs">@johndoe</p>
-        </div>
-      </div>
-
       <div className="py-2">
         <button
           onClick={onCreateChannel}
