@@ -1,7 +1,7 @@
 type Props = {
   className?: string;
   variant?: "grid" | "playlist";
-  quantity: number;
+  quantity?: number;
 };
 
 const CardSkeleton = ({ variant = "grid", quantity = 4 }: Props) => {

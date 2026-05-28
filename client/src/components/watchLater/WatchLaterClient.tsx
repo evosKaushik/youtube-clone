@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import { MdOutlineWatchLater } from "react-icons/md";
 import VideoContainer from "../VideoContainer";
 import CardSkeleton from "../CardSkeleton";
+import { Video } from "../VideoCard";
 
 type Playlist = {
   _id: string;
-  videoId: string;
+  videoId: Video;
   userId: string;
   type: "like" | "watchLater";
   createdAt: Date;
@@ -17,7 +18,7 @@ type Playlist = {
 };
 
 const WatchLaterClient = () => {
-  const [videos, setVideos] = useState([]);
+  const [videos, setVideos] = useState<Video[]>([]);
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchPlaylistVideo = async () => {

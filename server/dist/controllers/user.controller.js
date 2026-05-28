@@ -20,10 +20,12 @@ const userLogin = async (req, res) => {
                 user,
             });
         }
+        const username = email.split("@")[0];
         // Create new user
         user = await User.create({
             name,
             email,
+            username,
             profilePicture,
         });
         return res.status(201).json({
@@ -39,4 +41,32 @@ const userLogin = async (req, res) => {
         });
     }
 };
-export { userLogin };
+const createChannel = async (req, res) => {
+    const { channelName, channelDescription, channelUsername } = req.body;
+    if (!channelName || !channelDescription || !channelUsername) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+    try {
+        const existingChannelName = await User.findOne({ channelUsername }).lean();
+        if (existingChannelName) {
+            return res.status(400).json({
+                error: "Channel name already taken",
+                success: false
+            });
+        }
+        const userId = req.user._id;
+        const user = await User.findByIdAndUpdate(userId, { channelName, channelDescription, channelUsername }, { new: true }).lean();
+        res.status(201).json({
+            success: true,
+            user,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            error: "Internal Server Error",
+        });
+    }
+};
+export { userLogin, createChannel };

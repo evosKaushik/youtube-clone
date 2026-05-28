@@ -46,7 +46,7 @@ const getAllPlaylistVideo = async (req: Request, res: Response) => {
 
     const playlists = await Playlist.find({
       userId,
-      type,
+      type: type as "watchLater" | "like",
     }).populate("videoId", "-_id").limit(10);
 
     

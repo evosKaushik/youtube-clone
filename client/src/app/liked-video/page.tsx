@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from "react";
 
-import PlaylistVideoContainer from "@/components/PlaylistVideoContainer";
 import AppShell from "@/layout/AppShell";
 
 import { AiOutlineLike } from "react-icons/ai";
 
 import { getPlaylistApi } from "@/api/playlistApi";
 import VideoContainer from "@/components/VideoContainer";
+import { Video } from "@/components/VideoCard";
 
 type Playlist = {
   _id: string;
-  videoId: string;
+  videoId: Video;
   userId: string;
   type: "like" | "watchLater";
   createdAt: Date;
@@ -21,7 +21,7 @@ type Playlist = {
 };
 
 const LikedVideoPage = () => {
-  const [videos, setVideos] = useState<Playlist[]>([]);
+  const [videos, setVideos] = useState<Video[]>([]);
 
   useEffect(() => {
     const fetchLikedVideos = async () => {

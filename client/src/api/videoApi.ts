@@ -3,9 +3,10 @@ import axiosInstance from "./axiosInstance"
 const fetchAllVideos = async () => {
     try {
         const { data } = await axiosInstance.get("/video/")
-        return data
+        return data || []
     } catch (error) {
         console.error(error)
+        return []
     }
 }
 const fetchVideoByIdApi = async (payload: string) => {
@@ -14,6 +15,7 @@ const fetchVideoByIdApi = async (payload: string) => {
         return data
     } catch (error) {
         console.error(error)
+        return null
     }
 }
 const updateLikesApi = async (payload: string) => {
@@ -23,14 +25,16 @@ const updateLikesApi = async (payload: string) => {
         return data
     } catch (error) {
         console.error(error)
+        return null
     }
 }
 const getVideosBySearchApi = async (payload: string) => {
     try {
         const { data } = await axiosInstance.get(`/video/search?q=${payload}`)
-        return data
+        return data || { data: [] }
     } catch (error) {
         console.error(error)
+        return { data: [] }
     }
 }
 export { fetchAllVideos, fetchVideoByIdApi, updateLikesApi, getVideosBySearchApi }

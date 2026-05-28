@@ -3,6 +3,8 @@ import VideoContainer from "@/components/VideoContainer";
 
 import AppShell from "@/layout/AppShell";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const videos = await fetchAllVideos();
   // console.log(videos)

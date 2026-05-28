@@ -162,8 +162,8 @@ const updateLikes = async (req: Request, res: Response) => {
     
     
     await Playlist.create({
-      videoId,
-      userId,
+      videoId: videoId as any,
+      userId: userId as any,
       type: "like"
     })
 
