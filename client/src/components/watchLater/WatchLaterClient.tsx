@@ -19,7 +19,7 @@ type Playlist = {
 
 const WatchLaterClient = () => {
   const [videos, setVideos] = useState<Video[]>([]);
-  const [isLoading, setIsLoading] = useState(true)
+  
 
   const fetchPlaylistVideo = async () => {
     try {
@@ -27,8 +27,6 @@ const WatchLaterClient = () => {
       setVideos(videos.map((e: Playlist) => e?.videoId));
     } catch (error) {
       console.log(error);
-    }finally{
-        setIsLoading(false)
     }
   };
 
@@ -54,16 +52,13 @@ const WatchLaterClient = () => {
 
           <h1 className="text-4xl font-bold">Watch Later</h1>
         </div>
-    {
-        isLoading &&<CardSkeleton variant="playlist" />
-    }
         <VideoContainer
           variant="playlist"
           videos={videos}
           className="
               flex
               flex-col
-              gap-6
+              gap-4
             "
         />
         

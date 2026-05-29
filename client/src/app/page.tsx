@@ -1,4 +1,5 @@
 import { fetchAllVideos } from "@/api/videoApi";
+import CardSkeleton from "@/components/CardSkeleton";
 import VideoContainer from "@/components/VideoContainer";
 
 import AppShell from "@/layout/AppShell";

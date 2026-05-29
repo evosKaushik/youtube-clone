@@ -1,3 +1,4 @@
+import CardSkeleton from "./CardSkeleton";
 import VideoCard, { Video } from "./VideoCard";
 
 type Props = {
@@ -15,14 +16,18 @@ const VideoContainer = ({
 }: Props) => {
   return (
     <section className={className}>
-      {videos?.map((video) => (
-        <VideoCard
-          key={video._id}
-          video={video}
-          variant={variant}
-          className={cardClassName}
-        />
-      ))}
+      {videos.length ? (
+        videos?.map((video, i) => (
+          <VideoCard
+            key={video._id ?? i}
+            video={video}
+            variant={variant}
+            className={cardClassName}
+          />
+        ))
+      ) : (
+        <CardSkeleton quantity={3} variant={variant} />
+      )}
     </section>
   );
 };
