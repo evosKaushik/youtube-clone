@@ -30,7 +30,7 @@ const WatchPage = async ({
       await Promise.all([
         fetchAllVideos(),
         fetchVideoByIdApi(v),
-        getCommentsApi(v),
+        getCommentsApi(v, "Video"),
       ]);
 
     return (

@@ -1,24 +1,49 @@
-import mongoose, { Schema, Document } from "mongoose";
-
+import mongoose, { Schema } from "mongoose";
 
 const commentSchema = new Schema(
     {
-        videoId: {
+        targetId: {
             type: Schema.Types.ObjectId,
-            ref: "Video",
+            required: true,
+            refPath: "targetType",
+        },
+
+        targetType: {
+            type: String,
+            enum: ["Video", "User"],
             required: true,
         },
 
         userId: {
-          type: String,
-          ref: "User",
-          required: true,
-            
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
         },
 
         body: {
             type: String,
             required: true,
+            trim: true,
+            maxlength: 500,
+        },
+
+        likes: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+
+        dislikes: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+
+        isDeleted: {
+            type: Boolean,
+            default: false,
         },
     },
     {
@@ -26,7 +51,6 @@ const commentSchema = new Schema(
     }
 );
 
-export default mongoose.model(
-    "Comment",
-    commentSchema
-);
+
+const Comment = mongoose.model("Comment", commentSchema);
+export default Comment

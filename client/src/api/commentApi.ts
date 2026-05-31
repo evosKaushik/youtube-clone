@@ -1,25 +1,61 @@
 import axiosInstance from "./axiosInstance";
 
-
-const addCommentApi = async (data: {
-    videoId: string;
-    body: string;
+const addCommentApi = async (payload: {
+  targetId: string;
+  targetType: "Video" | "User";
+  body: string;
 }) => {
-    const response = await axiosInstance.post(
-        "/comments",
-        data
+  try {
+    const { data } = await axiosInstance.post(
+      "/comments",
+      payload
     );
 
-    return response.data;
+    return data;
+
+  } catch (error) {
+    console.log(error)
+  }
 };
 
-const getCommentsApi = async (
-  videoId: string
-) => {
-  const response = await axiosInstance.get(
-    `/comments/${videoId}`
-  );
+const getCommentsApi = async (targetId: string, targetType: "Video" | "User") => {
+  try {
+    const { data } = await axiosInstance.get(
+      `/comments/${targetId}`,
+      {
+        params: {
+          targetType,
+        },
+      }
+    );
 
-  return response.data;
+    return data;
+
+  } catch (error) {
+    console.log(error)
+  }
 };
-export { addCommentApi, getCommentsApi }
+
+const likeCommentApi = async (commentId: string) => {
+  try {
+    const { data } = await axiosInstance.post(`/comments/like/${commentId}`);
+    return data;
+  } catch (error) {
+    console.log(error)
+  }
+}
+const dislikeCommentApi = async (commentId: string) => {
+  try {
+    const { data } = await axiosInstance.post(`/comments/dislike/${commentId}`);
+    return data;
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export {
+  addCommentApi,
+  getCommentsApi,
+  likeCommentApi,
+  dislikeCommentApi
+};
