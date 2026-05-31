@@ -29,9 +29,7 @@ type Comment = {
 
 type Props = {
   initialVideo: Video | null;
-
   initialVideos: Video[];
-
   initialComments: Comment[];
 };
 
@@ -44,19 +42,12 @@ const WatchClient = ({
   initialComments,
 }: Props) => {
   const { user } = useUser();
-
   const [currentVideo, setCurrentVideo] = useState(initialVideo);
-
   const [videos] = useState(initialVideos);
-
   const [comments, setComments] = useState(initialComments);
-
   const [commentInput, setCommentInput] = useState("");
-
   const [likeLoading, setLikeLoading] = useState(false);
-
   const [commentLoading, setCommentLoading] = useState(false);
-
   const handleLike = async () => {
     if (!currentVideo?._id || likeLoading) return;
 
@@ -90,32 +81,27 @@ const WatchClient = ({
     try {
       setCommentLoading(true);
 
-      const tempComment: Comment = {
-        _id: crypto.randomUUID(),
-
+      const data: Comment | null = await addCommentApi({
+        targetId: currentVideo._id,
         body: commentInput,
-
-        createdAt: new Date().toISOString(),
-
+        targetType: "Video",
+      });
+      if (!data) return;
+      const updatedComment: Comment = {
+        _id: data?._id,
+        body: commentInput,
+        createdAt: data?.createdAt,
         userId: {
           _id: user?._id || "",
-
           name: user?.name || "Unknown",
-
           username: user?.username || "user",
-
           profilePicture: user?.profilePicture || DEFAULT_AVATAR,
         },
       };
 
-      setComments((prev) => [tempComment, ...prev]);
+      setComments((prev) => [updatedComment, ...prev]);
 
       setCommentInput("");
-
-      await addCommentApi({
-        videoId: currentVideo._id,
-        body: tempComment.body,
-      });
     } catch (error) {
       console.log(error);
     } finally {
