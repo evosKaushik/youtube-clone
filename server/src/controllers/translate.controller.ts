@@ -10,12 +10,12 @@ const translateToEnglishController = async (req: Request, res: Response) => {
 
         if(!text) return res.status(400).json({error: "Unable to translate"})
         
-        res.status(200).json({
-            translatedText: text
-        })
+        return res.status(200).json({
+            translatedText: text,
+        });
     } catch (error) {
-        console.log(error)
-        res.status(500).json(error)
+        console.error(error);
+        return res.status(500).json({ error: "Translation failed" });
     }
 }
 export { translateToEnglishController }

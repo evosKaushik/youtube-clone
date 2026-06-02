@@ -3,6 +3,8 @@
 import { dislikeCommentApi, likeCommentApi } from "@/api/commentApi";
 import { translateApi } from "@/api/translateApi";
 import { useUser } from "@/libs/AuthContext";
+import { formatTimeAgo } from "@/libs/utils";
+import { parseCommentText } from "@/libs/parseCommentText";
 
 import Image from "next/image";
 import { useCallback, useState } from "react";
@@ -36,6 +38,8 @@ const CommentCard = ({ comment }: Props) => {
 
   const [actionLoading, setActionLoading] = useState(false);
   const [translateLoading, setTranslateLoading] = useState(false);
+  const timeAgo = formatTimeAgo(comment?.createdAt);
+  const displayedText = showTranslated && translatedText ? translatedText : comment?.body;
 
   const handleLike = useCallback(async () => {
     if (!user || actionLoading) return;
@@ -181,14 +185,12 @@ const CommentCard = ({ comment }: Props) => {
             </span>
           )}
 
-          <span className="text-xs text-zinc-400">just now</span>
+          <span className="text-xs text-zinc-400">{timeAgo}</span>
         </div>
 
         {/* COMMENT */}
         <p className="text-sm text-zinc-300 mt-1 leading-relaxed break-words whitespace-pre-line">
-          {showTranslated && translatedText
-            ? translatedText
-            : comment?.body}
+          {parseCommentText(displayedText)}
         </p>
 
         {/* ACTIONS */}

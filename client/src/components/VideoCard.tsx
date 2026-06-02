@@ -1,25 +1,8 @@
-import { cn } from "@/libs/utils";
+import { cn, formatDuration, formatTimeAgo, formatViews } from "@/libs/utils";
+import { Video } from "@/types/entities";
 import Image from "next/image";
 import Link from "next/link";
 import { RiMoreLine } from "react-icons/ri";
-
-export type Creator = {
-  _id: string;
-  channelName: string;
-  profilePicture: string;
-  channelUsername: string
-};
-
-export type Video = {
-  _id: string;
-  name: string;
-  description: string;
-  thumbnailURL: string;
-  videoURL: string;
-  createdAt: string;
-  likes: number;
-  creatorId: Creator;
-};
 
 type Props = {
   className?: string;
@@ -28,40 +11,8 @@ type Props = {
 };
 
 const VideoCard = ({ className = "not-last-of-type:", video, variant = "grid" }: Props) => {
-  const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-    const intervals = [
-      { label: "year", seconds: 31536000 },
-      { label: "month", seconds: 2592000 },
-      { label: "day", seconds: 86400 },
-      { label: "hour", seconds: 3600 },
-      { label: "minute", seconds: 60 },
-      { label: "second", seconds: 1 },
-    ];
-
-    const rtf = new Intl.RelativeTimeFormat("en", {
-      numeric: "auto",
-    });
-
-    for (const interval of intervals) {
-      const count = Math.floor(seconds / interval.seconds);
-
-      if (count >= 1) {
-        return rtf.format(
-          -count,
-          interval.label as Intl.RelativeTimeFormatUnit,
-        );
-      }
-    }
-
-    return "just now";
-  };
-
   const timeAgo = formatTimeAgo(video.createdAt);
+  const duration = formatDuration(video.duration);
 
   // PLAYLIST VARIANT
   if (variant === "playlist") {
@@ -77,9 +28,11 @@ const VideoCard = ({ className = "not-last-of-type:", video, variant = "grid" }:
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
 
-            <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-xs font-medium text-white">
-              22:15
-            </span>
+            {duration && (
+              <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-xs font-medium text-white">
+                {duration}
+              </span>
+            )}
           </div>
 
           {/* Content */}
@@ -90,7 +43,7 @@ const VideoCard = ({ className = "not-last-of-type:", video, variant = "grid" }:
               </h3>
 
               <p className="mt-2 text-sm text-zinc-400">
-                {video.creatorId.channelName} • 29K views • {timeAgo}
+                {video.creatorId.channelName} • {formatViews(video.views)} • {timeAgo}
               </p>
 
               <p className="mt-3 line-clamp-2 text-sm text-zinc-400">
@@ -119,7 +72,12 @@ const VideoCard = ({ className = "not-last-of-type:", video, variant = "grid" }:
             width={500}
             height={300}
             className="aspect-video h-full w-full object-cover"
-          />  
+          />
+          {duration && (
+            <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-xs font-medium text-white">
+              {duration}
+            </span>
+          )}
         </div>
 
         {/* Content */}
@@ -145,7 +103,7 @@ const VideoCard = ({ className = "not-last-of-type:", video, variant = "grid" }:
               {video.creatorId.channelName}
             </p>
 
-            <p className="text-sm text-zinc-400">29K views • {timeAgo}</p>
+            <p className="text-sm text-zinc-400">{formatViews(video.views)} • {timeAgo}</p>
           </div>
         </div>
       </Link>

@@ -1,25 +1,25 @@
 import axios from "axios";
 
-let userId = "";
-
-if (typeof window !== "undefined") {
-    const user = localStorage.getItem("user");
-
-    if (user) {
-        userId = JSON.parse(user)._id;
-    }
-}
-
 const axiosInstance = axios.create({
-    baseURL:
-        process.env.NEXT_PUBLIC_BACKEND_URL,
-
+    baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
     withCredentials: true,
-
     headers: {
         "Content-Type": "application/json",
-        userId,
     },
+});
+
+axiosInstance.interceptors.request.use((config) => {
+    if (typeof window !== "undefined") {
+        const user = localStorage.getItem("user");
+
+        if (user) {
+            config.headers["userId"] = JSON.parse(user)._id;
+        } else {
+            delete config.headers["userId"];
+        }
+    }
+
+    return config;
 });
 
 export default axiosInstance;

@@ -1,10 +1,8 @@
-import Image from "next/image";
-
 import AppShell from "@/layout/AppShell";
 import ChannelDetails from "@/components/channelPage/ChannelDetails";
 import CategoriesTabs from "@/components/channelPage/CategoriesTabs";
 import ChannelVideoUploader from "@/components/channelPage/ChannelVideoUploader";
-
+import type { Metadata } from "next";
 
 type Props = {
     params: Promise<{
@@ -12,6 +10,19 @@ type Props = {
     }>;
     children: React.ReactNode;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { username } = await params;
+    const normalized = decodeURIComponent(username).toLowerCase();
+    const cleanUsername = normalized.startsWith("@")
+        ? normalized.slice(1)
+        : normalized;
+
+    return {
+        title: `@${cleanUsername} | YouTube Clone`,
+        description: `Channel page for @${cleanUsername}`,
+    };
+}
 
 const Layout = async ({
     params,
@@ -46,21 +57,19 @@ const Layout = async ({
             w-full
             overflow-hidden
             rounded-2xl
-            bg-zinc-800
+            bg-gradient-to-r from-zinc-800 via-zinc-700 to-zinc-900
+            flex items-center px-6
           "
                 >
-                    <Image
-                        src="https://yt3.googleusercontent.com/-bmEdlnynX09WL0Dqbxm7zPF3UaIsCrRz_Vm8GoiabNhwFXnJxlvmF7-38Vd2wMfIBDhPZ-ddA=w1138-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj"
-                        alt="Banner"
-                        fill
-                        priority
-                        className="object-cover"
-                    />
+                    <p className="text-xl md:text-3xl font-semibold text-white/90">
+                        @{cleanUsername}
+                    </p>
                 </div>
 
                 {/* Channel Details */}
                 <ChannelDetails
                     username={cleanUsername}
+                    channelName={cleanUsername}
                 />
 
                 {/* Upload Box */}

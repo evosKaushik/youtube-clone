@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema(
     channelUsername: {
       type: String,
       unique: true,
+      sparse: true,
       default: null,
     },
     channelDescription: {

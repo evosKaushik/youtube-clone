@@ -23,15 +23,7 @@ import { IoPersonOutline } from "react-icons/io5";
 import { useSidebarStore } from "@/store/useSidebarStore";
 import { usePathname } from "next/navigation";
 
-const subscriptions = [
-  "CodeWithAJ Official",
-  "Sangam Mukherjee",
-  "Anurag Singh ProCodrr",
-  "Web Dev Simplified",
-  "Frontend Master",
-  "Sadhguru",
-  "Next Toppers",
-];
+const subscriptions: { name: string; avatar: string; href: string }[] = [];
 
 const youSection = [
   {
@@ -173,7 +165,7 @@ const Sidebar = () => {
               {subscriptions.map((channel, index) => (
                 <li key={index}>
                   <Link
-                    href="/"
+                    href={channel.href}
                     className="
                         flex items-center gap-4
                         rounded-xl px-3 py-2.5
@@ -181,14 +173,14 @@ const Sidebar = () => {
                       "
                   >
                     <Image
-                      src={`https://i.pravatar.cc/100?img=${index + 1}`}
-                      alt={channel}
+                      src={channel.avatar}
+                      alt={channel.name}
                       width={28}
                       height={28}
                       className="rounded-full"
                     />
 
-                    <span className="truncate text-[15px]">{channel}</span>
+                    <span className="truncate text-[15px]">{channel.name}</span>
 
                     <div
                       className="
@@ -200,19 +192,11 @@ const Sidebar = () => {
                 </li>
               ))}
 
-              <li>
-                <button
-                  className="
-                    flex items-center gap-4
-                    rounded-xl px-3 py-3
-                    transition hover:bg-zinc-800
-                  "
-                >
-                  <span className="text-xl">⌄</span>
-
-                  <span className="text-[15px]">Show more</span>
-                </button>
-              </li>
+              {subscriptions.length === 0 && (
+                <li className="px-3 py-2.5 text-sm text-zinc-400">
+                  No subscriptions yet
+                </li>
+              )}
             </ul>
           </div>
         )}
