@@ -34,7 +34,7 @@ const CardSkeleton = ({ variant = "grid", quantity = 4 }: Props) => {
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 "          
     >
       {Array.from({ length: variant === "grid" ? quantity * 3 :  quantity }).map((_, i) => (
-        <div className="w-full animate-pulse">
+        <div className="w-full animate-pulse" key={i}>
           {/* Thumbnail */}
           <div className="relative w-full overflow-hidden rounded-xl">
             <div className="aspect-video h-full w-full object-cover bg-zinc-800" />

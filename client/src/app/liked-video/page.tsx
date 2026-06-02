@@ -8,17 +8,7 @@ import { AiOutlineLike } from "react-icons/ai";
 
 import { getPlaylistApi } from "@/api/playlistApi";
 import VideoContainer from "@/components/VideoContainer";
-import { Video } from "@/components/VideoCard";
-
-type Playlist = {
-  _id: string;
-  videoId: Video;
-  userId: string;
-  type: "like" | "watchLater";
-  createdAt: Date;
-  updatedAt: Date;
-  __v: number;
-};
+import { PlaylistItem, Video } from "@/types/entities";
 
 const LikedVideoPage = () => {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -27,7 +17,7 @@ const LikedVideoPage = () => {
     const fetchLikedVideos = async () => {
       try {
         const { videos } = await getPlaylistApi("like");
-        setVideos(videos.map((e: Playlist) => e?.videoId));
+        setVideos(videos.map((e: PlaylistItem) => e?.videoId));
       } catch (error) {
         console.log(error);
       }

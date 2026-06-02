@@ -4,18 +4,7 @@ import { getPlaylistApi } from "@/api/playlistApi";
 import { useEffect, useState } from "react";
 import { MdOutlineWatchLater } from "react-icons/md";
 import VideoContainer from "../VideoContainer";
-import CardSkeleton from "../CardSkeleton";
-import { Video } from "../VideoCard";
-
-type Playlist = {
-  _id: string;
-  videoId: Video;
-  userId: string;
-  type: "like" | "watchLater";
-  createdAt: Date;
-  updatedAt: Date;
-  __v: number;
-};
+import { PlaylistItem, Video } from "@/types/entities";
 
 const WatchLaterClient = () => {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -24,7 +13,7 @@ const WatchLaterClient = () => {
   const fetchPlaylistVideo = async () => {
     try {
       const { videos } = await getPlaylistApi("watchLater");
-      setVideos(videos.map((e: Playlist) => e?.videoId));
+      setVideos(videos.map((e: PlaylistItem) => e?.videoId));
     } catch (error) {
       console.log(error);
     }

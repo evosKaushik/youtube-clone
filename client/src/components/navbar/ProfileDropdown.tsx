@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Link from "next/link";
 
 import { MdOutlineVideoCall } from "react-icons/md";
 import { BiHistory } from "react-icons/bi";
@@ -53,7 +53,8 @@ export default function ProfileDropdown({ open, onCreateChannel }: Props) {
           Create channel
         </button>
 
-        <button
+        <Link
+          href="/history"
           className="
             w-full
             flex
@@ -69,9 +70,10 @@ export default function ProfileDropdown({ open, onCreateChannel }: Props) {
         >
           <BiHistory className="text-lg" />
           History
-        </button>
+        </Link>
 
-        <button
+        <Link
+          href="/watch-later"
           className="
             w-full
             flex
@@ -87,7 +89,7 @@ export default function ProfileDropdown({ open, onCreateChannel }: Props) {
         >
           <AiOutlineClockCircle className="text-lg" />
           Watch later
-        </button>
+        </Link>
 
         <button
           className="
