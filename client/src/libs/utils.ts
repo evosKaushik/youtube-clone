@@ -48,3 +48,17 @@ export const formatDuration = (duration?: number) => {
   const secs = duration % 60;
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
+
+export const loadRazorPayScript = () => {
+  return new Promise((resolve) => {
+    const script =
+      document.createElement("script");
+
+    script.src =
+      "https://checkout.razorpay.com/v1/checkout.js";
+
+    script.onload = () => resolve(true);
+
+    document.body.appendChild(script);
+  });
+};

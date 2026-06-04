@@ -42,7 +42,20 @@ const userSchema = new mongoose.Schema(
     channelDescription: {
       type: String,
       default: null
-    }
+    },
+    subscription: {
+      plan: {// free | premium
+        type: String,
+        enum: ["free", "premium"],
+        default: "free"
+      },
+      status: {
+        type: String,
+        enum: ["active", "inActive"],
+        default: "active"
+      },
+      expiresAt: Date
+    },
   },
   {
     timestamps: true,

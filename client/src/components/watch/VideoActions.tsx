@@ -1,4 +1,5 @@
 import { BsSave } from "react-icons/bs";
+import { FaDownload } from "react-icons/fa";
 import { PiShareFat } from "react-icons/pi";
 import { SlDislike, SlLike } from "react-icons/sl";
 
@@ -8,16 +9,12 @@ type Props = {
   onLike: () => void;
 
   onSave: () => void;
+  onDownload: () => void;
 
   loading?: boolean;
 };
 
-const VideoActions = ({
-  likes,
-  onLike,
-  onSave,
-  loading,
-}: Props) => {
+const VideoActions = ({ likes, onLike, onDownload, onSave, loading }: Props) => {
   return (
     <div className="flex flex-wrap items-center gap-3">
       {/* LIKE */}
@@ -29,9 +26,7 @@ const VideoActions = ({
         >
           <SlLike className="size-5" />
 
-          <span className="font-medium text-sm">
-            {likes}
-          </span>
+          <span className="font-medium text-sm">{likes}</span>
         </button>
 
         <button className="px-4 py-2 hover:bg-white/10 transition">
@@ -43,11 +38,18 @@ const VideoActions = ({
       <button className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 hover:bg-white/20 transition">
         <PiShareFat className="size-5" />
 
-        <span className="font-medium text-sm">
-          Share
-        </span>
+        <span className="font-medium text-sm">Share</span>
       </button>
 
+      {/* Download */}
+      <button
+        onClick={onDownload}
+        className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 hover:bg-white/20 transition"
+      >
+        <FaDownload className="size-5" />
+
+        <span className="font-medium text-sm">Download</span>
+      </button>
       {/* SAVE */}
       <button
         onClick={onSave}
@@ -55,9 +57,7 @@ const VideoActions = ({
       >
         <BsSave className="size-5" />
 
-        <span className="font-medium text-sm">
-          Save
-        </span>
+        <span className="font-medium text-sm">Save</span>
       </button>
     </div>
   );

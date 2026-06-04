@@ -6,6 +6,9 @@ import Video from "../model/video.model.js";
 import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
 import Playlist from "../model/playlist.model.js";
+import { getDownloadUrl } from "../services/downloadVideos.js";
+import DownloadModel from "../model/download.model.js";
+import User from "../model/user.model.js";
 
 const cleanupUploadedFiles = (
   videoFile?: Express.Multer.File,
@@ -263,10 +266,99 @@ const searchController = async (req: Request, res: Response) => {
   }
 };
 
+const downloadVideoByVideoId = async (req: Request, res: Response) => {
+  const { videoId } = req.params;
+  const userId = req.user._id;
+
+  if (!isValidObjectId(videoId)) {
+    return res.status(400).json({
+      error: "Invalid video ID",
+    });
+  }
+
+  try {
+    const user = await User.findById(userId).lean();
+
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found",
+      });
+    }
+
+    const subscription = user.subscription;
+
+    
+    const isExpired =
+      subscription.expiresAt &&
+      new Date() > new Date(subscription.expiresAt);
+
+    
+    if (isExpired) {
+      await User.findByIdAndUpdate(userId, {
+        "subscription.plan": "free",
+        "subscription.status": "expired",
+      });
+    }
+
+    const isPremiumUser =
+      subscription.plan === "premium" &&
+      subscription.status === "active" &&
+      !isExpired;
+
+    
+    if (!isPremiumUser) {
+      const lastDownload = await DownloadModel.findOne({
+        userId,
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      if (lastDownload) {
+        const ONE_DAY = 24 * 60 * 60 * 1000;
+
+        const timeDiff =
+          Date.now() -
+          new Date(lastDownload.createdAt).getTime();
+
+        if (timeDiff < ONE_DAY) {
+          const remainingHours = Math.ceil(
+            (ONE_DAY - timeDiff) / (1000 * 60 * 60)
+          );
+
+          return res.status(400).json({
+            error: `Free plan allows 1 download per 24 hours. Try again in ${remainingHours} hour(s).`,
+          });
+        }
+      }
+    }
+
+    // get file
+    const downloadUrl = await getDownloadUrl(videoId);
+
+    // save download history
+    await DownloadModel.create({
+      userId,
+      videoId,
+    });
+
+    return res.status(200).json({
+      downloadUrl,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Internal Server Error",
+    });
+  }
+};
+
 export {
   uploadVideoController,
   updateLikes,
   getAllVideos,
   getVideoById,
   searchController,
+  downloadVideoByVideoId
 };

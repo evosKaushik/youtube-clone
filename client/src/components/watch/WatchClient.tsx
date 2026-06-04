@@ -5,7 +5,7 @@ import Image from "next/image";
 import VideoStreamingContainer from "@/components/VideoStreamingContainer";
 import VideoContainer from "@/components/VideoContainer";
 import { useUser } from "@/libs/AuthContext";
-import { updateLikesApi } from "@/api/videoApi";
+import { downloadVideoById, updateLikesApi } from "@/api/videoApi";
 import { addCommentApi } from "@/api/commentApi";
 import { addPlaylistApi } from "@/api/playlistApi";
 import { formatViews } from "@/libs/utils";
@@ -35,6 +35,7 @@ const WatchClient = ({
   const [commentInput, setCommentInput] = useState("");
   const [likeLoading, setLikeLoading] = useState(false);
   const [commentLoading, setCommentLoading] = useState(false);
+
   const handleLike = async () => {
     if (!currentVideo?._id || likeLoading) return;
 
@@ -162,6 +163,11 @@ const WatchClient = ({
                 } catch (error) {
                   console.log(error);
                 }
+              }}
+              onDownload={async ()=>{
+                if (!currentVideo?._id) return;
+                await downloadVideoById(currentVideo?._id)
+                
               }}
             />
           </div>
