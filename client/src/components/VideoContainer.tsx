@@ -1,10 +1,12 @@
 import CardSkeleton from "./CardSkeleton";
-import VideoCard, { Video } from "./VideoCard";
+import VideoCard from "./VideoCard";
+import EmptyVideoState from "./watch/EmptyVideoState";
+import { Video } from "@/types/entities";
 
 type Props = {
   className?: string;
   cardClassName?: string;
-  videos: Video[];
+  videos: Video[] | null;
   variant?: "grid" | "playlist";
 };
 
@@ -14,9 +16,13 @@ const VideoContainer = ({
   videos,
   variant = "grid",
 }: Props) => {
+  if (videos === null) {
+    return <CardSkeleton quantity={3} variant={variant} />;
+  }
+
   return (
     <section className={className}>
-      {videos.length ? (
+      {videos.length > 0 ? (
         videos?.map((video, i) => (
           <VideoCard
             key={video._id ?? i}
@@ -26,7 +32,7 @@ const VideoContainer = ({
           />
         ))
       ) : (
-        <CardSkeleton quantity={3} variant={variant} />
+        <EmptyVideoState />
       )}
     </section>
   );

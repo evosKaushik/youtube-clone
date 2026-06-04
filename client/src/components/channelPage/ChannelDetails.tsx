@@ -4,9 +4,23 @@ import { FaBell, FaChevronDown, FaUsers, FaYoutube } from "react-icons/fa"
 
 type props = {
     username: string
+    channelName?: string
+    profilePicture?: string
+    subscriberCount?: number
+    videoCount?: number
+    channelDescription?: string
 }
 
-const ChannelDetails = ({ username }: props) => {
+const ChannelDetails = ({
+    username,
+    channelName,
+    profilePicture,
+    subscriberCount,
+    videoCount,
+    channelDescription,
+}: props) => {
+    const displayChannelName = channelName || username;
+    const avatar = profilePicture || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayChannelName)}&background=18181b&color=fff`;
     return (
         <div
             className="
@@ -34,7 +48,7 @@ const ChannelDetails = ({ username }: props) => {
             "
             >
                 <Image
-                    src="https://yt3.googleusercontent.com/QQi62BHmnTzE4t3QuLXYAbhbOJXz3Xs0dqps_u_9S4BKutYQ0uL-r2gPxDbU3JFVnKpW69pcqA=s160-c-k-c0x00ffffff-no-rj"
+                    src={avatar}
                     alt="Profile"
                     fill
                     className="object-cover"
@@ -54,7 +68,7 @@ const ChannelDetails = ({ username }: props) => {
                   text-white
                 "
                     >
-                        Anurag Singh Procodrr
+                        {displayChannelName}
                     </h1>
 
                     <div
@@ -73,11 +87,11 @@ const ChannelDetails = ({ username }: props) => {
 
                         <span>•</span>
 
-                        <span>86.8K subscribers</span>
+                        <span>{subscriberCount ?? 0} subscribers</span>
 
                         <span>•</span>
 
-                        <span>89 videos</span>
+                        <span>{videoCount ?? 0} videos</span>
                     </div>
 
                     <p
@@ -88,8 +102,7 @@ const ChannelDetails = ({ username }: props) => {
                   leading-relaxed
                 "
                     >
-                        Software Engineer | Tech Content Creator | Sharing
-                        I help developers to become Procodrrs
+                        {channelDescription || "No channel description yet."}
                     </p>
 
                     {/* Links */}
@@ -103,17 +116,17 @@ const ChannelDetails = ({ username }: props) => {
                 "
                     >
                         <Link
-                            href="#"
+                            href={`/results?search_query=@${username}`}
                             className="
                     text-blue-500
                     hover:underline
                   "
                         >
-                            acedevhub.com
+                            @{username}
                         </Link>
 
                         <span className="text-zinc-500">
-                            and 3 more links
+                            channel links coming soon
                         </span>
                     </div>
                 </div>

@@ -123,7 +123,8 @@ const toggleLikeComment = async (req: Request, res: Response) => {
                     id?.toString() !==
                     userId?.toString()
             );
-            return res.status(400).json({
+            await comment.save();
+            return res.status(200).json({
                 isLike: true
             });
         } else {
