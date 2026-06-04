@@ -11,10 +11,10 @@ type Breakpoint =
 
 const breakpoints = {
   xs: "(max-width: 375px)",
-  sm: "(min-width: 640px)",
-  md: "(min-width: 768px)",
-  lg: "(min-width: 1024px)",
-  xl: "(min-width: 1280px)",
+  sm: "(max-width: 640px)",
+  md: "(max-width: 768px)",
+  lg: "(max-width: 1024px)",
+  xl: "(max-width: 1280px)",
 };
 
 const useMedia = (size: Breakpoint) => {
@@ -28,25 +28,18 @@ const useMedia = (size: Breakpoint) => {
     return window.matchMedia(query).matches;
   };
 
-  const [matches, setMatches] =
-    useState(getMatches);
+  const [matches, setMatches] = useState(getMatches);
 
   useEffect(() => {
-    const media =
-      window.matchMedia(query);
+    const media = window.matchMedia(query);
 
-    const listener = (
-      e: MediaQueryListEvent
-    ) => {
+    const listener = (e: MediaQueryListEvent) => {
       setMatches(e.matches);
     };
 
     setMatches(media.matches);
 
-    media.addEventListener(
-      "change",
-      listener
-    );
+    media.addEventListener("change", listener);
 
     return () => {
       media.removeEventListener(
