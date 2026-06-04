@@ -2,6 +2,7 @@ import { getVideosBySearchApi } from "@/api/videoApi";
 import VideoContainer from "@/components/VideoContainer";
 import AppShell from "@/layout/AppShell";
 import { Metadata } from "next";
+import { Suspense } from "react";
 
 type Props = {
   searchParams: Promise<{
@@ -13,14 +14,35 @@ export const metadata: Metadata = {
   title: "Youtube | Results",
   description: "Search results for your favorite YouTube videos.",
 };
+
+const ResultsVideos = async ({ searchQuery }: { searchQuery?: string }) => {
+  if (!searchQuery) {
+    return <VideoContainer videos={[]} className="grid grid-cols-1 sm:grid-cols-2 md:hidden gap-4" />;
+  }
+
+  const { data } = await getVideosBySearchApi(searchQuery);
+  const videos = data ?? [];
+
+  return (
+    <>
+      <div className="hidden md:flex">
+        <VideoContainer
+          variant="playlist"
+          videos={videos}
+          cardClassName="mt-4"
+          className="gap-2 w-full"
+        />
+      </div>
+      <VideoContainer
+        videos={videos}
+        className="grid grid-cols-1 sm:grid-cols-2 md:hidden gap-4"
+      />
+    </>
+  );
+};
+
 const ResultsPage = async ({ searchParams }: Props) => {
   const { search_query } = await searchParams;
-  let videos = null;
-
-  if (search_query) {
-    const { count, data, success } = await getVideosBySearchApi(search_query);
-    videos = data;
-  }
 
   return (
     <AppShell>
@@ -31,20 +53,9 @@ const ResultsPage = async ({ searchParams }: Props) => {
           Search Query:{" "}
           <span className="text-white font-medium">{search_query}</span>
         </p>
-
-        <div className="hidden md:flex">
-          <VideoContainer
-            variant="playlist"
-            videos={videos}
-            
-            cardClassName="mt-4"
-            className="gap-2 w-full"
-          />
-        </div>
-        <VideoContainer
-          videos={videos}
-          className="grid grid-cols-1 sm:grid-cols-2 md:hidden gap-4"
-        />
+        <Suspense fallback={<VideoContainer videos={null} />}>
+          <ResultsVideos searchQuery={search_query} />
+        </Suspense>
       </div>
     </AppShell>
   );

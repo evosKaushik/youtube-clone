@@ -1,14 +1,14 @@
 type Props = {
   className?: string;
   variant?: "grid" | "playlist";
-  quantity: number;
+  quantity?: number;
 };
 
 const CardSkeleton = ({ variant = "grid", quantity = 4 }: Props) => {
   // PLAYLIST VARIANT
   if (variant === "playlist") {
     return Array.from({ length: quantity }).map((_, i) => (
-      <div className="w-full animate-pulse my-4 "  key={i}>
+      <div className="w-full animate-pulse my-4 " key={i}>
         <div className="group flex gap-4">
           {/* Thumbnail */}
           <div className="relative h-[150px] min-w-[260px] overflow-hidden rounded-xl">
@@ -28,50 +28,34 @@ const CardSkeleton = ({ variant = "grid", quantity = 4 }: Props) => {
     ));
   }
 
-  //   // GRID VARIANT
-  //   return (
-  //     <article className={cn("w-full cursor-pointer", className)}>
-  //       <Link href={`/watch?v=${video._id}`}>
-  //         {/* Thumbnail */}
-  //         <div className="relative w-full overflow-hidden rounded-xl">
-  //           <Image
-  //             src={video.thumbnailURL}
-  //             alt={video.name}
-  //             width={500}
-  //             height={300}
-  //             className="aspect-video h-full w-full object-cover"
-  //           />
-  //         </div>
-
-  //         {/* Content */}
-  //         <div className="mt-3 flex gap-3">
-  //           {/* Avatar */}
-  //           <div className="shrink-0">
-  //             <Image
-  //               src={video?.creatorId?.profilePicture}
-  //               alt={video.creatorId.channelName}
-  //               width={40}
-  //               height={40}
-  //               className="rounded-full"
-  //             />
-  //           </div>
-
-  //           {/* Info */}
-  //           <div className="flex flex-col">
-  //             <h3 className="line-clamp-2 text-sm font-semibold text-white">
-  //               {video.name}
-  //             </h3>
-
-  //             <p className="mt-1 text-sm text-zinc-400">
-  //               {video.creatorId.channelName}
-  //             </p>
-
-  //             <p className="text-sm text-zinc-400">29K views • {timeAgo}</p>
-  //           </div>
-  //         </div>
-  //       </Link>
-  //     </article>
-  //   );
+  // GRID VARIANT
+  return (
+    <div
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 "          
+    >
+      {Array.from({ length: variant === "grid" ? quantity * 3 :  quantity }).map((_, i) => (
+        <div className="w-full animate-pulse" key={i}>
+          {/* Thumbnail */}
+          <div className="relative w-full overflow-hidden rounded-xl">
+            <div className="aspect-video h-full w-full object-cover bg-zinc-800" />
+          </div>
+          {/* Content */}
+          <div className="mt-3 flex gap-3">
+            {/* Avatar */}
+            <div className="shrink-0">
+              <div className="rounded-full bg-zinc-800 h-12 w-12" />
+            </div>
+            {/* Info */}
+            <div className="flex flex-col w-[80%]">
+              <div className="bg-zinc-800 w-full h-6 rounded-md" />
+              <div className="mt-3 bg-zinc-800 w-full h-5 rounded-md" />
+              <div className="mt-3 bg-zinc-800 w-full h-5 rounded-md" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default CardSkeleton;

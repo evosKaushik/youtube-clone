@@ -56,6 +56,8 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
     handle: "",
     description: "",
   });
+  const [submitError, setSubmitError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (!open) return null;
 
@@ -67,6 +69,7 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
     });
 
     setErrors(validationErrors);
+    setSubmitError("");
 
     const hasErrors = Object.values(validationErrors).some(
       (value) => value !== "",
@@ -80,12 +83,31 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
       channelDescription,
     };
 
-    console.log(payload);
-    const data = await createChannelApi(payload);
+    try {
+      setLoading(true);
 
-    console.log(data);
+      const data = await createChannelApi(payload);
 
-    data && onClose();
+      if (!data || data.success === false) {
+        const message = data?.error || "Failed to create channel";
+
+        if (message.toLowerCase().includes("taken")) {
+          setErrors((prev) => ({
+            ...prev,
+            handle: message,
+          }));
+        } else {
+          setSubmitError(message);
+        }
+        return;
+      }
+
+      onClose();
+    } catch {
+      setSubmitError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return createPortal(
@@ -133,6 +155,12 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
             ✕
           </button>
         </div>
+
+        {submitError && (
+          <p className="mb-4 rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400">
+            {submitError}
+          </p>
+        )}
 
         {/* FORM */}
         <div className="space-y-5">
@@ -261,6 +289,7 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
 
           <button
             onClick={handleSubmit}
+            disabled={loading}
             className="
               h-10
               px-5
@@ -271,9 +300,11 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
               text-sm
               font-medium
               transition
+              disabled:opacity-50
+              disabled:cursor-not-allowed
             "
           >
-            Create channel
+            {loading ? "Creating..." : "Create channel"}
           </button>
         </div>
       </div>

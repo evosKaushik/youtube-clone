@@ -103,3 +103,7 @@ body {
 .thin-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a1a1aa;
 }
+
+.video-player-wrapper {
+  --plyr-color-main: #ff0000;
+}

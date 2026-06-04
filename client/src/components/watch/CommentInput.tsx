@@ -4,9 +4,7 @@ const DEFAULT_AVATAR = "https://res.cloudinary.com/dvhqwwpdl/image/upload/v17775
 
 type Props = {
   profilePicture?: string;
-
   commentInput: string;
-
   setCommentInput: (value: string) => void;
 
   handleCommentBtn: () => void;

@@ -4,30 +4,18 @@ import { getPlaylistApi } from "@/api/playlistApi";
 import { useEffect, useState } from "react";
 import { MdOutlineWatchLater } from "react-icons/md";
 import VideoContainer from "../VideoContainer";
-import CardSkeleton from "../CardSkeleton";
-
-type Playlist = {
-  _id: string;
-  videoId: string;
-  userId: string;
-  type: "like" | "watchLater";
-  createdAt: Date;
-  updatedAt: Date;
-  __v: number;
-};
+import { PlaylistItem, Video } from "@/types/entities";
 
 const WatchLaterClient = () => {
-  const [videos, setVideos] = useState([]);
-  const [isLoading, setIsLoading] = useState(true)
+  const [videos, setVideos] = useState<Video[]>([]);
+  
 
   const fetchPlaylistVideo = async () => {
     try {
       const { videos } = await getPlaylistApi("watchLater");
-      setVideos(videos.map((e: Playlist) => e?.videoId));
+      setVideos(videos.map((e: PlaylistItem) => e?.videoId));
     } catch (error) {
       console.log(error);
-    }finally{
-        setIsLoading(false)
     }
   };
 
@@ -53,16 +41,13 @@ const WatchLaterClient = () => {
 
           <h1 className="text-4xl font-bold">Watch Later</h1>
         </div>
-    {
-        isLoading &&<CardSkeleton variant="playlist" />
-    }
         <VideoContainer
           variant="playlist"
           videos={videos}
           className="
               flex
               flex-col
-              gap-6
+              gap-4
             "
         />
         

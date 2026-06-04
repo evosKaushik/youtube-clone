@@ -4,34 +4,19 @@ import { useState } from "react";
 import Image from "next/image";
 import VideoStreamingContainer from "@/components/VideoStreamingContainer";
 import VideoContainer from "@/components/VideoContainer";
-import { Video } from "@/components/VideoCard";
 import { useUser } from "@/libs/AuthContext";
-import { updateLikesApi } from "@/api/videoApi";
+import { downloadVideoById, updateLikesApi } from "@/api/videoApi";
 import { addCommentApi } from "@/api/commentApi";
 import { addPlaylistApi } from "@/api/playlistApi";
+import { formatViews } from "@/libs/utils";
+import { Comment, Video } from "@/types/entities";
 import CommentInput from "./CommentInput";
 import CommentList from "./CommentList";
 import VideoActions from "./VideoActions";
 
-type UserId = {
-  _id: string;
-  name: string;
-  profilePicture: string;
-  username: string;
-};
-
-type Comment = {
-  _id?: string;
-  userId: UserId;
-  body: string;
-  createdAt?: string;
-};
-
 type Props = {
   initialVideo: Video | null;
-
   initialVideos: Video[];
-
   initialComments: Comment[];
 };
 
@@ -44,17 +29,11 @@ const WatchClient = ({
   initialComments,
 }: Props) => {
   const { user } = useUser();
-
   const [currentVideo, setCurrentVideo] = useState(initialVideo);
-
   const [videos] = useState(initialVideos);
-
   const [comments, setComments] = useState(initialComments);
-
   const [commentInput, setCommentInput] = useState("");
-
   const [likeLoading, setLikeLoading] = useState(false);
-
   const [commentLoading, setCommentLoading] = useState(false);
 
   const handleLike = async () => {
@@ -90,32 +69,27 @@ const WatchClient = ({
     try {
       setCommentLoading(true);
 
-      const tempComment: Comment = {
-        _id: crypto.randomUUID(),
-
+      const data: Comment | null = await addCommentApi({
+        targetId: currentVideo._id,
         body: commentInput,
-
-        createdAt: new Date().toISOString(),
-
+        targetType: "Video",
+      });
+      if (!data) return;
+      const updatedComment: Comment = {
+        _id: data?._id,
+        body: commentInput,
+        createdAt: data?.createdAt,
         userId: {
           _id: user?._id || "",
-
           name: user?.name || "Unknown",
-
           username: user?.username || "user",
-
           profilePicture: user?.profilePicture || DEFAULT_AVATAR,
         },
       };
 
-      setComments((prev) => [tempComment, ...prev]);
+      setComments((prev) => [updatedComment, ...prev]);
 
       setCommentInput("");
-
-      await addCommentApi({
-        videoId: currentVideo._id,
-        body: tempComment.body,
-      });
     } catch (error) {
       console.log(error);
     } finally {
@@ -160,7 +134,11 @@ const WatchClient = ({
                 </h2>
 
                 <p className="text-xs sm:text-sm text-zinc-400">
-                  114K subscribers
+                  {currentVideo?.creatorId?.subscriberCount
+                    ? `${Intl.NumberFormat("en", { notation: "compact" }).format(
+                        currentVideo.creatorId.subscriberCount,
+                      )} subscribers`
+                    : "No subscribers yet"}
                 </p>
               </div>
 
@@ -186,11 +164,19 @@ const WatchClient = ({
                   console.log(error);
                 }
               }}
+              onDownload={async ()=>{
+                if (!currentVideo?._id) return;
+                await downloadVideoById(currentVideo?._id)
+                
+              }}
             />
           </div>
 
           {/* DESCRIPTION */}
           <div className="mt-5 rounded-xl bg-white/5 p-4">
+            <p className="text-sm text-zinc-400 mb-2">
+              {formatViews(currentVideo?.views)} • {currentVideo?.likes ?? 0} likes
+            </p>
             <p className="text-sm leading-relaxed text-zinc-300 whitespace-pre-line">
               {currentVideo?.description || "No description available"}
             </p>

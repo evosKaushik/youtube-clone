@@ -78,7 +78,7 @@ const createChannel = async (req: Request, res: Response) => {
     }
 
     const userId = req.user._id
-    const user = await User.findByIdAndUpdate(userId, { channelName, channelDescription, channelUsername }, { returnDocument: true }).lean()
+    const user = await User.findByIdAndUpdate(userId, { channelName, channelDescription, channelUsername }, { new: true }).lean()
 
     res.status(201).json({
       success: true,
