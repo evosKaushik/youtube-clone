@@ -67,6 +67,7 @@ const Sidebar = () => {
   const isWatchPage = pathname === "/watch";
 
   const showText = isOpen || isOverlay;
+  
 
   return (
     <>

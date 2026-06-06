@@ -4,12 +4,31 @@ import Payment from "../model/payment.model.js";
 import crypto from "crypto";
 import dotenv from "dotenv";
 import User from "../model/user.model.js";
+import { SubscriptionPlan } from "../types/subscriptions.js";
+import { subscription } from "../constant/constant.js";
 dotenv.config();
 
 
 const createOrder = async (req: Request, res: Response) => {
+    const subscriptionPlan = req.query.plan as SubscriptionPlan;
+    const isYearlySubscriptionPlan = req?.query?.isYearly === "true";
+
+    const subscriptionDetail = subscription.find(
+        (sub) => sub.plan === subscriptionPlan
+    );
+
+    if (!subscriptionDetail) {
+        return res.status(404).json({
+            message: "Subscription plan not found",
+        });
+    }
+    const price = isYearlySubscriptionPlan
+        ? subscriptionDetail.yearlyPrice
+        : subscriptionDetail.monthlyPrice;
+
+
     const options = {
-        amount: 9900,
+        amount: price * 100,
         currency: "INR",
         receipt: `receipt_${Date.now()}`,
     };
@@ -19,8 +38,10 @@ const createOrder = async (req: Request, res: Response) => {
         await Payment.create({
             userId: req.user._id,
             razorpayOrderId: order.id,
-            amount: 99,
+            amount: price,
             status: "created",
+            plan: subscriptionPlan,
+            isYearly: isYearlySubscriptionPlan
         });
         res.status(200).json(order);
 
@@ -57,7 +78,7 @@ const verifyPayment = async (req: Request, res: Response) => {
 
         const payment = await Payment.findOne({
             razorpayOrderId: razorpay_order_id,
-        }).lean();
+        }).sort({ createdAt: -1 }).lean();
 
         if (!payment) {
             return res.status(404).json({
@@ -66,13 +87,18 @@ const verifyPayment = async (req: Request, res: Response) => {
             });
         }
 
-
         const expiry = new Date();
-        expiry.setMonth(expiry.getMonth() + 1);
+        expiry.setMonth(expiry.getMonth() + (payment.isYearly ? 12 : 1));
+
+            const subscriptionDetail = subscription.find(
+        (sub) => sub.plan === payment.plan
+    );
 
         await User.findByIdAndUpdate(req.user._id, {
-            "subscription.plan": "premium",
+            "subscription.plan": payment.plan,
             "subscription.status": "active",
+            "subscription.watchTimeInMinutes": subscriptionDetail?.watchTimeInMinutes,
+            "subscription.noOfDownloads": subscriptionDetail?.noOfDownloads,
             "subscription.expiresAt": expiry,
         });
 

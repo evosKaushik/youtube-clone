@@ -40,8 +40,12 @@ const paymentSchema = new mongoose.Schema(
 
     plan: {
       type: String,
-      enum: ["premium"],
-      default: "premium",
+      enum: ["Free", "Bronze", "Silver", "Gold"],
+      required: true
+    },
+    isYearly: {
+      type: Boolean,
+      required: true
     },
 
     status: {

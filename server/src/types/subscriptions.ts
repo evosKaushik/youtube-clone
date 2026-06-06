@@ -1,0 +1,1 @@
+export type SubscriptionPlan = "Free" | "Bronze" | "Silver" | "Gold";

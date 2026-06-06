@@ -1,10 +1,13 @@
 import toast from "react-hot-toast"
 import axiosInstance from "./axiosInstance"
 import axios from "axios"
+import { SubscriptionPlan } from "@/types/subscription"
 
-const createOrderApi = async () => {
+
+
+const createOrderApi = async (plan: SubscriptionPlan, isYearly: boolean) => {
     try {
-        const { data } = await axiosInstance.post(`/payments/create-order`)
+        const { data } = await axiosInstance.post(`/payments/create-order?plan=${plan}&isYearly=${isYearly}`)
         return data
     }
     catch (error) {
