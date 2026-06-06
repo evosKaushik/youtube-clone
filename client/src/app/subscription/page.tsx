@@ -9,77 +9,67 @@ import type {
   RazorpayPaymentResponse,
 } from "@/types/razorpay";
 import toast from "react-hot-toast";
-
 import { useRouter } from "next/navigation";
+import { subscription } from "@/constant/constant";
 
 export default function Page() {
   const [isYearly, setIsYearly] = useState(false);
   const router = useRouter();
 
-  const plans = [
-    {
-      id: "free",
-      name: "Free",
-      description: "Perfect for occasional downloads",
-      monthlyPrice: "₹0",
-      yearlyPrice: "₹0",
-      features: [
-        "1 Video Download Daily",
-        "Access All Videos",
-        "Standard Download Speed",
-      ],
+  const plans = subscription.map((s) => {
+    const isPopular = s.plan === "Silver";
+
+    const isFree = s.plan === "Free";
+
+    return {
+      id: s.plan.toLowerCase(),
+      name: s.plan,
+      description: s.description,
+
+      // keep raw numbers (important fix)
+      monthlyPrice: s.monthlyPrice,
+      yearlyPrice: s.yearlyPrice,
+
+      features: s.features,
+      popular: isPopular,
+
       button: {
-        text: "Current Plan",
-        url: "#",
+        text: isFree ? "Current Plan" : "Upgrade Now",
       },
-    },
-    {
-      id: "premium",
-      name: "Premium",
-      description: "Unlimited downloads for power users",
-      monthlyPrice: "₹99",
-      yearlyPrice: "₹999",
-      popular: true,
-      features: [
-        "Unlimited Downloads",
-        "No Daily Limits",
-        "Priority Download Queue",
-      ],
-      button: {
-        text: "Upgrade Now",
-        url: "/premium",
-      },
-      onClick: async () => {
-        
-        
-        const order = await createOrderApi();
 
-        await loadRazorPayScript();
+      onClick: isFree
+        ? undefined
+        : async () => {
+            try {
+              const order = await createOrderApi(s?.plan, isYearly);
 
-        const options: RazorpayOptions = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
-          amount: order.amount,
-          currency: order.currency,
-          order_id: order.id,
+              await loadRazorPayScript();
 
-          name: "Youtube Clone",
-          description: "Premium Subscription",
+              const options: RazorpayOptions = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
+                amount: order.amount,
+                currency: order.currency,
+                order_id: order.id,
+                name: "Youtube Clone",
+                description: `${s.plan} Subscription`,
 
-          handler: async (response: RazorpayPaymentResponse) => {
-            const data = await verifyPayment(response);
-            if(data?.success){
-              toast.success("Payment successful")
-              router.replace("/");
+                handler: async (response: RazorpayPaymentResponse) => {
+                  const data = await verifyPayment(response);
+                  if (data?.success) {
+                    toast.success("Payment successful");
+                    router.replace("/");
+                  }
+                },
+              };
+
+              const razorpay = new window.Razorpay(options);
+              razorpay.open();
+            } catch (err) {
+              toast.error("Payment failed");
             }
           },
-        };
-
-        const razorpay = new window.Razorpay(options);
-
-        razorpay.open();
-      },
-    },
-  ];
+    };
+  });
 
   return (
     <section className="min-h-[100dvh] flex items-center py-8">
@@ -90,23 +80,14 @@ export default function Page() {
           </h1>
 
           <p className="max-w-2xl text-muted-foreground text-base md:text-lg">
-            Start for free with one video download every day. Upgrade to Premium
-            for unlimited downloads, priority access, and a seamless experience.
+            Start free with limited downloads. Upgrade for full access.
           </p>
 
-          <div className="rounded-xl border bg-muted/40 px-4 py-3">
-            <p className="font-medium text-sm">
-              Free Plan → 1 Download Every 24 Hours
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Premium users enjoy unlimited downloads with no restrictions.
-            </p>
-          </div>
-
+          {/* Toggle */}
           <div className="flex items-center gap-3 text-sm md:text-base">
             <span>Monthly</span>
 
-            <label className="relative inline-flex cursor-pointer items-center bg-text/20 rounded-full">
+            <label className="relative inline-flex cursor-pointer items-center rounded-full">
               <input
                 type="checkbox"
                 checked={isYearly}
@@ -132,11 +113,12 @@ export default function Page() {
             )}
           </div>
 
+          {/* PLANS */}
           <div className="flex w-full flex-col items-center justify-center gap-6 md:flex-row">
             {plans.map((plan) => {
-              const currentPrice = isYearly
-                ? plan.yearlyPrice
-                : plan.monthlyPrice;
+              const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+
+              const priceLabel = isYearly ? "/year" : "/month";
 
               return (
                 <div
@@ -162,44 +144,39 @@ export default function Page() {
                     </p>
 
                     <div className="mt-5">
-                      <span className="text-5xl font-bold">{currentPrice}</span>
-
-                      {plan.id === "premium" && (
-                        <span className="ml-2 text-muted-foreground">
-                          {isYearly ? "/year" : "/month"}
-                        </span>
-                      )}
+                      <span className="text-5xl font-bold">₹{price}</span>
+                      <span className="ml-2 text-muted-foreground">
+                        {priceLabel}
+                      </span>
                     </div>
-
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {isYearly
-                        ? "Billed yearly and save more"
-                        : "Flexible monthly billing"}
-                    </p>
                   </div>
 
                   <hr className="my-6" />
 
+                  {/* FEATURES */}
                   <div className="flex-1">
                     <ul className="space-y-3">
                       {plan.features.map((feature, index) => (
                         <li key={index} className="flex items-center gap-3">
-                          <FaCheckCircle className="h-4 w-4 shrink-0 text-green-500" />
+                          <FaCheckCircle className="h-4 w-4 text-green-500" />
                           <span className="text-sm">{feature}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="mt-6 border border-text/50  rounded-xl cursor-pointer">
+                  {/* BUTTON */}
+                  <div className="mt-6">
                     <button
-                      className={`cursor-pointer flex w-full items-center justify-center rounded-lg px-4 py-3 font-medium transition-all
+                      disabled={!plan.onClick}
+                      onClick={plan.onClick}
+                      className={`flex w-full items-center justify-center rounded-lg px-4 py-3 font-medium transition-all cursor-pointer
                       ${
                         plan.popular
-                          ? "bg-primary text-primary-foreground hover:opacity-90"
+                          ? "bg-primary text-white hover:opacity-90"
                           : "bg-secondary hover:bg-secondary/80"
-                      }`}
-                      onClick={plan.onClick}
+                      }
+                      ${!plan.onClick ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       {plan.button.text}
                       <FaArrowRight className="ml-2 h-4 w-4" />
@@ -210,12 +187,9 @@ export default function Page() {
             })}
           </div>
 
-          <div className="mt-2 text-center">
-            <p className="text-sm text-muted-foreground">
-              Secure payments powered by Razorpay. Upgrade instantly and unlock
-              unlimited downloads.
-            </p>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            Secure payments powered by Razorpay
+          </p>
         </div>
       </div>
     </section>

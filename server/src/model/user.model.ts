@@ -44,17 +44,28 @@ const userSchema = new mongoose.Schema(
       default: null
     },
     subscription: {
-      plan: {// free | premium
+      plan: {
         type: String,
-        enum: ["free", "premium"],
-        default: "free"
+        enum: ["Free", "Bronze", "Silver", "Gold"],
+        default: "Free"
       },
       status: {
         type: String,
-        enum: ["active", "inActive"],
-        default: "active"
+        enum: ["active", "inActive", "expired"],
+        required: true
       },
-      expiresAt: Date
+      watchTimeInMinutes: {
+        type: Number,
+        default: 0
+      },
+      noOfDownloads: {
+        type: Number,
+        default: 0
+      },
+      expiresAt: {
+        type: Date,
+        default: null
+      }
     },
   },
   {

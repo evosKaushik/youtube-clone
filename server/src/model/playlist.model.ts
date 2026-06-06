@@ -17,14 +17,18 @@ const playlistSchema = new mongoose.Schema(
       enum: ["watchLater", "like"],
       required: true,
     },
+    watchTime: {
+      type: Number,
+      default: 0,
+    }
   },
   {
     timestamps: true,
   },
 );
 const Playlist = mongoose.model(
-    "Playlist",
-    playlistSchema,
+  "Playlist",
+  playlistSchema,
 );
 
 export default Playlist;

@@ -5,28 +5,31 @@ type SidebarStore = {
   isOverlay: boolean;
 
   toggleSidebar: () => void;
-
   openOverlay: () => void;
   closeOverlay: () => void;
+
+  setOpen: (v: boolean) => void;
 };
 
-export const useSidebarStore =
-  create<SidebarStore>((set) => ({
-    isOpen: true,
-    isOverlay: false,
+export const useSidebarStore = create<SidebarStore>((set) => ({
+  isOpen: true,
+  isOverlay: false,
 
-    toggleSidebar: () =>
-      set((state) => ({
-        isOpen: !state.isOpen,
-      })),
+  toggleSidebar: () =>
+    set((state) => ({
+      isOpen: !state.isOpen,
+    })),
 
-    openOverlay: () =>
-      set({
-        isOverlay: true,
-      }),
+  openOverlay: () =>
+    set({
+      isOverlay: true,
+      isOpen: false, 
+    }),
 
-    closeOverlay: () =>
-      set({
-        isOverlay: false,
-      }),
-  }));
+  closeOverlay: () =>
+    set({
+      isOverlay: false,
+    }),
+
+  setOpen: (v) => set({ isOpen: v }),
+}));
