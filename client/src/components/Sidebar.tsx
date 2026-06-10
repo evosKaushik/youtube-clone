@@ -89,8 +89,8 @@ const Sidebar = () => {
             fixed top-14 left-0 z-50
             h-[calc(100vh-56px)]
             overflow-y-auto
-            bg-black
-            text-white
+            bg-background
+            text-text
             transition-all duration-300
           `,
           {
@@ -103,14 +103,14 @@ const Sidebar = () => {
         )}
       >
         {/* Top Menu */}
-        <ul className="space-y-1 border-b border-zinc-800 pb-4">
+        <ul className="space-y-1 border-b border-border pb-4">
           <li>
             <Link
               href="/"
               className={clsx(
                 `
                   flex rounded-xl py-3
-                  transition hover:bg-zinc-800
+                  transition hover:bg-hover
                 `,
                 {
                   "items-center gap-6 px-3": showText,
@@ -134,7 +134,7 @@ const Sidebar = () => {
               className={clsx(
                 `
                   flex rounded-xl py-3
-                  transition hover:bg-zinc-800
+                  transition hover:bg-hover
                 `,
                 {
                   "items-center gap-6 px-3": showText,
@@ -155,7 +155,7 @@ const Sidebar = () => {
 
         {/* Subscriptions */}
         {showText && (
-          <div className="border-b border-zinc-800 py-4">
+          <div className="border-b border-border py-4">
             <div className="mb-3 flex items-center gap-1 px-3">
               <h2 className="text-lg font-semibold">Subscriptions</h2>
 
@@ -170,7 +170,7 @@ const Sidebar = () => {
                     className="
                         flex items-center gap-4
                         rounded-xl px-3 py-2.5
-                        transition hover:bg-zinc-800
+                        transition hover:bg-hover
                       "
                   >
                     <Image
@@ -194,7 +194,7 @@ const Sidebar = () => {
               ))}
 
               {subscriptions.length === 0 && (
-                <li className="px-3 py-2.5 text-sm text-zinc-400">
+                <li className="px-3 py-2.5 text-sm text-secondaryText">
                   No subscriptions yet
                 </li>
               )}
@@ -220,7 +220,7 @@ const Sidebar = () => {
                   className={clsx(
                     `
                       flex rounded-xl py-3
-                      transition hover:bg-zinc-800
+                      transition hover:bg-hover
                     `,
                     {
                       "items-center gap-6 px-3": showText,

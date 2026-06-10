@@ -48,7 +48,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 h-14 bg-[#0f0f0f] border-b border-[#272727]">
+      <header className="sticky top-0 z-50 h-14 bg-background border-b border-border">
         <div className="h-full flex items-center justify-between px-4">
           {/* LEFT */}
           <div className="flex items-center gap-4">
@@ -71,8 +71,8 @@ export default function Navbar() {
                   w-10
                   h-10
                   rounded-full
-                  bg-[#181818]
-                  hover:bg-[#2a2a2a]
+                  bg-card
+                  hover:bg-hover
                   hidden 
                   sm:flex
                   items-center
@@ -81,7 +81,7 @@ export default function Navbar() {
                   shrink-0
                 "
               >
-                <FaMicrophone className="text-white text-sm " />
+                <FaMicrophone className="text-text text-sm " />
               </button>
             </div>
           </div>
@@ -98,14 +98,14 @@ export default function Navbar() {
                 h-[36px]
                 px-4
                 rounded-full
-                bg-[#272727]
-                hover:bg-[#3a3a3a]
+                bg-card
+                hover:bg-hover
                 transition
               "
             >
-              <IoCreateOutline className="text-white text-xl" />
+              <IoCreateOutline className="text-text text-xl" />
 
-              <span className="text-white text-sm font-medium">Create</span>
+              <span className="text-text text-sm font-medium">Create</span>
             </Link>
 
             <button
@@ -113,14 +113,14 @@ export default function Navbar() {
                 w-10
                 h-10
                 rounded-full
-                hover:bg-[#272727]
+                hover:bg-hover
                 flex
                 items-center
                 justify-center
                 transition
               "
             >
-              <FaBell className="text-white text-lg" />
+              <FaBell className="text-text text-lg" />
             </button>
 
             <div className="hidden sm:block">
@@ -130,7 +130,7 @@ export default function Navbar() {
                     w-20
                     h-9
                     rounded-full
-                    bg-[#272727]
+                    bg-card
                     animate-pulse
                   "
                 />
@@ -166,9 +166,9 @@ export default function Navbar() {
                     h-9
                     rounded-full
                     border
-                    border-[#3f3f3f]
+                    border-border
                     text-blue-500
-                    hover:bg-[#263850]
+                    hover:bg-hover
                     transition
                     text-sm
                     font-medium

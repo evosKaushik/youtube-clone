@@ -17,7 +17,7 @@ const fetchVideoByIdApi = async (payload: string) => {
         return data
     } catch (error) {
         console.error(error)
-        return null
+        throw error
     }
 }
 const updateLikesApi = async (payload: string) => {
@@ -53,5 +53,55 @@ const downloadVideoById = async (videoId: string) => {
         }
     }
 }
+const sendWatchHeartbeatApi = async (videoId: string) => {
+    try {
+        const { data } = await axiosInstance.post(`/video/heartbeat`, {
+            videoId,
+        });
 
-export { fetchAllVideos, fetchVideoByIdApi, updateLikesApi, getVideosBySearchApi, downloadVideoById }
+        return data;
+    } catch (error) {
+        // console.error(error);
+        if (axios.isAxiosError(error)) {
+            console.error(error.status);
+            toast.error(error.response?.data?.error || "Something went wrong")
+
+        }
+        return null;
+    }
+};
+
+const stopWatchApi = async (videoId: string) => {
+    try {
+        const { data } = await axiosInstance.post(`/video/stop`, {
+            videoId,
+        });
+
+        return data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            console.error(error.status);
+            toast.error(error.response?.data?.error || "Something went wrong")
+
+        }
+        return null;
+    }
+};
+
+const getHistoryVideos = async () => {
+    try {
+        console.log("Calling API...");
+        const { data } = await axiosInstance.get("/video/history");
+        console.log("Calling API DONE...");
+
+        return data;
+    } catch (error) {
+        // if (axios.isAxiosError(error)) {
+        //     console.error(error?.status);
+        //     toast.error(error?.response?.data?.error || "Something went wrong")
+
+        // }
+        return null;
+    }
+}
+export { fetchAllVideos, fetchVideoByIdApi, updateLikesApi, getVideosBySearchApi, downloadVideoById, sendWatchHeartbeatApi, stopWatchApi, getHistoryVideos }

@@ -27,7 +27,7 @@ export async function generateMetadata({
     };
   }
 
-  const video = await fetchVideoByIdApi(v);
+  const video = await fetchVideoByIdApi(v).catch(() => null);
 
   if (!video) {
     return {
@@ -55,7 +55,7 @@ const WatchContent = async ({ videoId }: { videoId?: string }) => {
     const [videos, currentVideo, comments] =
       await Promise.all([
         fetchAllVideos(),
-        fetchVideoByIdApi(videoId),
+        fetchVideoByIdApi(videoId).catch(() => null),
         getCommentsApi(videoId, "Video"),
       ]);
 

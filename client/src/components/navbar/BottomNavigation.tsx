@@ -45,7 +45,7 @@ const BottomNavigation = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-background/80 backdrop-blur-md border-t border-text/10 shadow-xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-background/80 backdrop-blur-md border-t border-border shadow-xl">
       <ul className="flex items-center justify-between h-full px-3 relative">
         {navList.map((navItem, index) => {
           const isActive =
@@ -63,8 +63,8 @@ const BottomNavigation = () => {
                 <div
                   className={`transition-all duration-200 ease-out transform ${
                     isActive
-                      ? "text-white scale-110 -translate-y-0.5"
-                      : "text-gray-400 group-hover:text-white group-hover:scale-105"
+                      ? "text-text scale-110 -translate-y-0.5"
+                      : "text-secondaryText group-hover:text-text group-hover:scale-105"
                   }`}
                 >
                   {navItem.icon}
@@ -74,7 +74,7 @@ const BottomNavigation = () => {
                 {navItem.title && (
                   <span
                     className={`text-[11px] mt-1 transition-all duration-200 ${
-                      isActive ? "text-white" : "text-gray-400"
+                      isActive ? "text-text" : "text-secondaryText"
                     }`}
                   >
                     {navItem.title}
@@ -83,7 +83,7 @@ const BottomNavigation = () => {
 
                 {/* ACTIVE INDICATOR */}
                 {isActive && (
-                  <span className="absolute -bottom-1.5 w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                  <span className="absolute -bottom-1.5 w-1.5 h-1.5 bg-text rounded-full animate-pulse" />
                 )}
               </Link>
             </li>

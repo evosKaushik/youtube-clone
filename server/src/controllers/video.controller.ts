@@ -9,6 +9,8 @@ import Playlist from "../model/playlist.model.js";
 import { getDownloadUrl } from "../services/downloadVideos.js";
 import DownloadModel from "../model/download.model.js";
 import User from "../model/user.model.js";
+import { finalizeWatch, updateHeartbeat } from "../services/heartBeat.js";
+import VideoHistory from "../model/videoHistory.model.js";
 
 const cleanupUploadedFiles = (
   videoFile?: Express.Multer.File,
@@ -275,7 +277,7 @@ const downloadVideoByVideoId = async (req: Request, res: Response) => {
   }
 
   try {
-   
+
     const user = await User.findById(userId)
       .select("subscription")
       .lean();
@@ -286,7 +288,7 @@ const downloadVideoByVideoId = async (req: Request, res: Response) => {
 
     let subscription = user.subscription;
 
-   
+
     const isExpired =
       subscription?.expiresAt &&
       Date.now() > new Date(subscription.expiresAt).getTime();
@@ -297,8 +299,9 @@ const downloadVideoByVideoId = async (req: Request, res: Response) => {
         {
           "subscription.plan": "Free",
           "subscription.status": "expired",
-          "subscription.watchTimeInMinutes": 0,
+          "subscription.watchTimeInMinutes": 5,
           "subscription.noOfDownloads": 0,
+          "subscription.expiresAt": null,
         }
       );
 
@@ -306,14 +309,15 @@ const downloadVideoByVideoId = async (req: Request, res: Response) => {
         ...subscription,
         plan: "Free",
         status: "expired",
-        watchTimeInMinutes: 0,
+        watchTimeInMinutes: 5,
         noOfDownloads: 0,
+        expiresAt: null,
       };
     }
 
     const downloadLimit = subscription?.noOfDownloads ?? 1;
 
-    
+
     const ONE_DAY_AGO = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     const downloadsInLast24h = await DownloadModel.countDocuments({
@@ -341,10 +345,10 @@ const downloadVideoByVideoId = async (req: Request, res: Response) => {
       });
     }
 
-    
+
     const downloadUrl = await getDownloadUrl(videoId);
 
-  
+
     await DownloadModel.create({
       userId,
       videoId,
@@ -359,11 +363,75 @@ const downloadVideoByVideoId = async (req: Request, res: Response) => {
   }
 };
 
+const heartbeatController = async (req: Request, res: Response) => {
+
+  const userId = req.user._id;
+  const { videoId } = req.body;
+
+  try {
+    await updateHeartbeat(userId, videoId);
+
+    return res.json({ success: true });
+  } catch (error: any) {
+    console.log(error);
+    const status = error?.message === "Your watch limit is completed" ? 403 : 500;
+    res.status(status).json({ error: error?.message || "Internal Server Error" });
+  }
+
+};
+
+const stopWatchController = async (req: Request, res: Response) => {
+  const userId = req.user._id;
+  const { videoId } = req.body;
+
+  try {
+    await finalizeWatch(userId, videoId);
+
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: error?.message || "Internal Server Error" })
+  }
+};
+
+const getAllHistory = async (req: Request, res: Response) => {
+  const userId = req.user?._id;
+    if (!isValidObjectId(userId)) {
+      return res.status(400).json({ error: "Not valid Video Id" });
+    }
+  try {
+    const historyVideos = await VideoHistory.find({ userId }).populate("videoId", "_id name thumbnailURL creatorId views").select("_id videoId  totalWatchedSeconds createdAt").lean();
+    // const creator = await User.find(historyVideos?.videoId?._id).lean()
+    // console.log(creator)
+
+    if (historyVideos.length === 0) {
+      return res.status(404).json({
+        error: "History videos not found",
+      });
+    }
+
+    return res.status(200).json(historyVideos);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Internal Server Error",
+    });
+  }
+};
+
 export {
   uploadVideoController,
   updateLikes,
   getAllVideos,
   getVideoById,
   searchController,
-  downloadVideoByVideoId
+  downloadVideoByVideoId,
+  heartbeatController,
+  stopWatchController,
+  getAllHistory
 };

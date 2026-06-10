@@ -52,11 +52,11 @@ const userSchema = new mongoose.Schema(
       status: {
         type: String,
         enum: ["active", "inActive", "expired"],
-        required: true
+        default: "active"
       },
       watchTimeInMinutes: {
         type: Number,
-        default: 0
+        default: 5
       },
       noOfDownloads: {
         type: Number,
@@ -67,6 +67,10 @@ const userSchema = new mongoose.Schema(
         default: null
       }
     },
+    isCurrentWatchTimeExcised: {
+      type: Boolean,
+      default: false,
+    }
   },
   {
     timestamps: true,
