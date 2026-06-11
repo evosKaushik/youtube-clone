@@ -27,12 +27,15 @@ export const authMiddleware = async (req, res, next) => {
                     "isCurrentWatchTimeExcised": false,
                 }
             });
-            user.subscription.plan = "Free";
-            user.subscription.status = "expired";
-            user.subscription.watchTimeInMinutes = 5;
-            user.subscription.noOfDownloads = 0;
-            user.subscription.expiresAt = null;
-            user.isCurrentWatchTimeExcised = false;
+            if (!user.subscription) {
+                user.subscription = {
+                    plan: "Free",
+                    status: "expired",
+                    watchTimeInMinutes: 5,
+                    noOfDownloads: 0,
+                    expiresAt: null,
+                };
+            }
         }
         const history = await VideoHistory.findOne({ userId }).sort({
             updatedAt: -1,

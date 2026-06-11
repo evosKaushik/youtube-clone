@@ -12,10 +12,7 @@ import User from "../model/user.model.js";
 import { finalizeWatch, updateHeartbeat } from "../services/heartBeat.js";
 import VideoHistory from "../model/videoHistory.model.js";
 
-const cleanupUploadedFiles = (
-  videoFile?: Express.Multer.File,
-  thumbnailFile?: Express.Multer.File,
-) => {
+const cleanupUploadedFiles = (videoFile?: Express.Multer.File, thumbnailFile?: Express.Multer.File,) => {
   if (videoFile?.path && fs.existsSync(videoFile.path)) {
     fs.unlinkSync(videoFile.path);
   }
@@ -195,7 +192,7 @@ const getVideoById = async (req: Request, res: Response) => {
     const video = await Video.findByIdAndUpdate(
       vid,
       { $inc: { views: 1 } },
-      { returnDocument: true },
+      { returnDocument: "after" },
     )
       .populate(
         "creatorId",
@@ -390,16 +387,18 @@ const stopWatchController = async (req: Request, res: Response) => {
 
     return res.json({ success: true });
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ error: error?.message || "Internal Server Error" })
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    res.status(500).json({
+      error: message,
+    });
   }
 };
 
 const getAllHistory = async (req: Request, res: Response) => {
   const userId = req.user?._id;
-    if (!isValidObjectId(userId)) {
-      return res.status(400).json({ error: "Not valid Video Id" });
-    }
+  if (!isValidObjectId(userId)) {
+    return res.status(400).json({ error: "Not valid Video Id" });
+  }
   try {
     const historyVideos = await VideoHistory.find({ userId }).populate("videoId", "_id name thumbnailURL creatorId views").select("_id videoId  totalWatchedSeconds createdAt").lean();
     // const creator = await User.find(historyVideos?.videoId?._id).lean()

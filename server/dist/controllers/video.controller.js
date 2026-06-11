@@ -7,6 +7,7 @@ import { getDownloadUrl } from "../services/downloadVideos.js";
 import DownloadModel from "../model/download.model.js";
 import User from "../model/user.model.js";
 import { finalizeWatch, updateHeartbeat } from "../services/heartBeat.js";
+import VideoHistory from "../model/videoHistory.model.js";
 const cleanupUploadedFiles = (videoFile, thumbnailFile) => {
     if (videoFile?.path && fs.existsSync(videoFile.path)) {
         fs.unlinkSync(videoFile.path);
@@ -154,7 +155,7 @@ const getVideoById = async (req, res) => {
         if (!isValidObjectId(vid)) {
             return res.status(400).json({ error: "Not valid Video Id" });
         }
-        const video = await Video.findByIdAndUpdate(vid, { $inc: { views: 1 } }, { returnDocument: true })
+        const video = await Video.findByIdAndUpdate(vid, { $inc: { views: 1 } }, { returnDocument: "after" })
             .populate("creatorId", "channelName channelUsername channelDescription profilePicture")
             .lean();
         if (!video) {
@@ -302,8 +303,35 @@ const stopWatchController = async (req, res) => {
         return res.json({ success: true });
     }
     catch (error) {
-        console.log(error);
-        res.status(500).json({ error: error?.message || "Internal Server Error" });
+        const message = error instanceof Error ? error.message : "Internal Server Error";
+        res.status(500).json({
+            error: message,
+        });
     }
 };
-export { uploadVideoController, updateLikes, getAllVideos, getVideoById, searchController, downloadVideoByVideoId, heartbeatController, stopWatchController };
+const getAllHistory = async (req, res) => {
+    const userId = req.user?._id;
+    if (!isValidObjectId(userId)) {
+        return res.status(400).json({ error: "Not valid Video Id" });
+    }
+    try {
+        const historyVideos = await VideoHistory.find({ userId }).populate("videoId", "_id name thumbnailURL creatorId views").select("_id videoId  totalWatchedSeconds createdAt").lean();
+        // const creator = await User.find(historyVideos?.videoId?._id).lean()
+        // console.log(creator)
+        if (historyVideos.length === 0) {
+            return res.status(404).json({
+                error: "History videos not found",
+            });
+        }
+        return res.status(200).json(historyVideos);
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            error: error instanceof Error
+                ? error.message
+                : "Internal Server Error",
+        });
+    }
+};
+export { uploadVideoController, updateLikes, getAllVideos, getVideoById, searchController, downloadVideoByVideoId, heartbeatController, stopWatchController, getAllHistory };

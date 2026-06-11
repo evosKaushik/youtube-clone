@@ -45,8 +45,8 @@ const addComment = async (req, res) => {
 const getComments = async (req, res) => {
     try {
         const { targetId } = req.params;
-        const { targetType } = req.query;
-        if (!targetType) {
+        const targetType = req.query.targetType;
+        if (!targetType || !targetId) {
             return res.status(400).json({
                 message: "Target type required",
             });

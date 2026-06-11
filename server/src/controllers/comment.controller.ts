@@ -62,11 +62,11 @@ const addComment = async (req: Request, res: Response) => {
 const getComments = async (req: Request, res: Response) => {
     try {
         const { targetId } = req.params;
-        const { targetType } = req.query;
+        const targetType = req.query.targetType as "User" | "Video";
 
 
 
-        if (!targetType) {
+        if (!targetType || !targetId) {
             return res.status(400).json({
                 message: "Target type required",
             });
