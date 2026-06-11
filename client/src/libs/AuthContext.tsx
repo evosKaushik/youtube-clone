@@ -9,11 +9,7 @@ import {
   useCallback,
 } from "react";
 
-import {
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut,
-} from "firebase/auth";
+import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 
 import { auth, provider } from "./firebase";
 
@@ -24,7 +20,12 @@ type UserType = {
   name: string;
   email: string;
   profilePicture?: string;
-  username: string
+  username: string;
+  subscription: {
+    plan: "free" | "premium";
+    status: "active" | "inActive";
+    expiresAt: Date | null;
+  };
 };
 
 type UserContextType = {
@@ -34,36 +35,22 @@ type UserContextType = {
   logout: () => Promise<void>;
 };
 
-const UserContext = createContext<UserContextType | null>(
-  null,
-);
+const UserContext = createContext<UserContextType | null>(null);
 
-export const UserProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
-  const [user, setUser] =
-    useState<UserType | null>(null);
+export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<UserType | null>(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const saveUser = useCallback(
-    (userdata: UserType | null) => {
-      setUser(userdata);
+  const saveUser = useCallback((userdata: UserType | null) => {
+    setUser(userdata);
 
-      if (userdata) {
-        localStorage.setItem(
-          "user",
-          JSON.stringify(userdata),
-        );
-      } else {
-        localStorage.removeItem("user");
-      }
-    },
-    [],
-  );
+    if (userdata) {
+      localStorage.setItem("user", JSON.stringify(userdata));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, []);
 
   const loginWithGoogle = async () => {
     try {
@@ -84,41 +71,33 @@ export const UserProvider = ({
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      async (firebaseUser) => {
-        try {
-          setLoading(true);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        setLoading(true);
 
-          if (!firebaseUser) {
-            saveUser(null);
-            return;
-          }
-
-          const payload = {
-            email: firebaseUser.email,
-            name: firebaseUser.displayName,
-            profilePicture:
-              firebaseUser.photoURL ||
-              "https://github.com/shadcn.png",
-          };
-
-          const response =
-            await axiosInstance.post(
-              "/users/login",
-              payload,
-            );
-
-          saveUser(response.data.user);
-        } catch (error) {
-          console.log(error);
-
+        if (!firebaseUser) {
           saveUser(null);
-        } finally {
-          setLoading(false);
+          return;
         }
-      },
-    );
+
+        const payload = {
+          email: firebaseUser.email,
+          name: firebaseUser.displayName,
+          profilePicture:
+            firebaseUser.photoURL || "https://github.com/shadcn.png",
+        };
+
+        const response = await axiosInstance.post("/users/login", payload);
+
+        saveUser(response.data.user);
+      } catch (error) {
+        console.log(error);
+
+        saveUser(null);
+      } finally {
+        setLoading(false);
+      }
+    });
 
     return () => unsubscribe();
   }, [saveUser]);
@@ -141,9 +120,7 @@ export const useUser = () => {
   const context = useContext(UserContext);
 
   if (!context) {
-    throw new Error(
-      "useUser must be used inside UserProvider",
-    );
+    throw new Error("useUser must be used inside UserProvider");
   }
 
   return context;

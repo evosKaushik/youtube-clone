@@ -18,8 +18,8 @@ const AppShell = ({ children }: Props) => {
       className={clsx(
         `
           min-h-screen
-          bg-black
-          text-white
+          bg-background
+          text-text
           transition-all
           duration-300
           pt-2

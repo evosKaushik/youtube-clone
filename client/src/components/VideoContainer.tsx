@@ -22,7 +22,7 @@ const VideoContainer = ({
 
   return (
     <section className={className}>
-      {videos.length > 0 ? (
+      {videos?.length > 0 ? (
         videos?.map((video, i) => (
           <VideoCard
             key={video._id ?? i}

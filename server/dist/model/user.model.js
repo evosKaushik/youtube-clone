@@ -30,11 +30,40 @@ const userSchema = new mongoose.Schema({
     channelUsername: {
         type: String,
         unique: true,
+        sparse: true,
         default: null,
     },
     channelDescription: {
         type: String,
         default: null
+    },
+    subscription: {
+        plan: {
+            type: String,
+            enum: ["Free", "Bronze", "Silver", "Gold"],
+            default: "Free"
+        },
+        status: {
+            type: String,
+            enum: ["active", "inActive", "expired"],
+            default: "active"
+        },
+        watchTimeInMinutes: {
+            type: Number,
+            default: 5
+        },
+        noOfDownloads: {
+            type: Number,
+            default: 0
+        },
+        expiresAt: {
+            type: Date,
+            default: null
+        }
+    },
+    isCurrentWatchTimeExcised: {
+        type: Boolean,
+        default: false,
     }
 }, {
     timestamps: true,

@@ -6,10 +6,10 @@ import { Video } from "@/types/entities";
 type Props = {
   className?: string;
   cardClassName?: string;
-  videos: Video[] | null;
+  videos?: Video[] | null;
 };
 
-const PlaylistVideoContainer = ({ className, cardClassName, videos }: Props) => {
+const PlaylistVideoContainer = ({ className, cardClassName, videos = [] }: Props) => {
   return (
     <VideoContainer
       className={className}

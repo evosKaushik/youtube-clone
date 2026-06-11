@@ -15,55 +15,40 @@ import ProfileDropdown from "./ProfileDropdown";
 import CreateChannelDialog from "./CreateChannelDialog";
 
 import { useUser } from "@/libs/AuthContext";
+import useMedia from "@/hooks/useMedia";
+import BottomNavigation from "./BottomNavigation";
 
 export default function Navbar() {
-  const {
-    user,
-    loading,
-    loginWithGoogle,
-  } = useUser();
+  const { user, loading, loginWithGoogle } = useUser();
+  const isSmallerDevice = useMedia("sm");
 
-  const [profileOpen, setProfileOpen] =
-    useState(false);
 
-  const [
-    channelDialogOpen,
-    setChannelDialogOpen,
-  ] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
-  const profileRef =
-    useRef<HTMLDivElement>(null);
+  const [channelDialogOpen, setChannelDialogOpen] = useState(false);
+
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (
-      e: MouseEvent,
-    ) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         profileRef.current &&
-        !profileRef.current.contains(
-          e.target as Node,
-        )
+        !profileRef.current.contains(e.target as Node)
       ) {
         setProfileOpen(false);
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside,
-    );
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside,
-      );
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   return (
     <>
-      <header className="sticky top-0 z-50 h-14 bg-[#0f0f0f] border-b border-[#272727]">
+      <header className="sticky top-0 z-50 h-14 bg-background border-b border-border">
         <div className="h-full flex items-center justify-between px-4">
           {/* LEFT */}
           <div className="flex items-center gap-4">
@@ -86,27 +71,25 @@ export default function Navbar() {
                   w-10
                   h-10
                   rounded-full
-                  bg-[#181818]
-                  hover:bg-[#2a2a2a]
-                  flex
+                  bg-card
+                  hover:bg-hover
+                  hidden 
+                  sm:flex
                   items-center
                   justify-center
                   transition
                   shrink-0
                 "
               >
-                <FaMicrophone className="text-white text-sm" />
+                <FaMicrophone className="text-text text-sm " />
               </button>
             </div>
           </div>
 
           {/* RIGHT */}
-          <div
-            className="flex items-center gap-2 relative"
-            ref={profileRef}
-          >
+          <div className="flex items-center gap-2 relative" ref={profileRef}>
             <Link
-            href="/upload"
+              href="/upload"
               className="
                 hidden
                 sm:flex
@@ -115,16 +98,14 @@ export default function Navbar() {
                 h-[36px]
                 px-4
                 rounded-full
-                bg-[#272727]
-                hover:bg-[#3a3a3a]
+                bg-card
+                hover:bg-hover
                 transition
               "
             >
-              <IoCreateOutline className="text-white text-xl" />
+              <IoCreateOutline className="text-text text-xl" />
 
-              <span className="text-white text-sm font-medium">
-                Create
-              </span>
+              <span className="text-text text-sm font-medium">Create</span>
             </Link>
 
             <button
@@ -132,88 +113,83 @@ export default function Navbar() {
                 w-10
                 h-10
                 rounded-full
-                hover:bg-[#272727]
+                hover:bg-hover
                 flex
                 items-center
                 justify-center
                 transition
               "
             >
-              <FaBell className="text-white text-lg" />
+              <FaBell className="text-text text-lg" />
             </button>
 
-            {loading ? (
-              <div
-                className="
-                  w-20
-                  h-9
-                  rounded-full
-                  bg-[#272727]
-                  animate-pulse
-                "
-              />
-            ) : user ? (
-              <>
-                <button
-                  onClick={() =>
-                    setProfileOpen(
-                      (prev) => !prev,
-                    )
-                  }
-                  className="rounded-full overflow-hidden"
-                >
-                  <Image
-                    src={
-                      user.profilePicture ||
-                      "https://github.com/shadcn.png"
-                    }
-                    alt={user.name}
-                    width={100}
-                    height={100}
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                </button>
-
-                <ProfileDropdown
-                  open={profileOpen}
-                  onCreateChannel={() => {
-                    setChannelDialogOpen(
-                      true,
-                    );
-
-                    setProfileOpen(false);
-                  }}
+            <div className="hidden sm:block">
+              {loading ? (
+                <div
+                  className="
+                    w-20
+                    h-9
+                    rounded-full
+                    bg-card
+                    animate-pulse
+                  "
                 />
-              </>
-            ) : (
-              <button
-                onClick={loginWithGoogle}
-                className="
-                  px-4
-                  h-9
-                  rounded-full
-                  border
-                  border-[#3f3f3f]
-                  text-blue-500
-                  hover:bg-[#263850]
-                  transition
-                  text-sm
-                  font-medium
-                "
-              >
-                Sign In
-              </button>
-            )}
+              ) : user ? (
+                <>
+                  <button
+                    onClick={() => setProfileOpen((prev) => !prev)}
+                    className="rounded-full overflow-hidden"
+                  >
+                    <Image
+                      src={
+                        user.profilePicture || "https://github.com/shadcn.png"
+                      }
+                      alt={user.name}
+                      width={100}
+                      height={100}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  </button>
+                  <ProfileDropdown
+                    open={profileOpen}
+                    onCreateChannel={() => {
+                      setChannelDialogOpen(true);
+                      setProfileOpen(false);
+                    }}
+                  />
+                </>
+              ) : (
+                <button
+                  onClick={loginWithGoogle}
+                  className="
+                    px-4
+                    h-9
+                    rounded-full
+                    border
+                    border-border
+                    text-blue-500
+                    hover:bg-hover
+                    transition
+                    text-sm
+                    font-medium
+                  "
+                >
+                  Sign In
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
-      <CreateChannelDialog
-        open={channelDialogOpen}
-        onClose={() =>
-          setChannelDialogOpen(false)
-        }
-      />
+      {!isSmallerDevice && (
+        <CreateChannelDialog
+          open={channelDialogOpen}
+          onClose={() => setChannelDialogOpen(false)}
+        />
+      )}
+
+      {isSmallerDevice && <BottomNavigation />}
     </>
   );
 }

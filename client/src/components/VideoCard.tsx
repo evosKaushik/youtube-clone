@@ -38,20 +38,20 @@ const VideoCard = ({ className = "not-last-of-type:", video, variant = "grid" }:
           {/* Content */}
           <div className="flex flex-1 justify-between gap-4">
             <div className="max-w-[700px]">
-              <h3 className="line-clamp-2 text-lg font-semibold text-white">
+              <h3 className="line-clamp-2 text-lg font-semibold text-text">
                 {video.name}
               </h3>
 
-              <p className="mt-2 text-sm text-zinc-400">
+              <p className="mt-2 text-sm text-secondaryText">
                 {video.creatorId.channelName} • {formatViews(video.views)} • {timeAgo}
               </p>
 
-              <p className="mt-3 line-clamp-2 text-sm text-zinc-400">
+              <p className="mt-3 line-clamp-2 text-sm text-secondaryText">
                 {video.description}
               </p>
             </div>
 
-            <button className="h-fit rounded-full p-2 transition-colors hover:bg-zinc-800">
+            <button className="h-fit rounded-full p-2 transition-colors hover:bg-hover">
               <RiMoreLine className="text-xl" />
             </button>
           </div>
@@ -85,8 +85,8 @@ const VideoCard = ({ className = "not-last-of-type:", video, variant = "grid" }:
           {/* Avatar */}
           <div className="shrink-0">
             <Image
-              src={video?.creatorId?.profilePicture}
-              alt={video.creatorId.channelName}
+              src={video?.creatorId?.profilePicture || "https://res.cloudinary.com/dvhqwwpdl/image/upload/v1777532041/default-avatar_frnvfo.jpg"}
+              alt={video?.creatorId?.channelName || "Channel avatar"}
               width={40}
               height={40}
               className="rounded-full"
@@ -95,15 +95,15 @@ const VideoCard = ({ className = "not-last-of-type:", video, variant = "grid" }:
 
           {/* Info */}
           <div className="flex flex-col">
-            <h3 className="line-clamp-2 text-sm font-semibold text-white">
+            <h3 className="line-clamp-2 text-sm font-semibold text-text">
               {video.name}
             </h3>
 
-            <p className="mt-1 text-sm text-zinc-400">
+            <p className="mt-1 text-sm text-secondaryText">
               {video.creatorId.channelName}
             </p>
 
-            <p className="text-sm text-zinc-400">{formatViews(video.views)} • {timeAgo}</p>
+            <p className="text-sm text-secondaryText">{formatViews(video.views)} • {timeAgo}</p>
           </div>
         </div>
       </Link>

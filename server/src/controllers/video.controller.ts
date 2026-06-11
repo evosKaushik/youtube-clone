@@ -6,11 +6,13 @@ import Video from "../model/video.model.js";
 import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
 import Playlist from "../model/playlist.model.js";
+import { getDownloadUrl } from "../services/downloadVideos.js";
+import DownloadModel from "../model/download.model.js";
+import User from "../model/user.model.js";
+import { finalizeWatch, updateHeartbeat } from "../services/heartBeat.js";
+import VideoHistory from "../model/videoHistory.model.js";
 
-const cleanupUploadedFiles = (
-  videoFile?: Express.Multer.File,
-  thumbnailFile?: Express.Multer.File,
-) => {
+const cleanupUploadedFiles = (videoFile?: Express.Multer.File, thumbnailFile?: Express.Multer.File,) => {
   if (videoFile?.path && fs.existsSync(videoFile.path)) {
     fs.unlinkSync(videoFile.path);
   }
@@ -190,7 +192,7 @@ const getVideoById = async (req: Request, res: Response) => {
     const video = await Video.findByIdAndUpdate(
       vid,
       { $inc: { views: 1 } },
-      { returnDocument: true },
+      { returnDocument: "after" },
     )
       .populate(
         "creatorId",
@@ -263,10 +265,172 @@ const searchController = async (req: Request, res: Response) => {
   }
 };
 
+const downloadVideoByVideoId = async (req: Request, res: Response) => {
+  const { videoId } = req.params;
+  const userId = req.user._id;
+
+  if (Array.isArray(videoId) || !isValidObjectId(videoId)) {
+    return res.status(400).json({ error: "Invalid video ID" });
+  }
+
+  try {
+
+    const user = await User.findById(userId)
+      .select("subscription")
+      .lean();
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    let subscription = user.subscription;
+
+
+    const isExpired =
+      subscription?.expiresAt &&
+      Date.now() > new Date(subscription.expiresAt).getTime();
+
+    if (isExpired) {
+      await User.updateOne(
+        { _id: userId },
+        {
+          "subscription.plan": "Free",
+          "subscription.status": "expired",
+          "subscription.watchTimeInMinutes": 5,
+          "subscription.noOfDownloads": 0,
+          "subscription.expiresAt": null,
+        }
+      );
+
+      subscription = {
+        ...subscription,
+        plan: "Free",
+        status: "expired",
+        watchTimeInMinutes: 5,
+        noOfDownloads: 0,
+        expiresAt: null,
+      };
+    }
+
+    const downloadLimit = subscription?.noOfDownloads ?? 1;
+
+
+    const ONE_DAY_AGO = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const downloadsInLast24h = await DownloadModel.countDocuments({
+      userId,
+      createdAt: { $gte: ONE_DAY_AGO },
+    });
+
+    if (downloadsInLast24h >= downloadLimit) {
+      const latestDownload = await DownloadModel.findOne({ userId })
+        .select("createdAt")
+        .sort({ createdAt: -1 })
+        .lean();
+
+      let remainingHours = 24;
+
+      if (latestDownload?.createdAt) {
+        const timeDiff = Date.now() - latestDownload.createdAt.getTime();
+        remainingHours = Math.ceil(
+          (24 * 60 * 60 * 1000 - timeDiff) / (1000 * 60 * 60)
+        );
+      }
+
+      return res.status(400).json({
+        error: `Download limit reached. Try again in ${remainingHours} hour(s).`,
+      });
+    }
+
+
+    const downloadUrl = await getDownloadUrl(videoId);
+
+
+    await DownloadModel.create({
+      userId,
+      videoId,
+    });
+
+    return res.status(200).json({ downloadUrl });
+  } catch (error) {
+    return res.status(500).json({
+      error:
+        error instanceof Error ? error.message : "Internal Server Error",
+    });
+  }
+};
+
+const heartbeatController = async (req: Request, res: Response) => {
+
+  const userId = req.user._id;
+  const { videoId } = req.body;
+
+  try {
+    await updateHeartbeat(userId, videoId);
+
+    return res.json({ success: true });
+  } catch (error: any) {
+    console.log(error);
+    const status = error?.message === "Your watch limit is completed" ? 403 : 500;
+    res.status(status).json({ error: error?.message || "Internal Server Error" });
+  }
+
+};
+
+const stopWatchController = async (req: Request, res: Response) => {
+  const userId = req.user._id;
+  const { videoId } = req.body;
+
+  try {
+    await finalizeWatch(userId, videoId);
+
+
+    return res.json({ success: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    res.status(500).json({
+      error: message,
+    });
+  }
+};
+
+const getAllHistory = async (req: Request, res: Response) => {
+  const userId = req.user?._id;
+  if (!isValidObjectId(userId)) {
+    return res.status(400).json({ error: "Not valid Video Id" });
+  }
+  try {
+    const historyVideos = await VideoHistory.find({ userId }).populate("videoId", "_id name thumbnailURL creatorId views").select("_id videoId  totalWatchedSeconds createdAt").lean();
+    // const creator = await User.find(historyVideos?.videoId?._id).lean()
+    // console.log(creator)
+
+    if (historyVideos.length === 0) {
+      return res.status(404).json({
+        error: "History videos not found",
+      });
+    }
+
+    return res.status(200).json(historyVideos);
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Internal Server Error",
+    });
+  }
+};
+
 export {
   uploadVideoController,
   updateLikes,
   getAllVideos,
   getVideoById,
   searchController,
+  downloadVideoByVideoId,
+  heartbeatController,
+  stopWatchController,
+  getAllHistory
 };

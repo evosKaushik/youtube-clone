@@ -28,7 +28,11 @@ const addVideoToPlaylistController = async (req, res) => {
         });
     }
     catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            error: "Internal server error",
+        });
     }
 };
 const getAllPlaylistVideo = async (req, res) => {
@@ -42,7 +46,7 @@ const getAllPlaylistVideo = async (req, res) => {
         const playlists = await Playlist.find({
             userId,
             type: type,
-        }).populate("videoId", "-_id").limit(10);
+        }).populate("videoId").limit(10);
         if (!playlists)
             return res.status(404).json({ error: "Playlist not found" });
         res.status(200).json({
@@ -50,7 +54,11 @@ const getAllPlaylistVideo = async (req, res) => {
         });
     }
     catch (error) {
-        console.log(error);
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            error: "Internal server error",
+        });
     }
 };
 export { addVideoToPlaylistController, getAllPlaylistVideo };

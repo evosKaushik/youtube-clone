@@ -3,12 +3,25 @@ import Video from "../model/video.model.js";
 import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
 import Playlist from "../model/playlist.model.js";
+import { getDownloadUrl } from "../services/downloadVideos.js";
+import DownloadModel from "../model/download.model.js";
+import User from "../model/user.model.js";
+import { finalizeWatch, updateHeartbeat } from "../services/heartBeat.js";
+import VideoHistory from "../model/videoHistory.model.js";
+const cleanupUploadedFiles = (videoFile, thumbnailFile) => {
+    if (videoFile?.path && fs.existsSync(videoFile.path)) {
+        fs.unlinkSync(videoFile.path);
+    }
+    if (thumbnailFile?.path && fs.existsSync(thumbnailFile.path)) {
+        fs.unlinkSync(thumbnailFile.path);
+    }
+};
 const uploadVideoController = async (req, res) => {
+    const files = req.files;
+    const videoFile = files?.video?.[0];
+    const thumbnailFile = files?.thumbnail?.[0];
     try {
         const { title, description } = req.body;
-        const files = req.files;
-        const videoFile = files?.video?.[0];
-        const thumbnailFile = files?.thumbnail?.[0];
         if (!title?.trim()) {
             return res.status(400).json({
                 success: false,
@@ -33,20 +46,13 @@ const uploadVideoController = async (req, res) => {
         });
         let uploadedThumbnail = null;
         if (thumbnailFile) {
-            uploadedThumbnail =
-                await cloudinary.uploader.upload(thumbnailFile.path, {
-                    folder: "thumbnails",
-                });
-        }
-        if (fs.existsSync(videoFile.path)) {
-            fs.unlinkSync(videoFile.path);
-        }
-        if (thumbnailFile &&
-            fs.existsSync(thumbnailFile.path)) {
-            fs.unlinkSync(thumbnailFile.path);
+            uploadedThumbnail = await cloudinary.uploader.upload(thumbnailFile.path, {
+                folder: "thumbnails",
+            });
         }
         const videoURL = uploadedVideo.secure_url;
         const thumbnailURL = uploadedThumbnail?.secure_url || "";
+        const duration = Math.round(uploadedVideo.duration || 0);
         const userId = req.user?._id;
         const video = await Video.create({
             name: title.trim(),
@@ -55,6 +61,8 @@ const uploadVideoController = async (req, res) => {
             thumbnailURL,
             creatorId: userId,
             likes: 0,
+            views: 0,
+            duration,
         });
         return res.status(201).json({
             success: true,
@@ -68,6 +76,9 @@ const uploadVideoController = async (req, res) => {
             success: false,
             error: "Internal server error",
         });
+    }
+    finally {
+        cleanupUploadedFiles(videoFile, thumbnailFile);
     }
 };
 const updateLikes = async (req, res) => {
@@ -83,10 +94,11 @@ const updateLikes = async (req, res) => {
         const existingPlaylist = await Playlist.findOne({
             videoId,
             userId,
-            type: "like"
+            type: "like",
         });
-        if (existingPlaylist)
+        if (existingPlaylist) {
             return res.status(400).json({ error: "You already like the video" });
+        }
         const video = await Video.findById(videoId);
         if (!video) {
             return res.status(404).json({
@@ -99,7 +111,7 @@ const updateLikes = async (req, res) => {
         await Playlist.create({
             videoId: videoId,
             userId: userId,
-            type: "like"
+            type: "like",
         });
         return res.status(200).json({
             success: true,
@@ -117,11 +129,16 @@ const updateLikes = async (req, res) => {
 };
 const getAllVideos = async (req, res) => {
     try {
-        const videos = await Video.find().populate("creatorId", "channelName channelUsername profilePicture").limit(10).select("-_v -updatedAt").lean();
-        if (!videos)
+        const videos = await Video.find()
+            .populate("creatorId", "channelName channelUsername profilePicture")
+            .limit(10)
+            .select("-__v -updatedAt")
+            .lean();
+        if (!videos) {
             return res.status(404).json({
-                error: "no Video Found"
+                error: "no Video Found",
             });
+        }
         res.status(200).json(videos);
     }
     catch (error) {
@@ -135,9 +152,12 @@ const getAllVideos = async (req, res) => {
 const getVideoById = async (req, res) => {
     try {
         const { vid } = req.params;
-        if (!isValidObjectId(vid))
+        if (!isValidObjectId(vid)) {
             return res.status(400).json({ error: "Not valid Video Id" });
-        const video = await Video.findById(vid).populate("creatorId", "channelName channelUsername channelDescription profilePicture").lean();
+        }
+        const video = await Video.findByIdAndUpdate(vid, { $inc: { views: 1 } }, { returnDocument: "after" })
+            .populate("creatorId", "channelName channelUsername channelDescription profilePicture")
+            .lean();
         if (!video) {
             return res.status(404).json({
                 error: "Video not found",
@@ -156,7 +176,6 @@ const getVideoById = async (req, res) => {
 const searchController = async (req, res) => {
     try {
         const { q } = req.query;
-        // validation
         if (!q || typeof q !== "string") {
             return res.status(400).json({
                 success: false,
@@ -164,13 +183,12 @@ const searchController = async (req, res) => {
             });
         }
         const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        // regex search
         const results = await Video.find({
             $or: [
                 {
                     name: {
                         $regex: escapedQuery,
-                        $options: "i", // case insensitive
+                        $options: "i",
                     },
                 },
                 {
@@ -180,7 +198,10 @@ const searchController = async (req, res) => {
                     },
                 },
             ],
-        }).populate("creatorId", "channelName channelUsername profilePicture").limit(10).lean();
+        })
+            .populate("creatorId", "channelName channelUsername profilePicture")
+            .limit(10)
+            .lean();
         return res.status(200).json({
             success: true,
             count: results.length,
@@ -195,4 +216,122 @@ const searchController = async (req, res) => {
         });
     }
 };
-export { uploadVideoController, updateLikes, getAllVideos, getVideoById, searchController };
+const downloadVideoByVideoId = async (req, res) => {
+    const { videoId } = req.params;
+    const userId = req.user._id;
+    if (Array.isArray(videoId) || !isValidObjectId(videoId)) {
+        return res.status(400).json({ error: "Invalid video ID" });
+    }
+    try {
+        const user = await User.findById(userId)
+            .select("subscription")
+            .lean();
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        let subscription = user.subscription;
+        const isExpired = subscription?.expiresAt &&
+            Date.now() > new Date(subscription.expiresAt).getTime();
+        if (isExpired) {
+            await User.updateOne({ _id: userId }, {
+                "subscription.plan": "Free",
+                "subscription.status": "expired",
+                "subscription.watchTimeInMinutes": 5,
+                "subscription.noOfDownloads": 0,
+                "subscription.expiresAt": null,
+            });
+            subscription = {
+                ...subscription,
+                plan: "Free",
+                status: "expired",
+                watchTimeInMinutes: 5,
+                noOfDownloads: 0,
+                expiresAt: null,
+            };
+        }
+        const downloadLimit = subscription?.noOfDownloads ?? 1;
+        const ONE_DAY_AGO = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const downloadsInLast24h = await DownloadModel.countDocuments({
+            userId,
+            createdAt: { $gte: ONE_DAY_AGO },
+        });
+        if (downloadsInLast24h >= downloadLimit) {
+            const latestDownload = await DownloadModel.findOne({ userId })
+                .select("createdAt")
+                .sort({ createdAt: -1 })
+                .lean();
+            let remainingHours = 24;
+            if (latestDownload?.createdAt) {
+                const timeDiff = Date.now() - latestDownload.createdAt.getTime();
+                remainingHours = Math.ceil((24 * 60 * 60 * 1000 - timeDiff) / (1000 * 60 * 60));
+            }
+            return res.status(400).json({
+                error: `Download limit reached. Try again in ${remainingHours} hour(s).`,
+            });
+        }
+        const downloadUrl = await getDownloadUrl(videoId);
+        await DownloadModel.create({
+            userId,
+            videoId,
+        });
+        return res.status(200).json({ downloadUrl });
+    }
+    catch (error) {
+        return res.status(500).json({
+            error: error instanceof Error ? error.message : "Internal Server Error",
+        });
+    }
+};
+const heartbeatController = async (req, res) => {
+    const userId = req.user._id;
+    const { videoId } = req.body;
+    try {
+        await updateHeartbeat(userId, videoId);
+        return res.json({ success: true });
+    }
+    catch (error) {
+        console.log(error);
+        const status = error?.message === "Your watch limit is completed" ? 403 : 500;
+        res.status(status).json({ error: error?.message || "Internal Server Error" });
+    }
+};
+const stopWatchController = async (req, res) => {
+    const userId = req.user._id;
+    const { videoId } = req.body;
+    try {
+        await finalizeWatch(userId, videoId);
+        return res.json({ success: true });
+    }
+    catch (error) {
+        const message = error instanceof Error ? error.message : "Internal Server Error";
+        res.status(500).json({
+            error: message,
+        });
+    }
+};
+const getAllHistory = async (req, res) => {
+    const userId = req.user?._id;
+    if (!isValidObjectId(userId)) {
+        return res.status(400).json({ error: "Not valid Video Id" });
+    }
+    try {
+        const historyVideos = await VideoHistory.find({ userId }).populate("videoId", "_id name thumbnailURL creatorId views").select("_id videoId  totalWatchedSeconds createdAt").lean();
+        // const creator = await User.find(historyVideos?.videoId?._id).lean()
+        // console.log(creator)
+        if (historyVideos.length === 0) {
+            return res.status(404).json({
+                error: "History videos not found",
+            });
+        }
+        return res.status(200).json(historyVideos);
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            error: error instanceof Error
+                ? error.message
+                : "Internal Server Error",
+        });
+    }
+};
+export { uploadVideoController, updateLikes, getAllVideos, getVideoById, searchController, downloadVideoByVideoId, heartbeatController, stopWatchController, getAllHistory };
