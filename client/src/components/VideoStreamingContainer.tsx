@@ -15,6 +15,9 @@ export default function VideoPlayer({ videoUrl, videoId }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<any>(null);
 
+  const tapCountRef = useRef(0);
+  const tapTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isPlayingRef = useRef(false);
 
@@ -41,60 +44,124 @@ export default function VideoPlayer({ videoUrl, videoId }: Props) {
     await stopWatchApi(videoId);
   };
 
+  const executeGesture = (zone: "left" | "center" | "right", taps: number) => {
+    const player = playerRef.current;
+
+    if (!player) return;
+
+    // Single tap center = Play / Pause
+    if (zone === "center" && taps === 1) {
+      if (player.paused()) {
+        player.play();
+      } else {
+        player.pause();
+      }
+    }
+
+    // Double tap left = Rewind 10 sec
+    if (zone === "left" && taps === 2) {
+      player.currentTime(Math.max(0, player.currentTime() - 10));
+    }
+
+    // Double tap right = Forward 10 sec
+    if (zone === "right" && taps === 2) {
+      player.currentTime(player.currentTime() + 10);
+    }
+
+    // Triple tap center
+    if (zone === "center" && taps === 3) {
+      console.log("NEXT VIDEO");
+    }
+
+    // Triple tap left
+    if (zone === "left" && taps === 3) {
+      console.log("OPEN COMMENTS");
+    }
+
+    // Triple tap right
+    if (zone === "right" && taps === 3) {
+      console.log("CLOSE WEBSITE");
+      window.close();
+    }
+  };
+
+  const handleTap = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!playerRef.current) return;
+
+    const x = e.clientX;
+    const width = window.innerWidth;
+
+    let zone: "left" | "center" | "right";
+
+    if (x < width * 0.33) {
+      zone = "left";
+    } else if (x < width * 0.66) {
+      zone = "center";
+    } else {
+      zone = "right";
+    }
+
+    tapCountRef.current++;
+
+    if (tapTimeoutRef.current) {
+      clearTimeout(tapTimeoutRef.current);
+    }
+
+    tapTimeoutRef.current = setTimeout(() => {
+      executeGesture(zone, tapCountRef.current);
+      tapCountRef.current = 0;
+    }, 300);
+  };
+
   useEffect(() => {
     if (!containerRef.current) return;
 
-    if (!playerRef.current) {
-      const videoElement = document.createElement("video-js");
+    const videoElement = document.createElement("video-js");
 
-      videoElement.classList.add("vjs-big-play-centered");
+    videoElement.classList.add("vjs-big-play-centered");
 
-      containerRef.current.appendChild(videoElement);
+    containerRef.current.appendChild(videoElement);
 
-      const player = videojs(videoElement, {
-        controls: true,
-        responsive: true,
-        fluid: true,
-        preload: "auto",
-        autoplay: false,
-        sources: [
-          {
-            src: videoUrl,
-            type: "video/mp4",
-          },
-        ],
-      });
+    const player = videojs(videoElement, {
+      controls: true,
+      responsive: true,
+      fluid: true,
+      preload: "auto",
+      autoplay: false,
+      sources: [
+        {
+          src: videoUrl,
+          type: "video/mp4",
+        },
+      ],
+    });
 
-      playerRef.current = player;
+    playerRef.current = player;
 
-      player.on("play", () => {
-        console.log("PLAY");
-        isPlayingRef.current = true;
-        startHeartbeat();
-      });
+    player.on("play", () => {
+      isPlayingRef.current = true;
+      startHeartbeat();
+    });
 
-      player.on("pause", () => {
-        console.log("PAUSE");
-        isPlayingRef.current = false;
-      });
+    player.on("pause", () => {
+      isPlayingRef.current = false;
+    });
 
-      player.on("ended", async () => {
-        console.log("ENDED");
-        isPlayingRef.current = false;
-        await stopHeartbeat();
-      });
+    player.on("ended", async () => {
+      isPlayingRef.current = false;
+      await stopHeartbeat();
+    });
 
-      player.ready(() => {
-        console.log("Player Ready");
-      });
-
-      player.on("error", () => {
-        console.log("Player Error:", player.error());
-      });
-    }
+    player.on("error", () => {
+      console.log("Player Error:", player.error());
+    });
 
     return () => {
       stopHeartbeat();
+
+      if (tapTimeoutRef.current) {
+        clearTimeout(tapTimeoutRef.current);
+      }
 
       if (playerRef.current) {
         playerRef.current.dispose();
@@ -104,8 +171,10 @@ export default function VideoPlayer({ videoUrl, videoId }: Props) {
   }, [videoUrl, videoId]);
 
   return (
-    <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden">
+    <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden">
+      {" "}
       <div ref={containerRef} />
+      <div onPointerUp={handleTap} className="absolute inset-0 z-10" />
     </div>
   );
 }
