@@ -1,5 +1,10 @@
+
+import { SOUTH_STATES } from "@/constant/constant";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge"
+
+
+
 
 export function cn(...inputs: string[]) {
   return twMerge(clsx(inputs));
@@ -61,4 +66,94 @@ export const loadRazorPayScript = () => {
 
     document.body.appendChild(script);
   });
+};
+
+export const getStateFromLocation = async (): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error("Geolocation is not supported"));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+          );
+
+          if (!res.ok) {
+            throw new Error("Failed to fetch location details");
+          }
+
+          const data = await res.json();
+
+          const state = data?.address?.state;
+
+          if (!state) {
+            throw new Error("State not found");
+          }
+
+          resolve(state);
+        } catch (err) {
+          reject(err);
+        }
+      },
+      (error) => {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            reject(new Error("Location permission denied"));
+            break;
+
+          case error.POSITION_UNAVAILABLE:
+            reject(new Error("Location unavailable"));
+            break;
+
+          case error.TIMEOUT:
+            reject(new Error("Location request timed out"));
+            break;
+
+          default:
+            reject(new Error("Unknown location error"));
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  });
+};
+
+
+export const getThemeByLocationAndTime = () => {
+  const state = localStorage.getItem("user_state");
+
+  if (!state) {
+    return "dark";
+  }
+
+  const isSouthIndian = SOUTH_STATES.includes(state);
+
+  const currentHour = Number(
+    new Date().toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata",
+      hour: "numeric",
+      hour12: false,
+    })
+  );
+
+  const isThemeTime =
+    currentHour >= 10 &&
+    currentHour < 12;
+
+  if (isSouthIndian && isThemeTime) {
+    return "light";
+  }
+
+  return "dark";
 };

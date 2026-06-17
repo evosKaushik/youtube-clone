@@ -30,8 +30,9 @@ type UserType = {
 
 type UserContextType = {
   user: UserType | null;
+  setUser: (user: UserType | null) => void;
   loading: boolean;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (state?: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -52,8 +53,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (state?: string) => {
+    console.log(state);
     try {
+      if (state) {
+        localStorage.setItem("user_state", state);
+      }
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.log(error);
@@ -74,9 +79,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         setLoading(true);
-
         if (!firebaseUser) {
+          const localUser = localStorage.getItem("user");
+
+          if (localUser) {
+            setUser(JSON.parse(localUser));
+          } else {
+            setUser(null);
+          }
+
+          setLoading(false);
+          return;
+        }
+
+        const userState = localStorage.getItem("user_state");
+        if (!userState) {
           saveUser(null);
+          console.error("user state is required");
           return;
         }
 
@@ -85,10 +104,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           name: firebaseUser.displayName,
           profilePicture:
             firebaseUser.photoURL || "https://github.com/shadcn.png",
+          userState,
         };
 
-        const response = await axiosInstance.post("/users/login", payload);
+        const response = await axiosInstance.post("/users/google", payload);
 
+        if (response.data.user.userState) {
+          localStorage.setItem("user_state", response.data.user.userState);
+        }
         saveUser(response.data.user);
       } catch (error) {
         console.log(error);
@@ -106,6 +129,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     <UserContext.Provider
       value={{
         user,
+        setUser,
         loading,
         loginWithGoogle,
         logout,
