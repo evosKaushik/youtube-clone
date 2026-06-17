@@ -43,6 +43,8 @@ const LoginCardSection = () => {
       if (data?.success) {
         toast.success("Login Success");
         localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("user_state", JSON.stringify(data?.user?.userState));
+
         setTimeout(() => {
           setUser(data?.user);
           router.push("/"); // Redirect to home page after successful login
