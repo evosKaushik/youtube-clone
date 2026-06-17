@@ -2,6 +2,8 @@ import { fetchAllVideos } from "@/api/videoApi";
 import VideoContainer from "@/components/VideoContainer";
 import { Suspense } from "react";
 
+
+
 import AppShell from "@/layout/AppShell";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +27,8 @@ const HomeVideos = async () => {
 
 export default async function Home() {
   return (
+     
+
     <AppShell>
       <section className="p-6">
         <Suspense fallback={<VideoContainer videos={null} />}>
@@ -32,5 +36,6 @@ export default async function Home() {
         </Suspense>
       </section>
     </AppShell>
+   
   );
 }

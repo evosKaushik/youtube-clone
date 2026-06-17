@@ -1,10 +1,13 @@
 import express from 'express';
-import { createChannel, userLogin } from '../controllers/user.controller.js';
+import { createChannel, userLogin, registerController, loginController , verifyOTPController} from '../controllers/user.controller.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post("/login", userLogin)
+router.post("/google", userLogin)
+router.post("/register", registerController)
+router.post("/login", loginController)
+router.post("/verify-otp", verifyOTPController)
 router.post("/create-channel", authMiddleware,createChannel)
 
-export default router;
+export default router; 

@@ -19,9 +19,8 @@ import useMedia from "@/hooks/useMedia";
 import BottomNavigation from "./BottomNavigation";
 
 export default function Navbar() {
-  const { user, loading, loginWithGoogle } = useUser();
+  const { user, loading } = useUser();
   const isSmallerDevice = useMedia("sm");
-
 
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -73,7 +72,7 @@ export default function Navbar() {
                   rounded-full
                   bg-card
                   hover:bg-hover
-                  hidden 
+                  hidden
                   sm:flex
                   items-center
                   justify-center
@@ -159,11 +158,12 @@ export default function Navbar() {
                   />
                 </>
               ) : (
-                <button
-                  onClick={loginWithGoogle}
+                <Link
+                  href="/signup"
                   className="
                     px-4
-                    h-9
+                
+                    py-2
                     rounded-full
                     border
                     border-border
@@ -174,9 +174,10 @@ export default function Navbar() {
                     font-medium
                   "
                 >
-                  Sign In
-                </button>
+                  Sign up
+                </Link>
               )}
+            
             </div>
           </div>
         </div>
