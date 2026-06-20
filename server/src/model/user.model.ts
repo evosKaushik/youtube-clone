@@ -37,7 +37,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
       sparse: true,
-      default: null,
+      lowercase: true,
+      trim: true,
+      default: function () {
+        return this.email?.split("@")[0] ?? null;
+      },
     },
     channelDescription: {
       type: String,
@@ -70,6 +74,32 @@ const userSchema = new mongoose.Schema(
     isCurrentWatchTimeExcised: {
       type: Boolean,
       default: false,
+    },
+    userState: {
+      type: String,
+      default: null
+    },
+    password: {
+      type: String,
+      default: null
+    },
+    phoneNumber: {
+      type: String,
+      default: null,
+      trim: true,
+      unique: true,
+      sparse: true,
+      validate: {
+        validator: function (value: string | null) {
+          if (!value) return true; // allow null/undefined
+          return /^[6-9]\d{9}$/.test(value);
+        },
+        message: "Please enter a valid Indian mobile number",
+      },
+    },
+    verified: {
+      type: Boolean,
+      default: false
     }
   },
   {

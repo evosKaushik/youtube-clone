@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 /* =========================
-   AUTO THEME BY SYSTEM
+   THEME VARIABLES
 ========================= */
 
-:root {
+html.light {
   --background: #ffffff;
   --card: #f4f4f5;
   --hover: #e4e4e7;
@@ -14,22 +14,19 @@
   --secondary-text: #52525b;
 }
 
-/* Automatically applies when user's OS/browser is dark */
+html.dark {
+  --background: #0f0f0f;
+  --card: #1a1a1a;
+  --hover: #2a2a2a;
+  --border: #2f2f2f;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f0f0f;
-    --card: #1a1a1a;
-    --hover: #2a2a2a;
-    --border: #2f2f2f;
-
-    --text: #ffffff;
-    --secondary-text: #a1a1aa;
-  }
+  --text: #ffffff;
+  --secondary-text: #a1a1aa;
 }
 
-/* Applies when html element has class "dark" */
-.dark {
+/* Fallback before JS loads */
+
+:root {
   --background: #0f0f0f;
   --card: #1a1a1a;
   --hover: #2a2a2a;
@@ -59,8 +56,14 @@
    BASE
 ========================= */
 
+html,
 body {
-  @apply bg-background text-text font-sans;
+  background: var(--background);
+  color: var(--text);
+}
+
+body {
+  @apply font-sans;
 }
 
 /* =========================
@@ -92,12 +95,14 @@ body {
 }
 
 /* Firefox */
+
 .thin-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #71717a transparent;
 }
 
-/* Chrome, Edge, Safari */
+/* Chrome */
+
 .thin-scrollbar::-webkit-scrollbar {
   width: 8px;
 }
@@ -117,4 +122,83 @@ body {
 
 .video-player-wrapper {
   --plyr-color-main: #ff0000;
+}
+
+.accent-lines{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.7;
+}
+
+.hline,
+.vline{
+  position:absolute;
+  background:var(--border);
+}
+
+.hline{
+  left:0;
+  right:0;
+  height:1px;
+  transform:scaleX(0);
+  transform-origin:center;
+  animation:drawX .8s cubic-bezier(.22,.61,.36,1) forwards;
+}
+
+.vline{
+  top:0;
+  bottom:0;
+  width:1px;
+  transform:scaleY(0);
+  transform-origin:top;
+  animation:drawY .9s cubic-bezier(.22,.61,.36,1) forwards;
+}
+
+.hline:nth-child(1){top:18%}
+.hline:nth-child(2){top:50%}
+.hline:nth-child(3){top:82%}
+
+.vline:nth-child(4){left:22%}
+.vline:nth-child(5){left:50%}
+.vline:nth-child(6){left:78%}
+
+@keyframes drawX{
+  from{transform:scaleX(0)}
+  to{transform:scaleX(1)}
+}
+
+@keyframes drawY{
+  from{transform:scaleY(0)}
+  to{transform:scaleY(1)}
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-5px);
+  }
+
+  40% {
+    transform: translateX(5px);
+  }
+
+  60% {
+    transform: translateX(-5px);
+  }
+
+  80% {
+    transform: translateX(5px);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.3s ease-in-out;
 }

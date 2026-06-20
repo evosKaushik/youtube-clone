@@ -6,6 +6,8 @@ import Navbar from "@/components/navbar/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { UserProvider } from "@/libs/AuthContext";
 import { Toaster } from "react-hot-toast";
+import { PopupProvider } from "@/contexts/popupContext";
+import { getThemeByLocationAndTime } from "@/libs/utils";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -17,6 +19,8 @@ export const metadata: Metadata = {
   description: "Modern YouTube UI",
 };
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,11 +29,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} bg-background text-text`}>
-        <UserProvider>
-          <Navbar />
-          <Sidebar />
-          {children}
-        </UserProvider>
+        <PopupProvider>
+          <UserProvider>
+            <Navbar />
+            <Sidebar />
+            {children}
+          </UserProvider>
+        </PopupProvider>
         <Toaster
           toastOptions={{
             duration: 4000,
@@ -52,6 +58,7 @@ export default function RootLayout({
             },
           }}
         />
+        <div id="root"></div>
       </body>
     </html>
   );
