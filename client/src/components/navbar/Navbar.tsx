@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { FaBell, FaMicrophone } from "react-icons/fa";
-import { IoCreateOutline } from "react-icons/io5";
+import { IoCall, IoCreateOutline } from "react-icons/io5";
 
 import YoutubeLogo from "./YoutubeLogo";
 import SearchBar from "./SearchBar";
@@ -17,10 +17,17 @@ import CreateChannelDialog from "./CreateChannelDialog";
 import { useUser } from "@/libs/AuthContext";
 import useMedia from "@/hooks/useMedia";
 import BottomNavigation from "./BottomNavigation";
+import { usePopup } from "@/contexts/popupContext";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { user, loading } = useUser();
   const isSmallerDevice = useMedia("sm");
+
+  const { showPopup, hidePopup } = usePopup();
+
+  const router = useRouter();
+  const [roomId, setRoomId] = useState("");
 
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -45,6 +52,159 @@ export default function Navbar() {
     };
   }, []);
 
+  const handleCallBtn = () => {
+    showPopup({
+      header: "Video Call",
+      popupMsg: "Create a new room or join an existing room",
+
+      selfClose: true,
+
+      button1: {
+        label: "Join Call",
+
+        action: () => {
+          showPopup({
+            header: "Join Call",
+
+            body: (
+              <input
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+                placeholder="Custom Room ID"
+                className="
+      w-full
+      rounded-xl
+      border
+      border-zinc-700
+      bg-zinc-900
+      px-4
+      py-3
+      text-white
+    "
+              />
+            ),
+
+            selfClose: true,
+
+            button1: {
+              label: "Cancel",
+              action: hidePopup,
+            },
+
+            button2: {
+              label: "Join",
+
+              action: () => {
+                if (!roomId) return;
+                router.push(`/call/${roomId}`);
+
+                hidePopup();
+              },
+            },
+          });
+        },
+      },
+
+      button2: {
+        label: "Create Call",
+
+        action: () => {
+          showPopup({
+            header: "Create Room",
+
+            body: (
+              <div className="flex flex-col gap-3">
+                <input
+                  id="create-room-id"
+                  placeholder="Custom Room ID"
+                  className="
+                w-full
+                rounded-xl
+                border
+                border-zinc-700
+                bg-zinc-900
+                px-4
+                py-3
+                text-white
+              "
+                />
+              </div>
+            ),
+
+            selfClose: true,
+
+            button1: {
+              label: "Cancel",
+              action: hidePopup,
+            },
+
+            button2: {
+              label: "Create",
+
+              action: async () => {
+                const input = document.getElementById(
+                  "create-room-id",
+                ) as HTMLInputElement;
+
+                const roomId = input?.value.trim();
+
+                if (!roomId) return;
+
+                const link = `${window.location.origin}/call/${roomId}`;
+
+                showPopup({
+                  header: "Room Created",
+
+                  body: (
+                    <div className="flex flex-col gap-3">
+                      <input
+                        readOnly
+                        value={link}
+                        className="
+                      w-full
+                      rounded-xl
+                      border
+                      border-zinc-700
+                      bg-zinc-900
+                      px-4
+                      py-3
+                      text-white
+                    "
+                      />
+                    </div>
+                  ),
+
+                  selfClose: true,
+
+                  button1: {
+                    label: "Copy Link",
+
+                    action: async () => {
+                      await navigator.clipboard.writeText(link);
+                    },
+                  },
+
+                  button2: {
+                    label: "Enter Room",
+
+                    action: () => {
+                      // const link = `${window.location.origin}/call/${roomId}`;
+                      router.push(`/call/${roomId}`);
+                      // window.location.href = link
+                      
+                      hidePopup();
+
+                    },
+                  },
+                });
+              },
+            },
+          });
+        },
+      },
+    });
+  };
+
   return (
     <>
       <header className="sticky top-0 z-50 h-14 bg-background border-b border-border">
@@ -63,7 +223,7 @@ export default function Navbar() {
             <div className="flex items-center w-full max-w-[720px] min-w-0">
               <SearchBar />
 
-              <button
+              {/* <button
                 className="
                   ml-2 md:ml-4
                   min-w-10
@@ -81,7 +241,7 @@ export default function Navbar() {
                 "
               >
                 <FaMicrophone className="text-text text-sm " />
-              </button>
+              </button> */}
             </div>
           </div>
 
@@ -108,18 +268,22 @@ export default function Navbar() {
             </Link>
 
             <button
+              onClick={handleCallBtn}
               className="
-                w-10
-                h-10
-                rounded-full
-                hover:bg-hover
-                flex
+                hidden
+                sm:flex
                 items-center
-                justify-center
+                gap-2
+                h-9
+                px-4
+                rounded-full
+                bg-card
+                hover:bg-hover
                 transition
               "
             >
-              <FaBell className="text-text text-lg" />
+              <IoCall className="text-text text-xl" />
+              <span className="text-text text-sm font-medium">Call</span>
             </button>
 
             <div className="hidden sm:block">
@@ -177,7 +341,6 @@ export default function Navbar() {
                   Sign up
                 </Link>
               )}
-            
             </div>
           </div>
         </div>

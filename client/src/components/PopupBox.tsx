@@ -118,25 +118,25 @@ const PopupBox = () => {
               )}
         </div>
 
+     
         {/* FOOTER */}
         <div className="flex justify-end gap-3 mt-8">
           {PopupData.button1 && (
             <button
               onClick={() => {
-                PopupData.button1.action();
-                closePopup();
+                PopupData.button1?.action();
               }}
               className={`
-                                h-10
-                                px-5
-                                rounded-full
-                                bg-[#2a2a2a]
-                                hover:bg-[#3a3a3a]
-                                text-white
-                                text-sm
-                                transition
-                                ${PopupData.button1.style || ""}
-                            `}
+        h-10
+        px-5
+        rounded-full
+        bg-[#2a2a2a]
+        hover:bg-[#3a3a3a]
+        text-white
+        text-sm
+        transition
+        ${PopupData.button1.style || ""}
+      `}
             >
               {PopupData.button1.label}
             </button>
@@ -145,21 +145,20 @@ const PopupBox = () => {
           {PopupData.button2 && (
             <button
               onClick={() => {
-                PopupData.button2.action();
-                closePopup();
+                PopupData.button2?.action();
               }}
               className={`
-                                h-10
-                                px-5
-                                rounded-full
-                                bg-white
-                                hover:bg-gray-200
-                                text-black
-                                text-sm
-                                font-medium
-                                transition
-                                ${PopupData.button2.style || ""}
-                            `}
+        h-10
+        px-5
+        rounded-full
+        bg-white
+        hover:bg-gray-200
+        text-black
+        text-sm
+        font-medium
+        transition
+        ${PopupData.button2.style || ""}
+      `}
             >
               {PopupData.button2.label}
             </button>

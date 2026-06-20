@@ -28,3 +28,10 @@ export const subscription = [
         yearlyPrice: 1999,
     },
 ];
+export const SOUTH_STATES = [
+    "Tamil Nadu",
+    "Kerala",
+    "Karnataka",
+    "Andhra Pradesh",
+    "Telangana"
+];

@@ -28,7 +28,7 @@ const AppShell = ({ children }: Props) => {
     <main
       className={clsx(
         `
-        min-h-screen
+        min-h-[calc(100vh-56px)]
         bg-background
         text-text
         transition-all

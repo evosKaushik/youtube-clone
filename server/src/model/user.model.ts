@@ -37,9 +37,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
       sparse: true,
+      lowercase: true,
+      trim: true,
       default: function () {
-        return this.email?.split("@")[0];
-      }
+        return this.email?.split("@")[0] ?? null;
+      },
     },
     channelDescription: {
       type: String,
@@ -77,7 +79,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null
     },
-    password:{
+    password: {
       type: String,
       default: null
     },
@@ -88,10 +90,12 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true,
       validate: {
-        validator: (value: string): boolean =>
-          /^[6-9]\d{9}$/.test(value),
-        message: "Please enter a valid Indian mobile number"
-      }
+        validator: function (value: string | null) {
+          if (!value) return true; // allow null/undefined
+          return /^[6-9]\d{9}$/.test(value);
+        },
+        message: "Please enter a valid Indian mobile number",
+      },
     },
     verified: {
       type: Boolean,
