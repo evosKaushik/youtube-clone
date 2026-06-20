@@ -1,15 +1,12 @@
 import User from "../model/user.model.js";
 import VideoHistory from "../model/videoHistory.model.js";
 
-
 const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours
-const INCREMENT = 10; 
+const INCREMENT = 10;
 
 export const updateHeartbeat = async (userId: string, videoId: string) => {
   try {
-    const user = await User.findById(userId)
-      .select("subscription")
-      .lean();
+    const user = await User.findById(userId).select("subscription").lean();
 
     if (!user) throw new Error("User not Found!");
 
@@ -20,17 +17,21 @@ export const updateHeartbeat = async (userId: string, videoId: string) => {
     const now = Date.now();
 
     if (!history) {
-      // Sum total watched time of other videos in the current active session
       const activeThreshold = new Date(now - SESSION_TIMEOUT);
       const otherHistories = await VideoHistory.find({
         userId,
-        lastHeartbeatAt: { $gte: activeThreshold }
+        lastHeartbeatAt: { $gte: activeThreshold },
       });
-      const totalWatchedBefore = otherHistories.reduce((sum, h) => sum + h.totalWatchedSeconds, 0);
+      const totalWatchedBefore = otherHistories.reduce(
+        (sum, h) => sum + h.totalWatchedSeconds,
+        0
+      );
 
       if (userWatchLimit > 0 && totalWatchedBefore + INCREMENT >= userWatchLimit) {
         await User.findByIdAndUpdate(userId, { isCurrentWatchTimeExcised: true });
         throw new Error("Your watch limit is completed");
+      } else {
+        await User.findByIdAndUpdate(userId, { isCurrentWatchTimeExcised: false });
       }
 
       return await VideoHistory.create({
@@ -44,18 +45,36 @@ export const updateHeartbeat = async (userId: string, videoId: string) => {
     const lastTime = new Date(history.lastHeartbeatAt).getTime();
 
     if (now - lastTime > SESSION_TIMEOUT) {
-      // Reset this history record because the session has expired
       history.totalWatchedSeconds = INCREMENT;
       history.lastHeartbeatAt = new Date(now);
       await history.save();
+
+      const activeThreshold = new Date(now - SESSION_TIMEOUT);
+      const allHistories = await VideoHistory.find({
+        userId,
+        lastHeartbeatAt: { $gte: activeThreshold },
+      });
+
+      const otherWatched = allHistories
+        .filter((h) => h.videoId.toString() !== videoId)
+        .reduce((sum, h) => sum + h.totalWatchedSeconds, 0);
+
+      const totalWatched = otherWatched + history.totalWatchedSeconds;
+
+      if (userWatchLimit > 0 && totalWatched >= userWatchLimit) {
+        await User.findByIdAndUpdate(userId, { isCurrentWatchTimeExcised: true });
+        throw new Error("Your watch limit is completed");
+      } else {
+        await User.findByIdAndUpdate(userId, { isCurrentWatchTimeExcised: false });
+      }
+
       return history;
     }
 
-    // Calculate total watched seconds in the current session (last 24 hours)
     const activeThreshold = new Date(now - SESSION_TIMEOUT);
     const allHistories = await VideoHistory.find({
       userId,
-      lastHeartbeatAt: { $gte: activeThreshold }
+      lastHeartbeatAt: { $gte: activeThreshold },
     });
 
     const otherWatched = allHistories
@@ -71,6 +90,8 @@ export const updateHeartbeat = async (userId: string, videoId: string) => {
       history.lastHeartbeatAt = new Date(now);
       await history.save();
       throw new Error("Your watch limit is completed");
+    } else {
+      await User.findByIdAndUpdate(userId, { isCurrentWatchTimeExcised: false });
     }
 
     history.totalWatchedSeconds += INCREMENT;

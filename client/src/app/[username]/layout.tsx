@@ -1,7 +1,7 @@
 import AppShell from "@/layout/AppShell";
-import ChannelDetails from "@/components/channelPage/ChannelDetails";
-import CategoriesTabs from "@/components/channelPage/CategoriesTabs";
-import ChannelVideoUploader from "@/components/channelPage/ChannelVideoUploader";
+import ChannelDetails from "@/features/profile/components/channelPage/ChannelDetails";
+import CategoriesTabs from "@/features/profile/components/channelPage/CategoriesTabs";
+import ChannelVideoUploader from "@/features/profile/components/channelPage/ChannelVideoUploader";
 import type { Metadata } from "next";
 
 type Props = {

@@ -1,17 +1,16 @@
-import AppShell from "@/layout/AppShell";
-import WatchLaterClient from "@/components/watchLater/WatchLaterClient";
-import type { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Watch Later | YouTube Clone",
-  description: "Videos you saved to watch later",
-};
+import AppShell from "@/layout/AppShell";
+import AuthGuard from "@/components/common/AuthGuard";
+import WatchLaterClient from "@/features/playlists/components/watchLater/WatchLaterClient";
 
 const WatchLaterPage = () => {
   return (
-    <AppShell>
-      <WatchLaterClient />
-    </AppShell>
+    <AuthGuard>
+      <AppShell>
+        <WatchLaterClient />
+      </AppShell>
+    </AuthGuard>
   );
 };
 

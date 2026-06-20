@@ -1,4 +1,5 @@
-import CardSkeleton from "./CardSkeleton";
+
+import CardSkeleton from "@/components/ui/CardSkeleton";
 import VideoCard from "./VideoCard";
 import EmptyVideoState from "./watch/EmptyVideoState";
 import { Video } from "@/types/entities";

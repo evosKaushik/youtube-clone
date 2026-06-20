@@ -2,13 +2,14 @@
 
 import axiosInstance from "@/api/axiosInstance";
 
-import SectionCard from "@/components/upload/SectionCard";
+import SectionCard from "@/features/video/components/upload/SectionCard";
 import AppShell from "@/layout/AppShell";
 import Image from "next/image";
 
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 
 import { FiUpload, FiImage, FiVideo, FiX } from "react-icons/fi";
+import AuthGuard from "@/components/common/AuthGuard";
 
 // =========================================
 // TYPES
@@ -238,7 +239,8 @@ export default function UploadVideoPage() {
   };
 
   return (
-    <AppShell>
+    <AuthGuard>
+      <AppShell>
       <section className="min-h-screen bg-background text-text px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* HEADER */}
@@ -488,5 +490,6 @@ export default function UploadVideoPage() {
         </div>
       </section>
     </AppShell>
+    </AuthGuard>
   );
 }

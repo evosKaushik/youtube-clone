@@ -1,425 +1,117 @@
-import { Request, Response } from "express";
-
-import { isValidObjectId } from "mongoose";
-
-import Video from "../model/video.model.js";
-import cloudinary from "../config/cloudinary.js";
-import fs from "fs";
-import Playlist from "../model/playlist.model.js";
-import { getDownloadUrl } from "../services/downloadVideos.js";
-import DownloadModel from "../model/download.model.js";
-import User from "../model/user.model.js";
+import { NextFunction, Request, Response } from "express";
+import {
+  uploadVideoService,
+  updateLikesService,
+  getAllVideosService,
+  getVideoByIdService,
+  searchVideosService,
+  downloadVideoService,
+  getAllHistoryService,
+} from "../services/video.service.js";
 import { finalizeWatch, updateHeartbeat } from "../services/heartBeat.js";
-import VideoHistory from "../model/videoHistory.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
-const cleanupUploadedFiles = (videoFile?: Express.Multer.File, thumbnailFile?: Express.Multer.File,) => {
-  if (videoFile?.path && fs.existsSync(videoFile.path)) {
-    fs.unlinkSync(videoFile.path);
-  }
-
-  if (thumbnailFile?.path && fs.existsSync(thumbnailFile.path)) {
-    fs.unlinkSync(thumbnailFile.path);
-  }
-};
-
-const uploadVideoController = async (req: Request, res: Response) => {
-  const files = req.files as {
-    [fieldname: string]: Express.Multer.File[] | undefined;
-  };
-
+const uploadVideoController = async (req: Request, res: Response, next: NextFunction) => {
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] | undefined };
   const videoFile = files?.video?.[0];
   const thumbnailFile = files?.thumbnail?.[0];
+  const { title, description } = req.body;
+  const userId = req.user?._id;
 
   try {
-    const { title, description } = req.body;
-
-    if (!title?.trim()) {
-      return res.status(400).json({
-        success: false,
-        error: "Title is required",
-      });
-    }
-
-    if (!description?.trim()) {
-      return res.status(400).json({
-        success: false,
-        error: "Description is required",
-      });
-    }
-
-    if (!videoFile) {
-      return res.status(400).json({
-        success: false,
-        error: "Video is required",
-      });
-    }
-
-    const uploadedVideo = await cloudinary.uploader.upload(videoFile.path, {
-      resource_type: "video",
-      folder: "videos",
-    });
-
-    let uploadedThumbnail = null;
-
-    if (thumbnailFile) {
-      uploadedThumbnail = await cloudinary.uploader.upload(thumbnailFile.path, {
-        folder: "thumbnails",
-      });
-    }
-
-    const videoURL = uploadedVideo.secure_url;
-    const thumbnailURL = uploadedThumbnail?.secure_url || "";
-    const duration = Math.round(uploadedVideo.duration || 0);
-    const userId = req.user?._id;
-
-    const video = await Video.create({
-      name: title.trim(),
-      description: description.trim(),
-      videoURL,
-      thumbnailURL,
-      creatorId: userId,
-      likes: 0,
-      views: 0,
-      duration,
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "Video uploaded successfully",
-      video,
-    });
+    const video = await uploadVideoService(userId, title, description, videoFile, thumbnailFile);
+    return res.status(201).json(new ApiResponse(201, { video }, "Video uploaded successfully"));
   } catch (error) {
-    console.error("Upload Video Error:", error);
-
-    return res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
-  } finally {
-    cleanupUploadedFiles(videoFile, thumbnailFile);
+    next(error);
   }
 };
 
-const updateLikes = async (req: Request, res: Response) => {
+const updateLikes = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { vid: videoId } = req.params;
     const userId = req?.user?._id;
-
-    if (!isValidObjectId(videoId)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid video ID",
-      });
-    }
-
-    const existingPlaylist = await Playlist.findOne({
-      videoId,
-      userId,
-      type: "like",
-    });
-
-    if (existingPlaylist) {
-      return res.status(400).json({ error: "You already like the video" });
-    }
-
-    const video = await Video.findById(videoId);
-
-    if (!video) {
-      return res.status(404).json({
-        success: false,
-        error: "Video not found",
-      });
-    }
-
-    video.likes += 1;
-
-    await video.save();
-
-    await Playlist.create({
-      videoId: videoId as any,
-      userId: userId as any,
-      type: "like",
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Likes updated successfully",
-      updatedLikes: video.likes,
-    });
+    const updatedLikes = await updateLikesService(videoId, userId);
+    return res.status(200).json(new ApiResponse(200, { updatedLikes }, "Likes updated successfully"));
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    next(error);
   }
 };
 
-const getAllVideos = async (req: Request, res: Response) => {
+const getAllVideos = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const videos = await Video.find()
-      .populate("creatorId", "channelName channelUsername profilePicture")
-      .limit(10)
-      .select("-__v -updatedAt")
-      .lean();
-
-    if (!videos) {
-      return res.status(404).json({
-        error: "no Video Found",
-      });
-    }
-
-    res.status(200).json(videos);
+    const videos = await getAllVideosService();
+    return res.status(200).json(new ApiResponse(200, videos, "Videos fetched successfully"));
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    next(error);
   }
 };
 
-const getVideoById = async (req: Request, res: Response) => {
+const getVideoById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { vid } = req.params;
-
-    if (!isValidObjectId(vid)) {
-      return res.status(400).json({ error: "Not valid Video Id" });
-    }
-
-    const video = await Video.findByIdAndUpdate(
-      vid,
-      { $inc: { views: 1 } },
-      { returnDocument: "after" },
-    )
-      .populate(
-        "creatorId",
-        "channelName channelUsername channelDescription profilePicture",
-      )
-      .lean();
-
-    if (!video) {
-      return res.status(404).json({
-        error: "Video not found",
-      });
-    }
-
-    res.status(200).json(video);
+    const video = await getVideoByIdService(vid);
+    return res.status(200).json(new ApiResponse(200, video, "Video fetched successfully"));
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    next(error);
   }
 };
 
-const searchController = async (req: Request, res: Response) => {
+const searchController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { q } = req.query;
-
-    if (!q || typeof q !== "string") {
-      return res.status(400).json({
-        success: false,
-        message: "Search query is required",
-      });
-    }
-
-    const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-    const results = await Video.find({
-      $or: [
-        {
-          name: {
-            $regex: escapedQuery,
-            $options: "i",
-          },
-        },
-        {
-          description: {
-            $regex: escapedQuery,
-            $options: "i",
-          },
-        },
-      ],
-    })
-      .populate("creatorId", "channelName channelUsername profilePicture")
-      .limit(10)
-      .lean();
-
-    return res.status(200).json({
-      success: true,
-      count: results.length,
-      data: results,
-    });
+    const results = await searchVideosService(q as string);
+    return res.status(200).json(new ApiResponse(200, { count: results.length, data: results }, "Search results fetched"));
   } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 };
 
-const downloadVideoByVideoId = async (req: Request, res: Response) => {
-  const { videoId } = req.params;
-  const userId = req.user._id;
-
-  if (Array.isArray(videoId) || !isValidObjectId(videoId)) {
-    return res.status(400).json({ error: "Invalid video ID" });
-  }
-
+const downloadVideoByVideoId = async (req: Request, res: Response, next: NextFunction) => {
   try {
-
-    const user = await User.findById(userId)
-      .select("subscription")
-      .lean();
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    let subscription = user.subscription;
-
-
-    const isExpired =
-      subscription?.expiresAt &&
-      Date.now() > new Date(subscription.expiresAt).getTime();
-
-    if (isExpired) {
-      await User.updateOne(
-        { _id: userId },
-        {
-          "subscription.plan": "Free",
-          "subscription.status": "expired",
-          "subscription.watchTimeInMinutes": 5,
-          "subscription.noOfDownloads": 0,
-          "subscription.expiresAt": null,
-        }
-      );
-
-      subscription = {
-        ...subscription,
-        plan: "Free",
-        status: "expired",
-        watchTimeInMinutes: 5,
-        noOfDownloads: 0,
-        expiresAt: null,
-      };
-    }
-
-    const downloadLimit = subscription?.noOfDownloads ?? 1;
-
-
-    const ONE_DAY_AGO = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
-    const downloadsInLast24h = await DownloadModel.countDocuments({
-      userId,
-      createdAt: { $gte: ONE_DAY_AGO },
-    });
-
-    if (downloadsInLast24h >= downloadLimit) {
-      const latestDownload = await DownloadModel.findOne({ userId })
-        .select("createdAt")
-        .sort({ createdAt: -1 })
-        .lean();
-
-      let remainingHours = 24;
-
-      if (latestDownload?.createdAt) {
-        const timeDiff = Date.now() - latestDownload.createdAt.getTime();
-        remainingHours = Math.ceil(
-          (24 * 60 * 60 * 1000 - timeDiff) / (1000 * 60 * 60)
-        );
-      }
-
-      return res.status(400).json({
-        error: `Download limit reached. Try again in ${remainingHours} hour(s).`,
-      });
-    }
-
-
-    const downloadUrl = await getDownloadUrl(videoId);
-
-
-    await DownloadModel.create({
-      userId,
-      videoId,
-    });
-
-    return res.status(200).json({ downloadUrl });
+    const { videoId } = req.params;
+    const userId = req.user._id;
+    const downloadUrl = await downloadVideoService(videoId, userId);
+    return res.status(200).json(new ApiResponse(200, { downloadUrl }, "Download URL generated"));
   } catch (error) {
-    return res.status(500).json({
-      error:
-        error instanceof Error ? error.message : "Internal Server Error",
-    });
+    next(error);
   }
 };
 
-const heartbeatController = async (req: Request, res: Response) => {
-
+const heartbeatController = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user._id;
   const { videoId } = req.body;
 
   try {
     await updateHeartbeat(userId, videoId);
-
-    return res.json({ success: true });
+    return res.status(200).json(new ApiResponse(200, null, "Heartbeat updated"));
   } catch (error: any) {
-    console.log(error);
-    const status = error?.message === "Your watch limit is completed" ? 403 : 500;
-    res.status(status).json({ error: error?.message || "Internal Server Error" });
+    // heartBeat.js throws Error objects, so we need to map them to next(error)
+    if (error?.message === "Your watch limit is completed") {
+      error.statusCode = 403;
+    }
+    next(error);
   }
-
 };
 
-const stopWatchController = async (req: Request, res: Response) => {
+const stopWatchController = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.user._id;
   const { videoId } = req.body;
 
   try {
     await finalizeWatch(userId, videoId);
-
-
-    return res.json({ success: true });
+    return res.status(200).json(new ApiResponse(200, null, "Watch finalized"));
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Internal Server Error";
-    res.status(500).json({
-      error: message,
-    });
+    next(error);
   }
 };
 
-const getAllHistory = async (req: Request, res: Response) => {
-  const userId = req.user?._id;
-  if (!isValidObjectId(userId)) {
-    return res.status(400).json({ error: "Not valid Video Id" });
-  }
+const getAllHistory = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const historyVideos = await VideoHistory.find({ userId }).populate("videoId", "_id name thumbnailURL creatorId views").select("_id videoId  totalWatchedSeconds createdAt").lean();
-    // const creator = await User.find(historyVideos?.videoId?._id).lean()
-    // console.log(creator)
-
-    if (historyVideos.length === 0) {
-      return res.status(404).json({
-        error: "History videos not found",
-      });
-    }
-
-    return res.status(200).json(historyVideos);
+    const userId = req.user?._id;
+    const historyVideos = await getAllHistoryService(userId);
+    return res.status(200).json(new ApiResponse(200, historyVideos, "History fetched successfully"));
   } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      error:
-        error instanceof Error
-          ? error.message
-          : "Internal Server Error",
-    });
+    next(error);
   }
 };
 
@@ -432,5 +124,5 @@ export {
   downloadVideoByVideoId,
   heartbeatController,
   stopWatchController,
-  getAllHistory
+  getAllHistory,
 };

@@ -4,8 +4,8 @@ import {
 } from "@/api/videoApi";
 
 import { getCommentsApi } from "@/api/commentApi";
-import WatchClient from "@/components/watch/WatchClient";
-import WatchSkeleton from "@/components/watch/WatchSkeleton";
+import WatchClient from "@/features/video/components/watch/WatchClient";
+import WatchSkeleton from "@/features/video/components/watch/WatchSkeleton";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 

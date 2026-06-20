@@ -1,5 +1,5 @@
 import AppShell from "@/layout/AppShell";
-import VideoContainer from "@/components/VideoContainer";
+import VideoContainer from "@/features/video/components/VideoContainer";
 
 const Loading = () => {
   return (

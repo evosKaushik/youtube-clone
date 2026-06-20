@@ -1,5 +1,5 @@
 import { fetchAllVideos } from "@/api/videoApi";
-import VideoContainer from "@/components/VideoContainer";
+import VideoContainer from "@/features/video/components/VideoContainer";
 import { Suspense } from "react";
 
 

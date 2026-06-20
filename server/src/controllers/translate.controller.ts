@@ -1,21 +1,15 @@
-import { Request, Response } from "express";
-import { translate } from '@vitalets/google-translate-api';
+import { NextFunction, Request, Response } from "express";
+import { translateToEnglishService } from "../services/translate.service.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
-const translateToEnglishController = async (req: Request, res: Response) => {
-    const { text: textPayload } = req?.body
+const translateToEnglishController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { text: textPayload } = req?.body;
+    const translatedText = await translateToEnglishService(textPayload);
+    return res.status(200).json(new ApiResponse(200, { translatedText }, "Text translated successfully"));
+  } catch (error) {
+    next(error);
+  }
+};
 
-    if (!textPayload) return res.status(400).json({ error: "enter valid text" })
-    try {
-        const { text } = await translate(textPayload, { to: 'en' });
-
-        if(!text) return res.status(400).json({error: "Unable to translate"})
-        
-        return res.status(200).json({
-            translatedText: text,
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ error: "Translation failed" });
-    }
-}
-export { translateToEnglishController }
+export { translateToEnglishController };

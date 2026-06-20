@@ -1,71 +1,30 @@
-import { Request, Response } from "express";
-import Playlist from "../model/playlist.model.js";
-import { isValidObjectId } from "mongoose";
+import { NextFunction, Request, Response } from "express";
+import {
+  addVideoToPlaylistService,
+  getAllPlaylistVideoService,
+} from "../services/playlist.service.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
-const addVideoToPlaylistController = async (req: Request, res: Response) => {
-  const { vid, type } = req.body;
-  console.log(vid, type);
-  if (!vid || !type)
-    return res.status(400).json({
-      error: "All fields are required",
-    });
-  if (!isValidObjectId(vid)) {
-    return res.status(400).json({
-      success: false,
-      error: "Invalid video ID",
-    });
-  }
+const addVideoToPlaylistController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req?.user?._id;
-    const playlist = await Playlist.create({
-      videoId: vid,
-      userId,
-      type,
-    });
-    if (!playlist)
-      return res.status(400).json({ error: "playlist not created" });
-    return res.status(201).json({
-      success: true,
-      playlist,
-    });
+    const { vid, type } = req.body;
+    const userId = req.user?._id;
+    const playlist = await addVideoToPlaylistService(userId, vid, type);
+    return res.status(201).json(new ApiResponse(201, { playlist }, "Added to playlist successfully"));
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    next(error);
   }
 };
 
-const getAllPlaylistVideo = async (req: Request, res: Response) => {
-  const { type } = req.query;
-  if (!type)
-    return res.status(400).json({
-      error: "All fields are required",
-    });
+const getAllPlaylistVideo = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const userId = req?.user?._id;
-
-    
-
-    const playlists = await Playlist.find({
-      userId,
-      type: type as "watchLater" | "like",
-    }).populate("videoId").limit(10);
-
-    
-    if (!playlists) return res.status(404).json({ error: "Playlist not found" });
-
-
-    res.status(200).json({
-      videos: playlists,
-    });
+    const { type } = req.query;
+    const userId = req.user?._id;
+    const playlists = await getAllPlaylistVideoService(userId, type as string);
+    return res.status(200).json(new ApiResponse(200, { videos: playlists }, "Playlists fetched successfully"));
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: "Internal server error",
-    });
+    next(error);
   }
 };
+
 export { addVideoToPlaylistController, getAllPlaylistVideo };

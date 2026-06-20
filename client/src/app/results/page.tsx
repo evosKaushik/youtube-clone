@@ -1,5 +1,5 @@
 import { getVideosBySearchApi } from "@/api/videoApi";
-import VideoContainer from "@/components/VideoContainer";
+import VideoContainer from "@/features/video/components/VideoContainer";
 import AppShell from "@/layout/AppShell";
 import { Metadata } from "next";
 import { Suspense } from "react";

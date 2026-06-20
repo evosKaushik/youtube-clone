@@ -1,7 +1,7 @@
 "use client"
 
 
-import PopupBox from "@/components/PopupBox";
+import PopupBox from "@/components/ui/PopupBox";
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
 import type { IconType } from "react-icons";

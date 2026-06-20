@@ -1,4 +1,4 @@
-import WatchSkeleton from "@/components/watch/WatchSkeleton";
+import WatchSkeleton from "@/features/video/components/watch/WatchSkeleton";
 
 const Loading = () => {
   return <WatchSkeleton />;

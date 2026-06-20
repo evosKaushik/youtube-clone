@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import VideoStreamingContainer from "@/components/VideoStreamingContainer";
-import VideoContainer from "@/components/VideoContainer";
+import VideoStreamingContainer from "@/features/video/components/VideoStreamingContainer";
+import VideoContainer from "@/features/video/components/VideoContainer";
 import { useUser } from "@/libs/AuthContext";
 import { downloadVideoById, updateLikesApi, fetchVideoByIdApi } from "@/api/videoApi";
 import { addCommentApi } from "@/api/commentApi";
