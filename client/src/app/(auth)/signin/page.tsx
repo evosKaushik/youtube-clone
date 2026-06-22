@@ -14,11 +14,10 @@ import toast from "react-hot-toast";
 import { usePopup } from "@/contexts/popupContext";
 import { useUser } from "@/libs/AuthContext";
 import Link from "next/link";
-import { BiPhoneCall } from "react-icons/bi";
 import { registerApi, verifyOtpApi } from "@/api/userApi";
 import { useRouter } from 'next/navigation';
 
-
+import GuestGuard from "@/components/common/GuestGuard";
 
 const LoginCardSection = () => {
   const router = useRouter();
@@ -31,14 +30,11 @@ const LoginCardSection = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-
   const [errors, setErrors] = useState({
     fullName: "",
     username: "",
     email: "",
     password: "",
-    phoneNumber: "",
     state: "",
   });
 
@@ -51,7 +47,6 @@ const LoginCardSection = () => {
       username: "",
       email: "",
       password: "",
-      phoneNumber: "",
       state: "",
     };
 
@@ -101,15 +96,6 @@ const LoginCardSection = () => {
       isValid = false;
     }
 
-    if (!phoneNumber.trim()) {
-      newErrors.phoneNumber = "Email is phone number";
-      isValid = false;
-    }
-    if (!/^[6-9]\d{9}$/.test(phoneNumber)) {
-      newErrors.phoneNumber = "Please enter a valid Indian mobile number";
-      isValid = false;
-    }
-
     setErrors(newErrors);
 
     return isValid;
@@ -137,7 +123,6 @@ const LoginCardSection = () => {
         email,
         password,
         userState: state,
-        phoneNumber,
       };
 
       const data = await registerApi(formData);
@@ -369,6 +354,7 @@ const LoginCardSection = () => {
   };
 
   return (
+    <GuestGuard>
     <section
       className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
       style={{
@@ -601,54 +587,6 @@ const LoginCardSection = () => {
             <p className="mt-1 text-sm text-red-500">{errors.email}</p>
           )}
         </div>
-        <div className="mb-4">
-          <label className="block mb-2 text-sm font-medium">
-            Enter your phone Number
-          </label>
-
-          <div className="relative">
-            <BiPhoneCall
-              className="absolute left-4 top-1/2 -translate-y-1/2"
-              color="gray"
-            />
-
-            <input
-              type="text"
-              disabled={loading}
-              value={phoneNumber}
-              onChange={(e) => {
-                setPhoneNumber(e.target.value);
-
-                if (errors.email) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    phoneNumber: "",
-                  }));
-                }
-              }}
-              placeholder="148292849"
-              className="
-    w-full
-    h-12
-    pl-12
-    pr-4
-    rounded-xl
-    border
-    outline-none
-    transition-all
-  "
-              style={{
-                background: "var(--background)",
-                borderColor: errors.phoneNumber ? "#ef4444" : "var(--border)",
-                color: "var(--text)",
-              }}
-            />
-          </div>
-          {errors.phoneNumber && (
-            <p className="mt-1 text-sm text-red-500">{errors.phoneNumber}</p>
-          )}
-        </div>
-
         {/* Password */}
         <div className="mb-4">
           <label className="block mb-2 text-sm font-medium">Password</label>
@@ -866,6 +804,7 @@ const LoginCardSection = () => {
         </div>
       </form>
     </section>
+    </GuestGuard>
   );
 };
 

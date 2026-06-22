@@ -20,12 +20,14 @@ import { useTheme } from "@/hooks/useTheme";
 import useMedia from "@/hooks/useMedia";
 import BottomNavigation from "./BottomNavigation";
 import { usePopup } from "@/contexts/popupContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Navbar() {
   const { user, loading } = useUser();
   const { theme, toggleTheme } = useTheme();
   const isSmallerDevice = useMedia("sm");
+  const pathname = usePathname();
+  const isCallPage = pathname?.startsWith("/call");
 
   const { showPopup, hidePopup } = usePopup();
 
@@ -71,7 +73,8 @@ export default function Navbar() {
 
             body: (
               <input
-                value={roomId}
+                id="navbar-join-room-id"
+                defaultValue=""
                 onChange={(e) => setRoomId(e.target.value)}
                 placeholder="Custom Room ID"
                 className="
@@ -98,8 +101,10 @@ export default function Navbar() {
               label: "Join",
 
               action: () => {
-                if (!roomId) return;
-                router.push(`/call/${roomId}`);
+                const input = document.getElementById("navbar-join-room-id") as HTMLInputElement;
+                const joinRoomId = input?.value.trim();
+                if (!joinRoomId) return;
+                router.push(`/call/${joinRoomId}`);
 
                 hidePopup();
               },
@@ -207,6 +212,9 @@ export default function Navbar() {
       },
     });
   };
+
+  // Don't render Navbar on the call page for fullscreen experience
+  if (isCallPage) return null;
 
   return (
     <>

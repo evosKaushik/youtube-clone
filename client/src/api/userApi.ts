@@ -30,7 +30,6 @@ export const registerApi = async (payload: {
   username: string;
   email: string;
   password: string;
-  phoneNumber: string;
   userState: string;
 }) => {
   try {

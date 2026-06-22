@@ -21,8 +21,12 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(express.json());
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(",").map((o) => o.trim())
+  : ["http://localhost:3000"];
+
 app.use(cors({
-  origin: ["https://sasta-youtube-clone.vercel.app", "http://localhost:3000"],
+  origin: allowedOrigins,
   credentials: true,
 }));
 const io = new Server(server, {

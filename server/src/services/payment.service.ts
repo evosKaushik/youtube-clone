@@ -6,6 +6,7 @@ import User from "../model/user.model.js";
 import { SubscriptionPlan } from "../types/subscriptions.js";
 import { subscription } from "../constant/constant.js";
 import { ApiError } from "../utils/ApiError.js";
+import { sendInvoiceEmail } from "./resend.js";
 
 dotenv.config();
 
@@ -94,6 +95,20 @@ export const verifyPaymentService = async (
       paidAt: new Date(),
     }
   );
+
+  // Send invoice email
+  const user = await User.findById(userId).select("name email").lean();
+  if (user?.email) {
+    sendInvoiceEmail(
+      user.email,
+      user.name || "User",
+      payment.plan,
+      payment.amount,
+      payment.isYearly,
+      razorpay_payment_id,
+      expiry
+    ).catch((err) => console.error("Invoice email failed:", err));
+  }
 
   return true;
 };

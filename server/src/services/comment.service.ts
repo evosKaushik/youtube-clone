@@ -1,7 +1,7 @@
 import Comment from "../model/comment.model.js";
 import { ApiError } from "../utils/ApiError.js";
 
-export const addCommentService = async (userId: string, targetId: string, targetType: string, body: string) => {
+export const addCommentService = async (userId: string, targetId: string, targetType: "User" | "Video", body: string) => {
     if (!targetId || !targetType || !body) {
         throw new ApiError(400, "Missing fields");
     }
@@ -16,6 +16,12 @@ export const addCommentService = async (userId: string, targetId: string, target
         throw new ApiError(400, "Comment too long");
     }
 
+    // Block comments containing special characters
+    const specialCharsRegex = /[^a-zA-Z0-9\s.,!?'"@#_\-:;()&]/;
+    if (specialCharsRegex.test(trimmedBody)) {
+        throw new ApiError(400, "Comments containing special characters are not allowed");
+    }
+
     const allowedTypes = ["Video", "User"];
 
     if (!allowedTypes.includes(targetType)) {
@@ -23,9 +29,9 @@ export const addCommentService = async (userId: string, targetId: string, target
     }
 
     const comment = await Comment.create({
-        targetId,
+        targetId: targetId as any,
         targetType,
-        userId,
+        userId: userId as any,
         body: trimmedBody,
     });
 
@@ -36,13 +42,13 @@ export const addCommentService = async (userId: string, targetId: string, target
     return populatedComment;
 };
 
-export const getCommentsService = async (targetId: string, targetType: string) => {
+export const getCommentsService = async (targetId: string, targetType: "User" | "Video") => {
     if (!targetType || !targetId) {
         throw new ApiError(400, "Target type required");
     }
 
     const comments = await Comment.find({
-        targetId,
+        targetId: targetId as any,
         targetType,
         isDeleted: false,
     })
@@ -61,7 +67,7 @@ export const toggleLikeCommentService = async (commentId: string, userId: string
         throw new ApiError(404, "Comment not found");
     }
 
-    const alreadyLiked = comment.likes.includes(userId);
+    const alreadyLiked = comment.likes.includes(userId as any);
 
     let isLike = false;
 
@@ -69,7 +75,7 @@ export const toggleLikeCommentService = async (commentId: string, userId: string
         comment.likes = comment.likes.filter((id: any) => id?.toString() !== userId?.toString());
         isLike = true;
     } else {
-        comment.likes.push(userId);
+        comment.likes.push(userId as any);
         comment.dislikes = comment.dislikes?.filter((id: any) => id?.toString() !== userId?.toString());
         isLike = false;
     }
@@ -86,12 +92,12 @@ export const toggleDislikeCommentService = async (commentId: string, userId: str
         throw new ApiError(404, "Comment not found");
     }
 
-    const alreadyDisliked = comment.dislikes.includes(userId);
+    const alreadyDisliked = comment.dislikes.includes(userId as any);
 
     if (alreadyDisliked) {
         comment.dislikes = comment.dislikes.filter((id: any) => id.toString() !== userId.toString());
     } else {
-        comment.dislikes.push(userId);
+        comment.dislikes.push(userId as any);
         comment.likes = comment.likes.filter((id: any) => id.toString() !== userId.toString());
     }
 

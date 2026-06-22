@@ -31,7 +31,7 @@ const uploadVideoController = async (req: Request, res: Response, next: NextFunc
 
 const updateLikes = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { vid: videoId } = req.params;
+    const videoId = req.params.vid as string;
     const userId = req?.user?._id;
     const updatedLikes = await updateLikesService(videoId, userId);
     return res.status(200).json(new ApiResponse(200, { updatedLikes }, "Likes updated successfully"));
@@ -51,7 +51,7 @@ const getAllVideos = async (req: Request, res: Response, next: NextFunction) => 
 
 const getVideoById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { vid } = req.params;
+    const vid = req.params.vid as string;
     const video = await getVideoByIdService(vid);
     return res.status(200).json(new ApiResponse(200, video, "Video fetched successfully"));
   } catch (error) {
@@ -71,7 +71,7 @@ const searchController = async (req: Request, res: Response, next: NextFunction)
 
 const downloadVideoByVideoId = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { videoId } = req.params;
+    const videoId = req.params.videoId as string;
     const userId = req.user._id;
     const downloadUrl = await downloadVideoService(videoId, userId);
     return res.status(200).json(new ApiResponse(200, { downloadUrl }, "Download URL generated"));

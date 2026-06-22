@@ -2,7 +2,7 @@ import { isValidObjectId } from "mongoose";
 import Playlist from "../model/playlist.model.js";
 import { ApiError } from "../utils/ApiError.js";
 
-export const addVideoToPlaylistService = async (userId: string, vid: string, type: string) => {
+export const addVideoToPlaylistService = async (userId: string, vid: string, type: "watchLater" | "like") => {
   if (!vid || !type) {
     throw new ApiError(400, "All fields are required");
   }
@@ -12,8 +12,8 @@ export const addVideoToPlaylistService = async (userId: string, vid: string, typ
   }
 
   const playlist = await Playlist.create({
-    videoId: vid,
-    userId,
+    videoId: vid as any,
+    userId: userId as any,
     type,
   });
 
@@ -24,14 +24,14 @@ export const addVideoToPlaylistService = async (userId: string, vid: string, typ
   return playlist;
 };
 
-export const getAllPlaylistVideoService = async (userId: string, type: string) => {
+export const getAllPlaylistVideoService = async (userId: string, type: "watchLater" | "like") => {
   if (!type) {
     throw new ApiError(400, "All fields are required");
   }
 
   const playlists = await Playlist.find({
-    userId,
-    type: type as "watchLater" | "like",
+    userId: userId as any,
+    type,
   })
     .populate("videoId")
     .limit(10)

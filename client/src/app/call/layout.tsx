@@ -1,4 +1,3 @@
-import AppShell from "@/layout/AppShell";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,5 +6,9 @@ export const metadata: Metadata = {
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <AppShell>{children}</AppShell>;
+  return (
+    <main className="min-h-[calc(100vh-56px)] bg-background text-text">
+      {children}
+    </main>
+  );
 }

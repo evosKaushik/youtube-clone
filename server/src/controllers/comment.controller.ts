@@ -20,7 +20,7 @@ const addComment = async (req: Request, res: Response, next: NextFunction) => {
 
 const getComments = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { targetId } = req.params;
+        const targetId = req.params.targetId as string;
         const targetType = req.query.targetType as "User" | "Video";
         const comments = await getCommentsService(targetId, targetType);
         return res.status(200).json(new ApiResponse(200, comments, "Comments fetched successfully"));
@@ -31,7 +31,7 @@ const getComments = async (req: Request, res: Response, next: NextFunction) => {
 
 const toggleLikeComment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { commentId } = req.params;
+        const commentId = req.params.commentId as string;
         const userId = req.user?._id;
         const isLike = await toggleLikeCommentService(commentId, userId);
         return res.status(200).json(new ApiResponse(200, { isLike }, "Like toggled"));
@@ -42,7 +42,7 @@ const toggleLikeComment = async (req: Request, res: Response, next: NextFunction
 
 const toggleDislikeComment = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { commentId } = req.params;
+        const commentId = req.params.commentId as string;
         const userId = req.user?._id;
         await toggleDislikeCommentService(commentId, userId);
         return res.status(200).json(new ApiResponse(200, null, "Dislike toggled"));

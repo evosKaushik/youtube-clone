@@ -12,6 +12,7 @@ import { addCommentApi } from "@/api/commentApi";
 import { addPlaylistApi, getPlaylistApi } from "@/api/playlistApi";
 import { formatViews } from "@/libs/utils";
 import { Comment, Video, PlaylistItem } from "@/types/entities";
+import toast from "react-hot-toast";
 import CommentInput from "./CommentInput";
 import CommentList from "./CommentList";
 import VideoActions from "./VideoActions";
@@ -87,6 +88,16 @@ const WatchClient = ({
     checkSaveStatus();
   }, [user, currentVideo?._id]);
 
+  // Redirect guest users to login for interactive actions
+  const requireAuth = (action: () => void) => {
+    if (!user) {
+      toast.error("Please login to use this feature");
+      router.push("/signup");
+      return;
+    }
+    action();
+  };
+
   useEffect(() => {
     if (authLoading) return;
 
@@ -150,6 +161,19 @@ const WatchClient = ({
     }
   };
 
+  const handleNextVideo = () => {
+    if (getNextVideoId) {
+      router.push(`/watch?v=${getNextVideoId}`);
+    }
+  };
+
+  const handleOpenComments = () => {
+    const commentsSection = document.getElementById("comments-section");
+    if (commentsSection) {
+      commentsSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   const handleLike = async () => {
     if (!currentVideo?._id || likeLoading) return;
 
@@ -183,7 +207,11 @@ const WatchClient = ({
 
     if (!currentVideo?._id) return;
 
-    if (!user) return;
+    if (!user) {
+      toast.error("Please login to comment");
+      router.push("/signup");
+      return;
+    }
 
     try {
       setCommentLoading(true);
@@ -275,13 +303,15 @@ const WatchClient = ({
   }
 
   return (
-    <main className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8 px-3 sm:px-5 lg:px-8 py-5 lg:py-8 max-w-[1800px] mx-auto">
+    <main className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8 px-3 sm:px-5 lg:px-8 py-5 lg:py-8 pb-20 lg:pb-8 max-w-[1800px] mx-auto">
       {/* LEFT */}
       <section className="min-w-0">
         <VideoStreamingContainer
           videoUrl={currentVideo?.videoURL || ""}
           videoId={currentVideo?._id || ""}
           onEnded={handleVideoEnded}
+          onNextVideo={handleNextVideo}
+          onOpenComments={handleOpenComments}
         />
 
         {/* INFO */}
@@ -326,8 +356,8 @@ const WatchClient = ({
               isLiked={isLiked}
               isSaved={isSaved}
               loading={likeLoading}
-              onLike={handleLike}
-              onSave={async () => {
+              onLike={() => requireAuth(handleLike)}
+              onSave={() => requireAuth(async () => {
                 if (!currentVideo?._id) return;
 
                 try {
@@ -339,11 +369,11 @@ const WatchClient = ({
                 } catch (error) {
                   console.log(error);
                 }
-              }}
-              onDownload={async () => {
+              })}
+              onDownload={() => requireAuth(async () => {
                 if (!currentVideo?._id) return;
                 await downloadVideoById(currentVideo?._id);
-              }}
+              })}
             />
           </div>
 
@@ -360,7 +390,7 @@ const WatchClient = ({
         </div>
 
         {/* COMMENTS */}
-        <div className="w-full mt-10">
+        <div id="comments-section" className="w-full mt-10">
           <h3 className="text-xl font-semibold mb-5 text-text">
             {comments.length} Comments
           </h3>

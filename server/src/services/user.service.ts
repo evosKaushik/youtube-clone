@@ -54,9 +54,9 @@ const createChannelForUser = async (userId: string, data: any) => {
 };
 
 const registerUser = async (data: any) => {
-  const { name, username, email, password, phoneNumber, userState } = data;
+  const { name, username, email, password, userState } = data;
 
-  if (!name || !username || !email || !password || !phoneNumber || !userState) {
+  if (!name || !username || !email || !password || !userState) {
     throw new ApiError(400, "All fields are required");
   }
 
@@ -73,7 +73,6 @@ const registerUser = async (data: any) => {
     username,
     email,
     password,
-    phoneNumber,
     userState,
     verified: false,
   });

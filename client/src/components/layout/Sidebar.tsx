@@ -66,9 +66,12 @@ const Sidebar = () => {
   const closeOverlay = useSidebarStore((s) => s.closeOverlay);
   const pathname = usePathname();
   const isWatchPage = pathname === "/watch";
+  const isCallPage = pathname?.startsWith("/call");
 
   const showText = isOpen || isOverlay;
-  
+
+  // Don't render sidebar on the call page for fullscreen experience
+  if (isCallPage) return null;
 
   return (
     <>

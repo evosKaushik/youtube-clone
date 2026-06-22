@@ -50,7 +50,7 @@ router.get("/today-stats", authMiddleware, getTodayStats)
 router.put("/like/:vid", authMiddleware, updateLikes);
 router.get("/", getAllVideos);
 router.get("/search", searchController);
-router.get("/:vid", authMiddleware, checkIsWatchLimitOver, getVideoById);
+router.get("/:vid", getVideoById);
 router.get("/download/:videoId", authMiddleware,checkIsWatchLimitOver, downloadVideoByVideoId);
 router.post("/heartbeat", authMiddleware,checkIsWatchLimitOver, heartbeatController);
 router.post("/stop", authMiddleware,checkIsWatchLimitOver, stopWatchController);

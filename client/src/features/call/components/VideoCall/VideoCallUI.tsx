@@ -92,7 +92,7 @@ export default function VideoCallUI({
   const stopRecording = () => mediaRecorderRef.current?.stop();
 
   return (
-    <div className="h-[calc(100vh-56px)] bg-black flex flex-col select-none">
+    <div className="h-screen bg-black flex flex-col select-none">
 
       {/* ── Main area ─────────────────────────────────────────── */}
       <div className="flex-1 relative overflow-hidden bg-black">

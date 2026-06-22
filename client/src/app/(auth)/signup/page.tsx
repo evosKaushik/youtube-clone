@@ -15,10 +15,13 @@ import { usePopup } from "@/contexts/popupContext";
 import { getStateFromLocation } from "@/libs/utils";
 import { loginApi } from "@/api/userApi";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+import GuestGuard from "@/components/common/GuestGuard";
 
 const LoginCardSection = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setUser } = useUser();
   const [showPassword, setShowPassword] = useState(false);
   const { showPopup } = usePopup();
@@ -47,7 +50,9 @@ const LoginCardSection = () => {
 
         setTimeout(() => {
           setUser(data?.user);
-          router.push("/"); // Redirect to home page after successful login
+          // Redirect to the page the user was trying to access, or home
+          const redirectTo = searchParams.get("redirect") || "/";
+          router.push(decodeURIComponent(redirectTo));
         }, 2000);
       }
     } catch (error) {
@@ -203,6 +208,7 @@ const LoginCardSection = () => {
   }, []);
 
   return (
+    <GuestGuard>
     <section
       className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
       style={{
@@ -474,6 +480,7 @@ const LoginCardSection = () => {
         </div>
       </form>
     </section>
+    </GuestGuard>
   );
 };
 

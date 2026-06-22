@@ -9,7 +9,7 @@ import {
   useCallback,
 } from "react";
 
-import { onAuthStateChanged, signInWithRedirect, getRedirectResult, signOut } from "firebase/auth";
+import { onAuthStateChanged, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from "firebase/auth";
 
 import { auth, provider } from "./firebase";
 
@@ -61,9 +61,18 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (state) {
         localStorage.setItem("user_state", state);
       }
-      // Use signInWithRedirect instead of signInWithPopup to work on all devices
-      // including mobile where popups are blocked
-      await signInWithRedirect(auth, provider);
+      // Use signInWithPopup as primary (works on most devices)
+      // Fall back to signInWithRedirect if popup is blocked
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (popupError: any) {
+        // If popup is blocked or closed, fall back to redirect
+        if (popupError.code === "auth/popup-blocked" || popupError.code === "auth/popup-closed-by-user") {
+          await signInWithRedirect(auth, provider);
+        } else {
+          throw popupError;
+        }
+      }
     } catch (error) {
       console.log(error);
     }

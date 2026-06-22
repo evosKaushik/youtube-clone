@@ -10,9 +10,11 @@ type Props = {
   videoUrl: string;
   videoId: string;
   onEnded?: () => void;
+  onNextVideo?: () => void;
+  onOpenComments?: () => void;
 };
 
-export default function VideoPlayer({ videoUrl, videoId, onEnded }: Props) {
+export default function VideoPlayer({ videoUrl, videoId, onEnded, onNextVideo, onOpenComments }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<any>(null);
 
@@ -69,19 +71,18 @@ export default function VideoPlayer({ videoUrl, videoId, onEnded }: Props) {
       player.currentTime(player.currentTime() + 10);
     }
 
-    // Triple tap center
+    // Triple tap center = Next video
     if (zone === "center" && taps === 3) {
-      console.log("NEXT VIDEO");
+      onNextVideo?.();
     }
 
-    // Triple tap left
+    // Triple tap left = Open comments
     if (zone === "left" && taps === 3) {
-      console.log("OPEN COMMENTS");
+      onOpenComments?.();
     }
 
-    // Triple tap right
+    // Triple tap right = Close website
     if (zone === "right" && taps === 3) {
-      console.log("CLOSE WEBSITE");
       window.close();
     }
   };

@@ -2,6 +2,7 @@
 
 import { useUser } from "@/libs/AuthContext";
 import { FiMail, FiVideo, FiDownload, FiClock, FiSettings, FiLogOut, FiTrendingUp, FiUser } from "react-icons/fi";
+import { IoCall } from "react-icons/io5";
 import { HiOutlineBadgeCheck } from "react-icons/hi";
 import AuthGuard from "@/components/common/AuthGuard";
 import Link from "next/link";
@@ -13,8 +14,10 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getTodayStatsApi } from "@/api/videoApi";
+import { useRouter } from "next/navigation";
+import { usePopup } from "@/contexts/popupContext";
 
 const COLORS = ["#22c55e", "#facc15"];
 
@@ -31,6 +34,9 @@ function formatWatchTime(seconds: number): string {
 
 export default function ProfilePage() {
   const { user, logout, loading } = useUser();
+  const { showPopup, hidePopup } = usePopup();
+  const router = useRouter();
+  const [roomId, setRoomId] = useState("");
   const [todayStats, setTodayStats] = useState({
     todayDownloads: 0,
     todayWatchSeconds: 0,
@@ -54,8 +60,89 @@ export default function ProfilePage() {
   }, []);
   
   console.log(todayStats)
-  
-  
+
+  const handleCallBtn = useCallback(() => {
+    showPopup({
+      header: "Video Call",
+      popupMsg: "Create a new room or join an existing room",
+      selfClose: true,
+      button1: {
+        label: "Join Call",
+        action: () => {
+          showPopup({
+            header: "Join Call",
+            body: (
+              <input
+                id="profile-join-room-id"
+                defaultValue=""
+                onChange={(e) => setRoomId(e.target.value)}
+                placeholder="Custom Room ID"
+                className="w-full rounded-xl border border-border bg-background px-4 py-3 text-text"
+              />
+            ),
+            selfClose: true,
+            button1: { label: "Cancel", action: hidePopup },
+            button2: {
+              label: "Join",
+              action: () => {
+                const input = document.getElementById("profile-join-room-id") as HTMLInputElement;
+                const joinRoomId = input?.value.trim();
+                if (!joinRoomId) return;
+                router.push(`/call/${joinRoomId}`);
+                hidePopup();
+              },
+            },
+          });
+        },
+      },
+      button2: {
+        label: "Create Call",
+        action: () => {
+          showPopup({
+            header: "Create Room",
+            body: (
+              <div className="flex flex-col gap-3">
+                <input
+                  id="create-room-id"
+                  placeholder="Custom Room ID"
+                  className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white"
+                />
+              </div>
+            ),
+            selfClose: true,
+            button1: { label: "Cancel", action: hidePopup },
+            button2: {
+              label: "Create",
+              action: async () => {
+                const input = document.getElementById("create-room-id") as HTMLInputElement;
+                const roomId = input?.value.trim();
+                if (!roomId) return;
+                const link = `${window.location.origin}/call/${roomId}`;
+                showPopup({
+                  header: "Room Created",
+                  body: (
+                    <div className="flex flex-col gap-3">
+                      <input readOnly value={link} className="w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white" />
+                    </div>
+                  ),
+                  selfClose: true,
+                  button1: {
+                    label: "Copy Link",
+                    action: async () => { await navigator.clipboard.writeText(link); },
+                  },
+                  button2: {
+                    label: "Enter Room",
+                    action: () => { router.push(`/call/${roomId}`); hidePopup(); },
+                  },
+                });
+              },
+            },
+          });
+        },
+      },
+    });
+  }, [roomId, showPopup, hidePopup, router]);
+
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -223,6 +310,13 @@ export default function ProfilePage() {
               >
                 <FiClock /> Watch History
               </Link>
+
+              <button
+                onClick={handleCallBtn}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-card hover:bg-hover transition text-sm border border-border"
+              >
+                <IoCall /> Video Call
+              </button>
 
               <Link
                 href={`/@${username}`}
