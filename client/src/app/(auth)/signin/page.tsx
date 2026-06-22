@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { indianStates } from "@/constant/constant";
+import { GoogleLogin } from "@react-oauth/google";
 import {
-  FaGoogle,
   FaEye,
   FaEyeSlash,
   FaLock,
@@ -16,12 +16,13 @@ import { useUser } from "@/libs/AuthContext";
 import Link from "next/link";
 import { registerApi, verifyOtpApi } from "@/api/userApi";
 import { useRouter } from 'next/navigation';
+import axiosInstance from "@/api/axiosInstance";
 
 import GuestGuard from "@/components/common/GuestGuard";
 
 const LoginCardSection = () => {
   const router = useRouter();
-  const { loginWithGoogle } = useUser();
+  const { setUser } = useUser();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [state, setState] = useState("");
@@ -198,70 +199,29 @@ const LoginCardSection = () => {
       setLoading(false);
     }
   };
-  const handleGoogleLogin = async () => {
+  const handleGoogleSuccess = async (credentialResponse: any) => {
     try {
-      const existingUserState = localStorage.getItem("user_state");
+      const idToken = credentialResponse.credential;
+      const userState = localStorage.getItem("user_state") || "Unknown";
 
-      if (existingUserState) {
-        await loginWithGoogle(existingUserState);
-        return;
-      }
-
-      showPopup({
-        header: "Location Access Required",
-        popupMsg:
-          "We use your location to improve your experience. Do you want to continue?",
-
-        selfClose: true,
-
-        button1: {
-          label: "Cancel",
-          action: () => {},
-        },
-
-        button2: {
-          label: "Allow",
-          action: async () => {
-            try {
-              const state = await getStateFromLocation();
-
-              localStorage.setItem("user_state", state);
-
-              showPopup({
-                header: "Location Found",
-                popupMsg: `Your state is ${state}`,
-                selfClose: true,
-
-                button2: {
-                  label: "Continue",
-                  action: () => loginWithGoogle(state),
-                },
-              });
-            } catch (error) {
-              showPopup({
-                header: "Location Error",
-                popupMsg:
-                  error instanceof Error
-                    ? error.message
-                    : "Something went wrong",
-
-                selfClose: true,
-
-                button2: {
-                  label: "Continue Without Location",
-                  action: () => loginWithGoogle("Unknown"),
-                },
-              });
-            }
-          },
-        },
+      const { data } = await axiosInstance.post("/users/google", {
+        idToken,
+        userState,
       });
-    } catch (error) {
-      console.error(error);
 
-      loginWithGoogle("Unknown");
+      if (data?.user) {
+        toast.success("Login successful!");
+        localStorage.setItem("user", JSON.stringify(data.user));
+        setUser(data.user);
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Google login failed:", error);
+      toast.error("Google login failed. Please try again.");
     }
   };
+
+
 
   const handleForgotPassword = () => {
     console.log("🔑 Forgot Password");
@@ -758,30 +718,19 @@ const LoginCardSection = () => {
         </div>
 
         {/* Social Login */}
-        <div className="flex w-full sm:w-[90%] mx-auto ">
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="
-              h-12
-              rounded-xl
-              border
-              flex
-              items-center
-              justify-center
-              gap-2
-              transition-all
-              duration-300
-              hover:scale-[1.02]
-              grow
-            "
-            style={{
-              borderColor: "var(--border)",
+        <div className="flex w-full sm:w-[90%] mx-auto justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            theme="filled_blue"
+            text="signin_with"
+            shape="pill"
+            onError={() => {
+              console.log("Login Failed");
+              toast.error("Google login failed. Please try again.");
             }}
-          >
-            <FaGoogle />
-            Google
-          </button>
+            useOneTap
+            auto_select
+          />
         </div>
 
         {/* Footer */}

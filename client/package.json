@@ -9,9 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.13.5",
     "axios": "^1.16.1",
     "clsx": "^2.1.1",
-    "firebase": "^12.13.0",
     "next": "16.2.6",
     "plyr": "^3.8.4",
     "plyr-react": "^6.0.0",

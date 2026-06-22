@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import "plyr-react/plyr.css";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import Navbar from "@/components/layout/navbar/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
 import { UserProvider } from "@/libs/AuthContext";
@@ -14,12 +15,13 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+const GOOGLE_CLIENT_ID =
+  "761529584102-cu9i5gvl4vdfjkqdjfjpcb19rhfumqh1.apps.googleusercontent.com";
+
 export const metadata: Metadata = {
   title: "YouTube Clone",
   description: "Modern YouTube UI",
 };
-
-
 
 export default function RootLayout({
   children,
@@ -30,13 +32,15 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} bg-background text-text`}>
         <ThemeInitializer />
-        <PopupProvider>
-          <UserProvider>
-            <Navbar />
-            <Sidebar />
-            {children}
-          </UserProvider>
-        </PopupProvider>
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          <PopupProvider>
+            <UserProvider>
+              <Navbar />
+              <Sidebar />
+              {children}
+            </UserProvider>
+          </PopupProvider>
+        </GoogleOAuthProvider>
         <Toaster
           toastOptions={{
             duration: 4000,

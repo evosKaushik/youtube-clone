@@ -2,11 +2,25 @@ import User from "../model/user.model.js";
 import crypto from "node:crypto";
 import { sendOTP } from "./resend.js";
 import { ApiError } from "../utils/ApiError.js";
+import { verifyIdToken } from "../utils/googleAuth.js";
 
 const otpSession = new Map();
 
 const loginOrCreateUser = async (data: any) => {
-  const { name, email, profilePicture, userState } = data;
+  const { idToken, userState } = data;
+
+  if (!idToken) {
+    throw new ApiError(400, "Google ID token is required");
+  }
+
+  // Verify the Google ID token
+  const payload = await verifyIdToken(idToken);
+
+  if (!payload) {
+    throw new ApiError(401, "Invalid Google token");
+  }
+
+  const { email, name, picture } = payload;
 
   if (!name || !email) {
     throw new ApiError(400, "Name and email are required");
@@ -24,8 +38,8 @@ const loginOrCreateUser = async (data: any) => {
     name,
     email,
     username,
-    userState,
-    profilePicture,
+    userState: userState || "Unknown",
+    profilePicture: picture || "https://github.com/shadcn.png",
   });
 
   return user;

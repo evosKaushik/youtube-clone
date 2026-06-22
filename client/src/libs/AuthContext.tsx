@@ -9,10 +9,6 @@ import {
   useCallback,
 } from "react";
 
-import { onAuthStateChanged, signInWithRedirect, getRedirectResult, signOut } from "firebase/auth";
-
-import { auth, provider } from "./firebase";
-
 import axiosInstance from "@/api/axiosInstance";
 
 type UserType = {
@@ -34,7 +30,6 @@ type UserContextType = {
   user: UserType | null;
   setUser: (user: UserType | null) => void;
   loading: boolean;
-  loginWithGoogle: (state?: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -42,7 +37,6 @@ const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserType | null>(null);
-
   const [loading, setLoading] = useState(true);
 
   const saveUser = useCallback((userdata: UserType | null) => {
@@ -55,108 +49,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const loginWithGoogle = async (state?: string) => {
-    console.log(state);
-    try {
-      if (state) {
-        localStorage.setItem("user_state", state);
-      }
-      // Use signInWithRedirect to avoid Cross-Origin-Opener-Policy issues
-      // that block popup-based auth (window.close / window.closed) in production
-      await signInWithRedirect(auth, provider);
-    } catch (error) {
-      console.error("Google sign-in failed:", error);
-    }
-  };
-
   const logout = async () => {
-    try {
-      await signOut(auth);
-
-      saveUser(null);
-    } catch (error) {
-      console.log(error);
-    }
+    saveUser(null);
   };
 
-  // Handle result from signInWithRedirect (works on all devices including mobile)
+  // Restore user from localStorage on mount
   useEffect(() => {
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        // getRedirectResult returns null if there's no pending redirect
-        // The actual user handling will happen in onAuthStateChanged
-        if (result) {
-          console.log("Redirect login successful:", result.user.email);
-        }
-      } catch (error) {
-        console.error("Redirect result error:", error);
+    try {
+      const localUser = localStorage.getItem("user");
+      if (localUser) {
+        setUser(JSON.parse(localUser));
       }
-    };
-    handleRedirectResult();
+    } catch (error) {
+      console.error("Failed to restore user from localStorage:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
-
-  useEffect(() => {
-    let isCancelled = false;
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (isCancelled) return;
-      try {
-        setLoading(true);
-        if (!firebaseUser) {
-          const localUser = localStorage.getItem("user");
-
-          if (localUser) {
-            setUser(JSON.parse(localUser));
-          } else {
-            setUser(null);
-          }
-
-          setLoading(false);
-          return;
-        }
-
-        const userState = localStorage.getItem("user_state");
-        if (!userState) {
-          saveUser(null);
-          console.error("user state is required");
-          setLoading(false);
-          return;
-        }
-
-        const payload = {
-          email: firebaseUser.email,
-          name: firebaseUser.displayName,
-          profilePicture:
-            firebaseUser.photoURL || "https://github.com/shadcn.png",
-          userState,
-        };
-
-        const response = await axiosInstance.post("/users/google", payload);
-
-        if (response.data.user.userState) {
-          localStorage.setItem("user_state", response.data.user.userState);
-        }
-        if (!isCancelled) {
-          saveUser(response.data.user);
-        }
-      } catch (error) {
-        console.log(error);
-
-        if (!isCancelled) {
-          saveUser(null);
-        }
-      } finally {
-        if (!isCancelled) {
-          setLoading(false);
-        }
-      }
-    });
-
-    return () => {
-      isCancelled = true;
-      unsubscribe();
-    };
-  }, [saveUser]);
 
   return (
     <UserContext.Provider
@@ -164,7 +73,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         user,
         setUser,
         loading,
-        loginWithGoogle,
         logout,
       }}
     >
