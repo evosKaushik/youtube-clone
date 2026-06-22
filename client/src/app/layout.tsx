@@ -7,7 +7,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import { UserProvider } from "@/libs/AuthContext";
 import { Toaster } from "react-hot-toast";
 import { PopupProvider } from "@/contexts/popupContext";
-import { getThemeByLocationAndTime } from "@/libs/utils";
+import ThemeInitializer from "@/components/common/ThemeInitializer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,8 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} bg-background text-text`}>
+        <ThemeInitializer />
         <PopupProvider>
           <UserProvider>
             <Navbar />

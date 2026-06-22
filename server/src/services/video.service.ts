@@ -228,6 +228,62 @@ export const downloadVideoService = async (videoId: string, userId: string) => {
   return downloadUrl;
 };
 
+export const getAllDownloadsService = async (userId: string) => {
+  if (!isValidObjectId(userId)) throw new ApiError(400, "Not valid User Id");
+
+  const downloads = await DownloadModel.find({ userId })
+    .populate("videoId", "_id name thumbnailURL videoURL creatorId views duration createdAt")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  if (!downloads || downloads.length === 0) {
+    throw new ApiError(404, "No downloads found");
+  }
+
+  return downloads;
+};
+
+export const getDownloadCountService = async (userId: string) => {
+  if (!isValidObjectId(userId)) throw new ApiError(400, "Not valid User Id");
+
+  const count = await DownloadModel.countDocuments({ userId });
+  return count;
+};
+
+export const getTodayStatsService = async (userId: string) => {
+  if (!isValidObjectId(userId)) throw new ApiError(400, "Not valid User Id");
+
+  const ONE_DAY_AGO = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  // Downloads in last 24 hours
+  const todayDownloads = await DownloadModel.countDocuments({
+    userId,
+    createdAt: { $gte: ONE_DAY_AGO },
+  });
+
+  // Watch time in last 24 hours (in seconds)
+  const watchHistories = await VideoHistory.find({
+    userId,
+    lastHeartbeatAt: { $gte: ONE_DAY_AGO },
+  })
+    .select("totalWatchedSeconds")
+    .lean();
+
+  const todayWatchSeconds = watchHistories.reduce(
+    (sum, h) => sum + (h.totalWatchedSeconds || 0),
+    0
+  );
+
+  // Total downloads (all time)
+  const totalDownloads = await DownloadModel.countDocuments({ userId });
+
+  return {
+    todayDownloads,
+    todayWatchSeconds,
+    totalDownloads,
+  };
+};
+
 export const getAllHistoryService = async (userId: string) => {
   if (!isValidObjectId(userId)) throw new ApiError(400, "Not valid User Id");
 

@@ -44,19 +44,14 @@ export default function HistoryPage() {
           lg:px-8
         "
       >
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="mb-8 flex items-center gap-3">
-            <RiHistoryLine className="text-4xl" />
-            <h1 className="text-4xl font-bold">Watch history</h1>
+            <RiHistoryLine className="text-4xl shrink-0" />
+            <h1 className="text-2xl sm:text-4xl font-bold">Watch history</h1>
           </div>
 
           <div>
             <h2 className="mb-5 text-xl font-semibold">Today</h2>
-
-            <pre className="mb-5">
-              {JSON.stringify(history, null, 2)}
-              {/* <VideoContainer variant="playlist" videos={history}/>   */}
-            </pre>
 
             <PlaylistVideoContainer
               className="
@@ -91,11 +86,11 @@ export default function HistoryPage() {
               items-center
               gap-3
               border-b
-              border-zinc-700
+              border-border
               pb-3
             "
           >
-            <RiSearchLine className="text-xl text-zinc-400" />
+            <RiSearchLine className="text-xl text-secondaryText" />
 
             <input
               type="text"
@@ -105,23 +100,23 @@ export default function HistoryPage() {
                 bg-transparent
                 text-sm
                 outline-none
-                placeholder:text-zinc-400
+                placeholder:text-secondaryText text-text
               "
             />
           </div>
 
           <div className="flex flex-col gap-6">
-            <button className="flex items-center gap-4 text-sm font-medium">
+            <button className="flex items-center gap-4 text-sm font-medium text-text">
               <RiDeleteBin6Line className="text-xl" />
               Clear all watch history
             </button>
 
-            <button className="flex items-center gap-4 text-sm font-medium">
+            <button className="flex items-center gap-4 text-sm font-medium text-text">
               <RiHistoryLine className="text-xl" />
               Pause watch history
             </button>
 
-            <button className="flex items-center gap-4 text-sm font-medium">
+            <button className="flex items-center gap-4 text-sm font-medium text-text">
               <RiSettings3Line className="text-xl" />
               Manage all history
             </button>

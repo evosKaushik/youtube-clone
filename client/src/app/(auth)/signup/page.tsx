@@ -262,15 +262,14 @@ const LoginCardSection = () => {
       />
       {/* Card */}
       <form
-        onSubmit={handleSubmit}
-        className="
+        onSubmit={handleSubmit}          className="
     card-animate
           glass-card
           w-full
           max-w-[520px]
           rounded-[28px]
-          py-4 
-          px-8 
+          py-4
+          px-4 sm:px-8
           border
           shadow-2xl
         "
@@ -280,10 +279,10 @@ const LoginCardSection = () => {
       >
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight">Welcome back</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Welcome back</h1>
 
           <p
-            className="mt-2 text-base"
+            className="mt-2 text-sm sm:text-base"
             style={{
               color: "var(--secondary-text)",
             }}
@@ -364,7 +363,7 @@ const LoginCardSection = () => {
                 right-4
                 top-1/2
                 -translate-y-1/2
-                text-gray-400
+                text-secondaryText
               "
               onClick={() => setShowPassword((prev) => !prev)}
             >
@@ -429,7 +428,7 @@ const LoginCardSection = () => {
         </div>
 
         {/* Social Login */}
-        <div className="flex w-[90%] mx-auto ">
+        <div className="flex w-full sm:w-[90%] mx-auto ">
           <button
             type="button"
             onClick={handleGoogleLogin}

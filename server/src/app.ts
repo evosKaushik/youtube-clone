@@ -58,18 +58,37 @@ io.on("connection", (socket) => {
   socket.on(
     "join-room",
     ({ roomId }) => {
+      // Get existing users in the room BEFORE joining
+      const room = io.sockets.adapter.rooms.get(roomId);
+      const existingUsers: string[] = [];
+      if (room) {
+        room.forEach((id) => {
+          if (id !== socket.id) {
+            existingUsers.push(id);
+          }
+        });
+      }
+
       socket.join(roomId);
 
       console.log(
-        `${socket.id} joined ${roomId}`
+        `${socket.id} joined ${roomId}. Existing: ${existingUsers.length}`
       );
 
+      // Notify existing users about the new joiner
       socket.to(roomId).emit(
         "user-joined",
         {
           socketId: socket.id,
         }
       );
+
+      // Notify the joiner about existing users
+      if (existingUsers.length > 0) {
+        socket.emit("existing-users", {
+          users: existingUsers,
+        });
+      }
     }
   );
 

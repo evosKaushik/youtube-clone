@@ -33,7 +33,7 @@ const CategoriesTabs = ({ username }: Props) => {
         gap-8
         overflow-x-auto
         border-b
-        border-zinc-800
+        border-border
         scrollbar-hide
       "
     >
@@ -63,7 +63,7 @@ const CategoriesTabs = ({ username }: Props) => {
               ${
                 isActive
                   ? "text-white"
-                  : "text-zinc-400 hover:text-white"
+                  : "text-secondaryText hover:text-text"
               }
             `}
           >
@@ -77,7 +77,7 @@ const CategoriesTabs = ({ username }: Props) => {
                 left-0
                 h-[2px]
                 w-full
-                bg-white
+                bg-text
                 transition-all
                 duration-500
                 ease-[cubic-bezier(0.34,1.56,0.64,1)]

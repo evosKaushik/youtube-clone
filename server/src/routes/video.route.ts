@@ -9,7 +9,10 @@ import {
   downloadVideoByVideoId,
   heartbeatController,
   stopWatchController,
-  getAllHistory
+  getAllHistory,
+  getAllDownloads,
+  getDownloadCount,
+  getTodayStats
 } from "../controllers/video.controller.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -41,6 +44,9 @@ router.post(
 );
 
 router.get("/history", authMiddleware, getAllHistory)
+router.get("/downloads", authMiddleware, getAllDownloads)
+router.get("/downloads/count", authMiddleware, getDownloadCount)
+router.get("/today-stats", authMiddleware, getTodayStats)
 router.put("/like/:vid", authMiddleware, updateLikes);
 router.get("/", getAllVideos);
 router.get("/search", searchController);

@@ -57,11 +57,11 @@ const Layout = async ({
             w-full
             overflow-hidden
             rounded-2xl
-            bg-gradient-to-r from-zinc-800 via-zinc-700 to-zinc-900
+            bg-gradient-to-r from-card via-hover to-background
             flex items-center px-6
           "
                 >
-                    <p className="text-xl md:text-3xl font-semibold text-white/90">
+                    <p className="text-xl md:text-3xl font-semibold text-text/90">
                         @{cleanUsername}
                     </p>
                 </div>
@@ -72,8 +72,6 @@ const Layout = async ({
                     channelName={cleanUsername}
                 />
 
-                {/* Upload Box */}
-                <ChannelVideoUploader />
 
                 {/* Tabs */}
                 <CategoriesTabs

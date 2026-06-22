@@ -1,6 +1,6 @@
 "use client";
 
-import VideoContainer from "./VideoContainer";
+import VideoContainer from "@/features/video/components/VideoContainer";
 import { Video } from "@/types/entities";
 
 type Props = {
@@ -9,7 +9,11 @@ type Props = {
   videos?: Video[] | null;
 };
 
-const PlaylistVideoContainer = ({ className, cardClassName, videos = [] }: Props) => {
+const PlaylistVideoContainer = ({
+  className,
+  cardClassName,
+  videos = [],
+}: Props) => {
   return (
     <VideoContainer
       className={className}

@@ -427,14 +427,13 @@ const LoginCardSection = () => {
       />
       {/* Card */}
       <form
-        onSubmit={handleSubmit}
-        className="
+        onSubmit={handleSubmit}          className="
     card-animate
           glass-card
           w-full
           max-w-[520px]
           rounded-[28px]
-          p-8
+          px-4 sm:px-8 py-8
           border
           shadow-2xl
         "
@@ -444,12 +443,12 @@ const LoginCardSection = () => {
       >
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">
             Create your account
           </h1>
 
           <p
-            className="mt-2 text-base"
+            className="mt-2 text-sm sm:text-base"
             style={{
               color: "var(--secondary-text)",
             }}
@@ -698,7 +697,7 @@ const LoginCardSection = () => {
                 right-4
                 top-1/2
                 -translate-y-1/2
-                text-gray-400
+                text-secondaryText
               "
               onClick={() => setShowPassword((prev) => !prev)}
             >
@@ -710,11 +709,11 @@ const LoginCardSection = () => {
           )}
         </div>
         {/*Select State*/}
-        <div className="mb-4 flex gap-2 w-full">
+        <div className="mb-4 flex flex-col sm:flex-row gap-2 w-full">
           <select
             value={state}
             onChange={(e) => setState(e.target.value)}
-            className="h-12 rounded-xl border px-4 bg-card w-[70%]"
+            className="h-12 rounded-xl border px-4 bg-card w-full sm:w-[70%]"
             style={{
               borderColor: errors.state ? "#ef4444" : "var(--border)",
             }}
@@ -729,7 +728,7 @@ const LoginCardSection = () => {
           </select>
           <button
             className={`
-              w-[30%]
+              w-full sm:w-[30%]
               h-12
               rounded-xl
               font-semibold
@@ -821,7 +820,7 @@ const LoginCardSection = () => {
         </div>
 
         {/* Social Login */}
-        <div className="flex w-[90%] mx-auto ">
+        <div className="flex w-full sm:w-[90%] mx-auto ">
           <button
             type="button"
             onClick={handleGoogleLogin}

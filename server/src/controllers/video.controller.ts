@@ -7,6 +7,9 @@ import {
   searchVideosService,
   downloadVideoService,
   getAllHistoryService,
+  getAllDownloadsService,
+  getDownloadCountService,
+  getTodayStatsService,
 } from "../services/video.service.js";
 import { finalizeWatch, updateHeartbeat } from "../services/heartBeat.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -105,11 +108,41 @@ const stopWatchController = async (req: Request, res: Response, next: NextFuncti
   }
 };
 
+const getTodayStats = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?._id;
+    const stats = await getTodayStatsService(userId);
+    return res.status(200).json(new ApiResponse(200, stats, "Today stats fetched successfully"));
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getAllHistory = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?._id;
     const historyVideos = await getAllHistoryService(userId);
     return res.status(200).json(new ApiResponse(200, historyVideos, "History fetched successfully"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllDownloads = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?._id;
+    const downloads = await getAllDownloadsService(userId);
+    return res.status(200).json(new ApiResponse(200, downloads, "Downloads fetched successfully"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getDownloadCount = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?._id;
+    const count = await getDownloadCountService(userId);
+    return res.status(200).json(new ApiResponse(200, { count }, "Download count fetched successfully"));
   } catch (error) {
     next(error);
   }
@@ -125,4 +158,7 @@ export {
   heartbeatController,
   stopWatchController,
   getAllHistory,
+  getAllDownloads,
+  getDownloadCount,
+  getTodayStats,
 };

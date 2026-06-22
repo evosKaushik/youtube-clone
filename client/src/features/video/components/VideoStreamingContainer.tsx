@@ -9,9 +9,10 @@ import { sendWatchHeartbeatApi, stopWatchApi } from "@/api/videoApi";
 type Props = {
   videoUrl: string;
   videoId: string;
+  onEnded?: () => void;
 };
 
-export default function VideoPlayer({ videoUrl, videoId }: Props) {
+export default function VideoPlayer({ videoUrl, videoId, onEnded }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<any>(null);
 
@@ -150,6 +151,7 @@ export default function VideoPlayer({ videoUrl, videoId }: Props) {
     player.on("ended", async () => {
       isPlayingRef.current = false;
       await stopHeartbeat();
+      onEnded?.();
     });
 
     player.on("error", () => {

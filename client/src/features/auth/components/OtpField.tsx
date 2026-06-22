@@ -125,7 +125,7 @@ function OTPInputBox({
             ? "border-red-500"
             : state === "success"
             ? "border-green-500"
-            : "border-gray-300 focus-within:border-gray-500"
+            : "border-border focus-within:border-border"
         }
       `}
     >
@@ -275,10 +275,10 @@ export default function OTPVerification() {
           </div>
         ) : (
           <div className="transition-all duration-300">
-            <p className="text-center text-gray-600 mt-2 mb-8">
+            <p className="text-center text-secondaryText mt-2 mb-8">
               We've sent a 4-digit code to
               <br />
-              <span className="font-medium text-gray-800">
+              <span className="font-medium text-text">
                 yourname@example.com
               </span>
             </p>
@@ -305,12 +305,12 @@ export default function OTPVerification() {
             </div>
 
             <div className="text-center">
-              <span className="text-gray-600">
+              <span className="text-secondaryText">
                 Didn't get a code?{" "}
               </span>
 
               {isResendDisabled ? (
-                <span className="text-gray-500">
+                <span className="text-secondaryText">
                   Resend in {countdown}s
                 </span>
               ) : (

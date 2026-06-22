@@ -54,13 +54,13 @@ const PopupBox = () => {
         className={`
                     w-full
                     max-w-[520px]
-                    bg-[#181818]
+                    bg-card
                     border
-                    border-[#343434]
+                    border-border
                     rounded-2xl
                     shadow-2xl
                     p-6
-                    text-white
+                    text-text
                     transition-all
                     duration-300
                     ${
@@ -76,7 +76,7 @@ const PopupBox = () => {
               <h2 className="text-2xl font-semibold">{PopupData.header}</h2>
             )}
 
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-secondaryText mt-1">
               Please confirm this action
             </p>
           </div>
@@ -85,8 +85,8 @@ const PopupBox = () => {
             <button
               onClick={closePopup}
               className="
-                                text-gray-400
-                                hover:text-white
+                                text-secondaryText
+                                hover:text-text
                                 text-2xl
                                 transition
                             "
@@ -112,7 +112,7 @@ const PopupBox = () => {
           {PopupData.body
             ? PopupData.body
             : PopupData.popupMsg && (
-                <p className="text-lg text-gray-200 leading-relaxed">
+                <p className="text-lg text-text leading-relaxed">
                   {PopupData.popupMsg}
                 </p>
               )}
@@ -130,9 +130,9 @@ const PopupBox = () => {
         h-10
         px-5
         rounded-full
-        bg-[#2a2a2a]
-        hover:bg-[#3a3a3a]
-        text-white
+        bg-hover
+        hover:bg-border
+        text-text
         text-sm
         transition
         ${PopupData.button1.style || ""}
@@ -168,7 +168,7 @@ const PopupBox = () => {
         {/* OPTIONAL FOOTER TEXT */}
         {PopupData.footer && (
           <div className="mt-5 text-center">
-            <p className="text-xs text-gray-400">{PopupData.footer}</p>
+            <p className="text-xs text-secondaryText">{PopupData.footer}</p>
           </div>
         )}
       </div>

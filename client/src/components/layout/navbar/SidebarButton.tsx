@@ -7,12 +7,11 @@ import { FaBars } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 
 const SidebarButton = () => {
-  const isLgScreen = useMedia("lg");
+  const isBelowLg = useMedia("lg");
   const pathname = usePathname();
   const isWatchPage = pathname === "/watch";
 
   const toggleSidebar = useSidebarStore((s) => s.toggleSidebar);
-  const isOpen = useSidebarStore((s) => s.isOpen);
 
   const openOverlay = useSidebarStore((s) => s.openOverlay);
   const closeOverlay = useSidebarStore((s) => s.closeOverlay);
@@ -20,7 +19,9 @@ const SidebarButton = () => {
   const isOverlay = useSidebarStore((s) => s.isOverlay);
 
 const handleSidebar = () => {
-  if (!isLgScreen || isWatchPage) {
+  // On mobile (< lg) OR watch page, use overlay
+  // On desktop (>= lg), toggle sidebar width
+  if (isBelowLg || isWatchPage) {
     if (isOverlay) {
       closeOverlay();
     } else {
@@ -37,12 +38,12 @@ const handleSidebar = () => {
       className="
         flex h-11 w-11 items-center
         justify-center rounded-full
-        transition hover:bg-white/10
+        transition hover:bg-hover
         cursor-pointer
       "
       onClick={handleSidebar}
     >
-      <FaBars className="text-lg text-white" size={24} />
+      <FaBars className="text-lg text-text" size={24} />
     </button>
   );
 };

@@ -1,16 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import VideoStreamingContainer from "@/features/video/components/VideoStreamingContainer";
 import VideoContainer from "@/features/video/components/VideoContainer";
 import { useUser } from "@/libs/AuthContext";
 import { downloadVideoById, updateLikesApi, fetchVideoByIdApi } from "@/api/videoApi";
 import { addCommentApi } from "@/api/commentApi";
-import { addPlaylistApi } from "@/api/playlistApi";
+import { addPlaylistApi, getPlaylistApi } from "@/api/playlistApi";
 import { formatViews } from "@/libs/utils";
-import { Comment, Video } from "@/types/entities";
+import { Comment, Video, PlaylistItem } from "@/types/entities";
 import CommentInput from "./CommentInput";
 import CommentList from "./CommentList";
 import VideoActions from "./VideoActions";
@@ -31,15 +32,60 @@ const WatchClient = ({
   initialComments,
 }: Props) => {
   const { user, loading: authLoading } = useUser();
+  const router = useRouter();
   const [currentVideo, setCurrentVideo] = useState<Video | null>(initialVideo);
   const [loading, setLoading] = useState(!initialVideo);
   const [error, setError] = useState<string | null>(null);
   const [isLimitExceeded, setIsLimitExceeded] = useState(false);
-  const [videos] = useState(initialVideos);
+  const [allVideos] = useState(initialVideos);
   const [comments, setComments] = useState(initialComments);
   const [commentInput, setCommentInput] = useState("");
   const [likeLoading, setLikeLoading] = useState(false);
   const [commentLoading, setCommentLoading] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+
+  // Filter out current video from suggestions
+  const suggestedVideos = useMemo(
+    () => allVideos.filter((v) => v._id !== currentVideo?._id),
+    [allVideos, currentVideo?._id]
+  );
+
+  // Check if user has liked this video
+  useEffect(() => {
+    if (!user || !currentVideo?._id) return;
+    const checkLikeStatus = async () => {
+      try {
+        const data = await getPlaylistApi("like");
+        const likedVideos = data?.videos || [];
+        const isCurrentlyLiked = likedVideos.some(
+          (item: PlaylistItem) => item?.videoId?._id === currentVideo._id
+        );
+        setIsLiked(isCurrentlyLiked);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    checkLikeStatus();
+  }, [user, currentVideo?._id]);
+
+  // Check if user has saved this video to watch later
+  useEffect(() => {
+    if (!user || !currentVideo?._id) return;
+    const checkSaveStatus = async () => {
+      try {
+        const data = await getPlaylistApi("watchLater");
+        const savedVideos = data?.videos || [];
+        const isCurrentlySaved = savedVideos.some(
+          (item: PlaylistItem) => item?.videoId?._id === currentVideo._id
+        );
+        setIsSaved(isCurrentlySaved);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    checkSaveStatus();
+  }, [user, currentVideo?._id]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -92,6 +138,18 @@ const WatchClient = ({
     fetchVideo();
   }, [initialVideo, user, authLoading]);
 
+  // Auto-play next video when current ends
+  const getNextVideoId = useMemo(() => {
+    if (suggestedVideos.length === 0) return null;
+    return suggestedVideos[0]?._id;
+  }, [suggestedVideos]);
+
+  const handleVideoEnded = () => {
+    if (getNextVideoId) {
+      router.push(`/watch?v=${getNextVideoId}`);
+    }
+  };
+
   const handleLike = async () => {
     if (!currentVideo?._id || likeLoading) return;
 
@@ -100,16 +158,21 @@ const WatchClient = ({
 
       const video = await updateLikesApi(currentVideo._id);
 
+      setIsLiked(!isLiked);
+
       setCurrentVideo((prev) => {
         if (!prev) return prev;
 
         return {
           ...prev,
-          likes: video?.updatedLikes || 0,
+          likes: video?.updatedLikes || (isLiked ? prev.likes - 1 : prev.likes + 1),
         };
       });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.error(error);
+      if (error?.response?.data?.error?.includes("already like")) {
+        setIsLiked(true);
+      }
     } finally {
       setLikeLoading(false);
     }
@@ -191,7 +254,7 @@ const WatchClient = ({
     return (
       <main className="min-h-[85vh] flex items-center justify-center px-4">
         <div className="max-w-md w-full bg-card/60 backdrop-blur-md border border-border/40 rounded-3xl p-8 text-center shadow-2xl">
-          <div className="w-16 h-16 bg-zinc-800 text-zinc-400 rounded-2xl flex items-center justify-center mx-auto text-3xl mb-6">
+          <div className="w-16 h-16 bg-card text-secondaryText rounded-2xl flex items-center justify-center mx-auto text-3xl mb-6">
             🔍
           </div>
           <h2 className="text-2xl font-bold mb-3 text-text">Unable to Load Video</h2>
@@ -218,6 +281,7 @@ const WatchClient = ({
         <VideoStreamingContainer
           videoUrl={currentVideo?.videoURL || ""}
           videoId={currentVideo?._id || ""}
+          onEnded={handleVideoEnded}
         />
 
         {/* INFO */}
@@ -256,11 +320,11 @@ const WatchClient = ({
               <button className="h-10 px-5 rounded-full bg-text text-background font-semibold hover:opacity-90 transition">
                 Subscribe
               </button>
-            </div>
-
-            {/* ACTIONS */}
+            </div>                      {/* ACTIONS */}
             <VideoActions
               likes={currentVideo?.likes || 0}
+              isLiked={isLiked}
+              isSaved={isSaved}
               loading={likeLoading}
               onLike={handleLike}
               onSave={async () => {
@@ -271,6 +335,7 @@ const WatchClient = ({
                     type: "watchLater",
                     vid: currentVideo._id,
                   });
+                  setIsSaved(!isSaved);
                 } catch (error) {
                   console.log(error);
                 }
@@ -314,7 +379,7 @@ const WatchClient = ({
 
       {/* RIGHT */}
       <aside className="xl:sticky xl:top-20 h-fit">
-        <VideoContainer videos={videos} className="grid grid-cols-1 gap-4" />
+        <VideoContainer videos={suggestedVideos} className="grid grid-cols-1 gap-4" />
       </aside>
     </main>
   );

@@ -33,7 +33,7 @@ const CommentInput = ({
         <input
           type="text"
           placeholder="Add a comment..."
-          className="w-full bg-transparent border-b border-white/20 py-2 outline-none focus:border-white transition"
+          className="w-full bg-transparent border-b border-border py-2 outline-none focus:border-text transition"
           value={commentInput}
           onChange={(e) =>
             setCommentInput(e.target.value)

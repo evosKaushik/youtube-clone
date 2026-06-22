@@ -104,4 +104,35 @@ const getHistoryVideos = async () => {
         return null;
     }
 }
-export { fetchAllVideos, fetchVideoByIdApi, updateLikesApi, getVideosBySearchApi, downloadVideoById, sendWatchHeartbeatApi, stopWatchApi, getHistoryVideos }
+const getDownloadedVideos = async () => {
+    try {
+        const { data } = await axiosInstance.get("/video/downloads");
+        return data || [];
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+const getDownloadCountApi = async () => {
+    try {
+        const { data } = await axiosInstance.get("/video/downloads/count");
+        return data?.data?.count || 0;
+    } catch (error) {
+        console.error(error);
+        return 0;
+    }
+}
+
+const getTodayStatsApi = async () => {
+    try {
+        const { data } = await axiosInstance.get("/video/today-stats");
+       
+        return data || { todayDownloads: 0, todayWatchSeconds: 0, totalDownloads: 0 };
+    } catch (error) {
+        console.error(error);
+        return { todayDownloads: 0, todayWatchSeconds: 0, totalDownloads: 0 };
+    }
+}
+
+export { fetchAllVideos, fetchVideoByIdApi, updateLikesApi, getVideosBySearchApi, downloadVideoById, sendWatchHeartbeatApi, stopWatchApi, getHistoryVideos, getDownloadedVideos, getDownloadCountApi, getTodayStatsApi }

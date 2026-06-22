@@ -9,7 +9,7 @@ import {
   useCallback,
 } from "react";
 
-import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import { onAuthStateChanged, signInWithRedirect, getRedirectResult, signOut } from "firebase/auth";
 
 import { auth, provider } from "./firebase";
 
@@ -22,8 +22,10 @@ type UserType = {
   profilePicture?: string;
   username: string;
   subscription: {
-    plan: "free" | "premium";
-    status: "active" | "inActive";
+    plan: string;
+    status: string;
+    noOfDownloads?: number;
+    watchTimeInMinutes?: number;
     expiresAt: Date | null;
   };
 };
@@ -59,7 +61,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       if (state) {
         localStorage.setItem("user_state", state);
       }
-      await signInWithPopup(auth, provider);
+      // Use signInWithRedirect instead of signInWithPopup to work on all devices
+      // including mobile where popups are blocked
+      await signInWithRedirect(auth, provider);
     } catch (error) {
       console.log(error);
     }
@@ -75,8 +79,27 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Handle result from signInWithRedirect (works on all devices including mobile)
   useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        // getRedirectResult returns null if there's no pending redirect
+        // The actual user handling will happen in onAuthStateChanged
+        if (result) {
+          console.log("Redirect login successful:", result.user.email);
+        }
+      } catch (error) {
+        console.error("Redirect result error:", error);
+      }
+    };
+    handleRedirectResult();
+  }, []);
+
+  useEffect(() => {
+    let isCancelled = false;
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (isCancelled) return;
       try {
         setLoading(true);
         if (!firebaseUser) {
@@ -96,6 +119,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         if (!userState) {
           saveUser(null);
           console.error("user state is required");
+          setLoading(false);
           return;
         }
 
@@ -112,17 +136,26 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         if (response.data.user.userState) {
           localStorage.setItem("user_state", response.data.user.userState);
         }
-        saveUser(response.data.user);
+        if (!isCancelled) {
+          saveUser(response.data.user);
+        }
       } catch (error) {
         console.log(error);
 
-        saveUser(null);
+        if (!isCancelled) {
+          saveUser(null);
+        }
       } finally {
-        setLoading(false);
+        if (!isCancelled) {
+          setLoading(false);
+        }
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      isCancelled = true;
+      unsubscribe();
+    };
   }, [saveUser]);
 
   return (

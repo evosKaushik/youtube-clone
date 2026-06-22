@@ -128,9 +128,9 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
         className="
           w-full
           max-w-[520px]
-          bg-[#181818]
+          bg-card
           border
-          border-[#343434]
+          border-border
           rounded-2xl
           shadow-2xl
           p-6
@@ -139,18 +139,18 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
         {/* HEADER */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-white text-2xl font-semibold">
+            <h2 className="text-text text-2xl font-semibold">
               Create your channel
             </h2>
 
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="text-secondaryText text-sm mt-1">
               Setup your YouTube profile
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-xl"
+            className="text-secondaryText hover:text-text text-xl"
           >
             ✕
           </button>
@@ -166,7 +166,7 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
         <div className="space-y-5">
           {/* NAME */}
           <div>
-            <label className="text-sm text-gray-300 mb-2 block">
+            <label className="text-sm text-text mb-2 block">
               Channel Name
             </label>
 
@@ -180,11 +180,11 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
                 h-12
                 px-4
                 rounded-xl
-                bg-[#0f0f0f]
+                bg-background
                 border
-                border-[#3a3a3a]
+                border-border
                 outline-none
-                text-white
+                text-text
               "
             />
 
@@ -195,20 +195,20 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
 
           {/* HANDLE */}
           <div>
-            <label className="text-sm text-gray-300 mb-2 block">Handle</label>
+            <label className="text-sm text-text mb-2 block">Handle</label>
 
             <div
               className="
                 flex
                 items-center
-                bg-[#0f0f0f]
+                bg-background
                 border
-                border-[#3a3a3a]
+                border-border
                 rounded-xl
                 overflow-hidden
               "
             >
-              <span className="px-4 text-gray-400 text-sm">youtube.com/@</span>
+              <span className="px-4 text-secondaryText text-sm">youtube.com/@</span>
 
               <input
                 type="text"
@@ -220,7 +220,7 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
                   h-12
                   bg-transparent
                   outline-none
-                  text-white
+                  text-text
                   px-2
                 "
               />
@@ -233,7 +233,7 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
 
           {/* DESCRIPTION */}
           <div>
-            <label className="text-sm text-gray-300 mb-2 block">
+            <label className="text-sm text-text mb-2 block">
               Description
             </label>
 
@@ -244,13 +244,13 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
               placeholder="Tell viewers about your channel..."
               className="
                 w-full
-                bg-[#0f0f0f]
+                bg-background
                 border
-                border-[#3a3a3a]
+                border-border
                 rounded-xl
                 p-4
                 outline-none
-                text-white
+                text-text
                 resize-none
               "
             />
@@ -262,7 +262,7 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
                 <div />
               )}
 
-              <p className="text-gray-500 text-xs">
+              <p className="text-secondaryText text-xs">
                 {channelDescription.length}/200
               </p>
             </div>
@@ -277,9 +277,9 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
               h-10
               px-5
               rounded-full
-              bg-[#2a2a2a]
-              hover:bg-[#3a3a3a]
-              text-white
+        bg-hover
+        hover:bg-border
+        text-text
               text-sm
               transition
             "
@@ -294,9 +294,9 @@ export default function CreateChannelDialog({ open, onClose }: Props) {
               h-10
               px-5
               rounded-full
-              bg-white
-              hover:bg-gray-200
-              text-black
+              bg-text
+              hover:opacity-90
+              text-background
               text-sm
               font-medium
               transition

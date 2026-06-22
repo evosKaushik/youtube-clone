@@ -7,6 +7,7 @@ import Image from "next/image";
 
 import { FaBell, FaMicrophone } from "react-icons/fa";
 import { IoCall, IoCreateOutline } from "react-icons/io5";
+import { FiSun, FiMoon } from "react-icons/fi";
 
 import YoutubeLogo from "./YoutubeLogo";
 import SearchBar from "./SearchBar";
@@ -15,6 +16,7 @@ import ProfileDropdown from "./ProfileDropdown";
 import CreateChannelDialog from "./CreateChannelDialog";
 
 import { useUser } from "@/libs/AuthContext";
+import { useTheme } from "@/hooks/useTheme";
 import useMedia from "@/hooks/useMedia";
 import BottomNavigation from "./BottomNavigation";
 import { usePopup } from "@/contexts/popupContext";
@@ -22,6 +24,7 @@ import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { user, loading } = useUser();
+  const { theme, toggleTheme } = useTheme();
   const isSmallerDevice = useMedia("sm");
 
   const { showPopup, hidePopup } = usePopup();
@@ -75,11 +78,11 @@ export default function Navbar() {
       w-full
       rounded-xl
       border
-      border-zinc-700
-      bg-zinc-900
+      border-border
+      bg-background
       px-4
       py-3
-      text-white
+      text-text
     "
               />
             ),
@@ -284,6 +287,30 @@ export default function Navbar() {
             >
               <IoCall className="text-text text-xl" />
               <span className="text-text text-sm font-medium">Call</span>
+            </button>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="
+                hidden
+                sm:flex
+                items-center
+                justify-center
+                h-9
+                w-9
+                rounded-full
+                bg-card
+                hover:bg-hover
+                transition
+              "
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {theme === 'dark' ? (
+                <FiSun className="text-text text-lg" />
+              ) : (
+                <FiMoon className="text-text text-lg" />
+              )}
             </button>
 
             <div className="hidden sm:block">

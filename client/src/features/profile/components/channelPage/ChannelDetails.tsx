@@ -78,7 +78,7 @@ const ChannelDetails = ({
                   items-center
                   gap-2
                   text-sm
-                  text-zinc-400
+                  text-secondaryText
                 "
                     >
                         <span className="font-semibold text-white">
@@ -98,7 +98,7 @@ const ChannelDetails = ({
                         className="
                   max-w-3xl
                   text-sm
-                  text-zinc-400
+                  text-secondaryText
                   leading-relaxed
                 "
                     >
@@ -125,7 +125,7 @@ const ChannelDetails = ({
                             @{username}
                         </Link>
 
-                        <span className="text-zinc-500">
+                        <span className="text-secondaryText">
                             channel links coming soon
                         </span>
                     </div>
@@ -148,12 +148,12 @@ const ChannelDetails = ({
                   items-center
                   gap-2
                   rounded-full
-                  bg-zinc-800
+                  bg-card
                   px-5
                   py-2.5
                   font-medium
-                  text-white
-                  hover:bg-zinc-700
+                  text-text
+                  hover:bg-hover
                   transition
                 "
                     >
@@ -171,12 +171,12 @@ const ChannelDetails = ({
                   items-center
                   gap-2
                   rounded-full
-                  bg-zinc-800
+                  bg-card
                   px-5
                   py-2.5
                   font-medium
-                  text-white
-                  hover:bg-zinc-700
+                  text-text
+                  hover:bg-hover
                   transition
                 "
                     >
@@ -192,12 +192,12 @@ const ChannelDetails = ({
                   items-center
                   gap-2
                   rounded-full
-                  bg-zinc-800
+                  bg-card
                   px-5
                   py-2.5
                   font-medium
-                  text-white
-                  hover:bg-zinc-700
+                  text-text
+                  hover:bg-hover
                   transition
                 "
                     >

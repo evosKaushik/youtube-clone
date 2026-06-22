@@ -180,16 +180,16 @@ const CommentCard = ({ comment }: Props) => {
           </h4>
 
           {comment?.userId?.city && (
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-secondaryText">
               • {comment.userId.city}
             </span>
           )}
 
-          <span className="text-xs text-zinc-400">{timeAgo}</span>
+          <span className="text-xs text-secondaryText">{timeAgo}</span>
         </div>
 
         {/* COMMENT */}
-        <p className="text-sm text-zinc-300 mt-1 leading-relaxed break-words whitespace-pre-line">
+        <p className="text-sm text-text mt-1 leading-relaxed break-words whitespace-pre-line">
           {parseCommentText(displayedText)}
         </p>
 
@@ -199,7 +199,7 @@ const CommentCard = ({ comment }: Props) => {
           <button
             onClick={handleLike}
             disabled={actionLoading}
-            className="flex items-center gap-2 text-zinc-400 hover:text-white transition disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 text-secondaryText hover:text-text transition disabled:opacity-50 cursor-pointer"
           >
             <FaThumbsUp
               size={16}
@@ -213,7 +213,7 @@ const CommentCard = ({ comment }: Props) => {
           <button
             onClick={handleDislike}
             disabled={actionLoading}
-            className="flex items-center gap-2 text-zinc-400 hover:text-white transition disabled:opacity-50 cursor-pointer"
+            className="flex items-center gap-2 text-secondaryText hover:text-text transition disabled:opacity-50 cursor-pointer"
           >
             <FaThumbsDown
               size={16}
@@ -227,7 +227,7 @@ const CommentCard = ({ comment }: Props) => {
           <button
             onClick={handleTranslate}
             disabled={translateLoading}
-            className="flex items-center gap-2 text-zinc-400 hover:text-white transition text-xs disabled:opacity-50"
+            className="flex items-center gap-2 text-secondaryText hover:text-text transition text-xs disabled:opacity-50"
           >
             <LuLanguages size={16} />
 

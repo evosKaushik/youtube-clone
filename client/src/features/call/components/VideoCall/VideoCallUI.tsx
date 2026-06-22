@@ -106,10 +106,10 @@ export default function VideoCallUI({
         />
 
         {/* ── Local video PiP ──────────────────────────────────── */}
-        <div className="absolute bottom-6 right-6 w-64 h-40 sm:w-72 sm:h-44 rounded-2xl overflow-hidden border border-zinc-700 shadow-2xl bg-black">
+        <div className="absolute bottom-6 right-6 w-64 h-40 sm:w-72 sm:h-44 rounded-2xl overflow-hidden border border-border shadow-2xl bg-black">
           {/* Avatar shown when camera is OFF */}
           <div
-            className={`absolute inset-0 bg-zinc-900 flex flex-col items-center justify-center gap-2 transition-opacity duration-300 ${cameraOn ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+            className={`absolute inset-0 bg-background flex flex-col items-center justify-center gap-2 transition-opacity duration-300 ${cameraOn ? "opacity-0 pointer-events-none" : "opacity-100"}`}
           >
             {user?.profilePicture ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -119,11 +119,11 @@ export default function VideoCallUI({
                 className="w-14 h-14 rounded-full object-cover ring-2 ring-zinc-600"
               />
             ) : (
-              <div className="w-14 h-14 rounded-full bg-zinc-700 flex items-center justify-center text-2xl font-bold text-white">
+              <div className="w-14 h-14 rounded-full bg-card flex items-center justify-center text-2xl font-bold text-white">
                 {userInitial}
               </div>
             )}
-            <span className="text-zinc-400 text-xs">{user?.name || "You"}</span>
+            <span className="text-secondaryText text-xs">{user?.name || "You"}</span>
           </div>
 
           {/* Actual local video */}
@@ -139,10 +139,10 @@ export default function VideoCallUI({
           <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-3 py-1.5 flex items-center justify-between text-white text-xs">
             <span className="font-medium">{user?.name?.split(" ")[0] || "You"}</span>
             <div className="flex gap-1.5 items-center">
-              <span className={micOn ? "text-zinc-400" : "text-red-400"}>
+              <span className={micOn ? "text-secondaryText" : "text-red-400"}>
                 {micOn ? <FiMic size={11} /> : <FiMicOff size={11} />}
               </span>
-              <span className={cameraOn ? "text-zinc-400" : "text-red-400"}>
+              <span className={cameraOn ? "text-secondaryText" : "text-red-400"}>
                 {cameraOn ? <FiVideo size={11} /> : <FiVideoOff size={11} />}
               </span>
             </div>
@@ -150,7 +150,7 @@ export default function VideoCallUI({
         </div>
 
         {/* ── Status badge ──────────────────────────────────────── */}
-        <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1.5 rounded-full text-xs flex items-center gap-2 border border-zinc-700">
+        <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1.5 rounded-full text-xs flex items-center gap-2 border border-border">
           <span className={`w-1.5 h-1.5 rounded-full ${screenSharing ? "bg-blue-400" : "bg-green-400"} animate-pulse`} />
           {screenSharing ? "Sharing screen" : "Connected"}
         </div>
@@ -166,17 +166,17 @@ export default function VideoCallUI({
               setIsRecording(true);
             }
           }}
-          className={`absolute top-4 right-4 ${isRecording ? "bg-red-950 border-red-800" : "bg-black/50 border-zinc-700"} text-white px-3 py-1.5 rounded-full text-xs flex items-center gap-2 border transition-all`}
+          className={`absolute top-4 right-4 ${isRecording ? "bg-red-950 border-red-800" : "bg-black/50 border-border"} text-white px-3 py-1.5 rounded-full text-xs flex items-center gap-2 border transition-all`}
         >
-          <RiRecordCircleLine className={`text-sm ${isRecording ? "text-red-400" : "text-zinc-400"}`} />
-          <span className={isRecording ? "text-red-300" : "text-zinc-300"}>
+          <RiRecordCircleLine className={`text-sm ${isRecording ? "text-red-400" : "text-secondaryText"}`} />
+          <span className={isRecording ? "text-red-300" : "text-text"}>
             {isRecording ? "Stop" : "Record"}
           </span>
         </button>
       </div>
 
       {/* ── Controls bar ──────────────────────────────────────────── */}
-      <div className="h-24 border-t border-zinc-800 bg-zinc-950 flex items-center justify-center gap-3 px-4">
+      <div className="h-24 border-t border-border bg-background flex items-center justify-center gap-3 px-4">
 
         {/* Mic */}
         <button
@@ -188,7 +188,7 @@ export default function VideoCallUI({
             }
           }}
           title={micOn ? "Mute" : "Unmute"}
-          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-lg transition-all hover:scale-105 active:scale-95 ${micOn ? "bg-zinc-700 hover:bg-zinc-600 text-white" : "bg-red-600 hover:bg-red-500 text-white"}`}
+          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-lg transition-all hover:scale-105 active:scale-95 ${micOn ? "bg-card hover:bg-hover text-white" : "bg-red-600 hover:bg-red-500 text-white"}`}
         >
           {micOn ? <FiMic /> : <FiMicOff />}
         </button>
@@ -203,7 +203,7 @@ export default function VideoCallUI({
             }
           }}
           title={cameraOn ? "Turn off camera" : "Turn on camera"}
-          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-lg transition-all hover:scale-105 active:scale-95 ${cameraOn ? "bg-zinc-700 hover:bg-zinc-600 text-white" : "bg-red-600 hover:bg-red-500 text-white"}`}
+          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-lg transition-all hover:scale-105 active:scale-95 ${cameraOn ? "bg-card hover:bg-hover text-white" : "bg-red-600 hover:bg-red-500 text-white"}`}
         >
           {cameraOn ? <FiVideo /> : <FiVideoOff />}
         </button>
@@ -230,7 +230,7 @@ export default function VideoCallUI({
             }
           }}
           title={screenSharing ? "Stop sharing" : "Share screen"}
-          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-lg transition-all hover:scale-105 active:scale-95 ${screenSharing ? "bg-blue-600 hover:bg-blue-500 text-white" : "bg-zinc-700 hover:bg-zinc-600 text-white"}`}
+          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-lg transition-all hover:scale-105 active:scale-95 ${screenSharing ? "bg-blue-600 hover:bg-blue-500 text-white" : "bg-card hover:bg-hover text-white"}`}
         >
           <FiMonitor />
         </button>

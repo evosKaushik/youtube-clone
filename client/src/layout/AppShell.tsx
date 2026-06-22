@@ -1,9 +1,8 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { clsx } from "clsx";
 import { useSidebarStore } from "@/store/useSidebarStore";
-import { getThemeByLocationAndTime } from "@/libs/utils";
 
 type Props = {
   children: ReactNode;
@@ -11,18 +10,6 @@ type Props = {
 
 const AppShell = ({ children }: Props) => {
   const isOpen = useSidebarStore((s) => s.isOpen);
-
-  const [theme, setTheme] = useState("dark");
-
-  useEffect(() => {
-    const currentTheme = getThemeByLocationAndTime();
-
-    setTheme(currentTheme);
-
-    document.documentElement.classList.remove("light", "dark");
-
-    document.documentElement.classList.add(currentTheme);
-  }, []);
 
   return (
     <main

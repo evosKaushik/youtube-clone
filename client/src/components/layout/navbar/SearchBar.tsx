@@ -33,12 +33,12 @@ export default function SearchBar() {
         className="
           flex-1
           min-w-0
-          bg-[#121212]
+          bg-background
           border
-          border-[#303030]
+          border-border
           rounded-l-full
           px-4
-          text-white
+          text-text
           text-[16px]
           outline-none
           focus:border-blue-500
@@ -50,19 +50,19 @@ export default function SearchBar() {
         className="
           w-16
           shrink-0
-          bg-[#222222]
+          bg-hover
           border
           border-l-0
-          border-[#303030]
+          border-border
           rounded-r-full
           flex
           items-center
           justify-center
-          hover:bg-[#2f2f2f]
+          hover:bg-hover
           transition
         "
       >
-        <FaSearch className="text-white text-lg" />
+        <FaSearch className="text-text text-lg" />
       </button>
     </div>
   );

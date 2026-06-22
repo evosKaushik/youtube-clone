@@ -1,5 +1,11 @@
 "use client";
 
+import { useUser } from "@/libs/AuthContext";
+import { FiMail, FiVideo, FiDownload, FiClock, FiSettings, FiLogOut, FiTrendingUp, FiUser } from "react-icons/fi";
+import { HiOutlineBadgeCheck } from "react-icons/hi";
+import AuthGuard from "@/components/common/AuthGuard";
+import Link from "next/link";
+import Image from "next/image";
 import {
   PieChart,
   Pie,
@@ -7,156 +13,255 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-
-import {
-  FiMail,
-  FiVideo,
-  FiDownload,
-  FiClock,
-  FiLogOut,
-  FiSettings,
-  FiTrendingUp,
-} from "react-icons/fi";
-
-import { HiOutlineBadgeCheck } from "react-icons/hi";
-
-const userData = {
-  name: "Kaushik",
-  email: "kaushik@example.com",
-  plan: "Premium",
-  videosWatched: 42,
-  downloadsLeft: 3,
-  totalDownloads: 10,
-  watchTime: "12h 45m",
-};
-
-const subscriptionData = [
-  { name: "Used", value: 2 },
-  { name: "Remaining", value: 8 },
-];
+import { useEffect, useState } from "react";
+import { getTodayStatsApi } from "@/api/videoApi";
 
 const COLORS = ["#22c55e", "#facc15"];
 
+function formatWatchTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  if (mins >= 60) {
+    const hrs = Math.floor(mins / 60);
+    const remainMins = mins % 60;
+    return `${hrs}h ${remainMins}m`;
+  }
+  return `${mins}m ${secs}s`;
+}
+
 export default function ProfilePage() {
+  const { user, logout, loading } = useUser();
+  const [todayStats, setTodayStats] = useState({
+    todayDownloads: 0,
+    todayWatchSeconds: 0,
+    totalDownloads: 0,
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const stats = await getTodayStatsApi();
+        console.log(stats)
+        setTodayStats(stats);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+  
+  console.log(todayStats)
+  
+  
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-card border-t-text" />
+      </div>
+    );
+  }
+
+  const plan = user?.subscription?.plan ?? "Free";
+  const email = user?.email ?? "No email";
+  const name = user?.name ?? "User";
+  const profilePic = user?.profilePicture || "https://github.com/shadcn.png";
+  const username = user?.username ?? "user";
+  const downloadLimit = user?.subscription?.noOfDownloads ?? 0;
+
+  // Real stats from API (last 24 hours)
+  const stats = {
+    videosWatched: 42,
+    downloadsUsed: todayStats.todayDownloads,
+    totalDownloads: downloadLimit,
+    watchTime: formatWatchTime(todayStats.todayWatchSeconds),
+  };
+
+  const subscriptionData = [
+    { name: "Used", value: stats.downloadsUsed },
+    { name: "Remaining", value: Math.max(0, stats.totalDownloads - stats.downloadsUsed) },
+  ];
+
+  const isPremium = plan.toLowerCase() !== "free";
+
   return (
-    <div className="min-h-screen p-6 bg-black text-white">
-      {/* HEADER */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <img
-            src="https://github.com/shadcn.png"
-            className="w-16 h-16 rounded-full border border-white/10"
-          />
+    <AuthGuard>
+      <div className="min-h-screen bg-background text-text p-4 sm:p-6">
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+          <div className="flex items-center gap-4">
+            <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 border-border shrink-0">
+              <Image
+                src={profilePic}
+                alt={name}
+                fill
+                className="object-cover"
+              />
+            </div>
 
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              {userData.name}
-              <HiOutlineBadgeCheck className="text-blue-500" />
-            </h1>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2 truncate">
+                {name}
+                {isPremium && <HiOutlineBadgeCheck className="text-blue-500 shrink-0" />}
+              </h1>
 
-            <p className="text-sm text-white/60 flex items-center gap-2">
-              <FiMail /> {userData.email}
-            </p>
+              <p className="text-xs sm:text-sm text-secondaryText flex items-center gap-2 truncate">
+                <FiMail className="shrink-0" /> {email}
+              </p>
 
-            <span className="text-xs px-2 py-1 bg-white/10 rounded-full mt-1 inline-block">
-              {userData.plan} Plan
-            </span>
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                <span className="text-xs px-2 py-1 bg-card rounded-full">
+                  {plan} Plan
+                </span>
+                <span className="text-xs text-secondaryText">@{username}</span>
+              </div>
+            </div>
+          </div>
+
+          <Link
+            href="/subscription"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-card hover:bg-hover transition text-sm w-fit"
+          >
+            <FiSettings />
+            Manage Plan
+          </Link>
+        </div>
+
+        {/* GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          {/* ACCOUNT CARD */}
+          <div className="p-4 sm:p-5 rounded-xl bg-card border border-border">
+            <h2 className="text-base sm:text-lg font-semibold mb-4">Account Overview</h2>
+
+            <div className="space-y-3 text-xs sm:text-sm text-secondaryText">
+              <p className="flex items-center gap-2">
+                <FiVideo className="shrink-0" /> Videos Watched: {stats.videosWatched}
+              </p>
+
+              <p className="flex items-center gap-2">
+                <FiDownload className="shrink-0" /> Downloads Today: {stats.downloadsUsed}/{stats.totalDownloads}
+              </p>
+
+              <p className="flex items-center gap-2">
+                <FiClock className="shrink-0" /> Watch Time: {stats.watchTime}
+              </p>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-border">
+              <h3 className="text-xs font-semibold text-secondaryText uppercase tracking-wider mb-3">
+                Last 24 Hours
+              </h3>
+              <div className="space-y-2 text-xs sm:text-sm text-secondaryText">
+                <p className="flex items-center gap-2">
+                  <FiDownload className="shrink-0 text-green-500" /> Downloads Today: <span className="font-medium text-text">{todayStats.todayDownloads}</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <FiClock className="shrink-0 text-blue-500" /> Watch Time Today: <span className="font-medium text-text">{formatWatchTime(todayStats.todayWatchSeconds)}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CHART */}
+          <div className="p-4 sm:p-5 rounded-xl bg-card border border-border">
+            <h2 className="text-base sm:text-lg font-semibold mb-4">Download Usage</h2>
+
+            <div className="h-48 sm:h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={subscriptionData}
+                    dataKey="value"
+                    outerRadius={80}
+                    innerRadius={40}
+                  >
+                    {subscriptionData.map((_, index) => (
+                      <Cell key={index} fill={COLORS[index]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "8px",
+                      color: "var(--text)",
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="flex items-center justify-center gap-4 text-xs text-secondaryText mt-2">
+              <span className="flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                Used ({stats.downloadsUsed})
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                Remaining ({stats.totalDownloads - stats.downloadsUsed})
+              </span>
+            </div>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="p-4 sm:p-5 rounded-xl bg-card border border-border">
+            <h2 className="text-base sm:text-lg font-semibold mb-4">Quick Actions</h2>
+
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/subscription"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-green-600 text-white font-medium hover:opacity-90 transition text-sm"
+              >
+                <FiTrendingUp /> Upgrade Plan
+              </Link>
+
+              <Link
+                href="/history"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-card hover:bg-hover transition text-sm border border-border"
+              >
+                <FiClock /> Watch History
+              </Link>
+
+              <Link
+                href={`/@${username}`}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-card hover:bg-hover transition text-sm border border-border"
+              >
+                <FiUser /> My Channel
+              </Link>
+
+              <button
+                onClick={logout}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition text-sm"
+              >
+                <FiLogOut /> Logout
+              </button>
+            </div>
           </div>
         </div>
 
-        <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition">
-          <FiSettings />
-        </button>
+        {/* STATS */}
+        <div className="mt-6 sm:mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <Stat icon={<FiDownload />} title="Today Downloads" value={String(stats.downloadsUsed)} />
+          <Stat icon={<FiDownload />} title="Daily Limit" value={String(downloadLimit)} />
+          <Stat icon={<FiClock />} title="Watch Time Today" value={stats.watchTime} />
+          <Stat icon={<FiVideo />} title="Videos Watched" value={String(stats.videosWatched)} />
+        </div>
       </div>
-
-      {/* GRID */}
-      <div className="grid md:grid-cols-3 gap-6">
-        {/* ACCOUNT CARD */}
-        <div className="p-5 rounded-xl bg-white/5 border border-white/10">
-          <h2 className="text-lg font-semibold mb-4">Account Overview</h2>
-
-          <div className="space-y-3 text-sm text-white/80">
-            <p className="flex items-center gap-2">
-              <FiVideo /> Videos Watched: {userData.videosWatched}
-            </p>
-
-            <p className="flex items-center gap-2">
-              <FiDownload /> Downloads Left: {userData.downloadsLeft}
-            </p>
-
-            <p className="flex items-center gap-2">
-              <FiClock /> Watch Time: {userData.watchTime}
-            </p>
-          </div>
-        </div>
-
-        {/* CHART */}
-        <div className="p-5 rounded-xl bg-white/5 border border-white/10">
-          <h2 className="text-lg font-semibold mb-4">Download Usage</h2>
-
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={subscriptionData}
-                  dataKey="value"
-                  outerRadius={90}
-                >
-                  {subscriptionData.map((_, index) => (
-                    <Cell key={index} fill={COLORS[index]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          <p className="text-xs text-white/50 text-center mt-2">
-            Green = Used • Yellow = Remaining
-          </p>
-        </div>
-
-        {/* ACTIONS */}
-        <div className="p-5 rounded-xl bg-white/5 border border-white/10">
-          <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-
-          <div className="flex flex-col gap-3">
-            <button className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-500 text-black font-medium hover:opacity-90">
-              <FiTrendingUp /> Upgrade Plan
-            </button>
-
-            <button className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">
-              Manage Subscription
-            </button>
-
-            <button className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition">
-              <FiLogOut /> Logout
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* STATS */}
-      <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Stat icon={<FiDownload />} title="Total Downloads" value="10" />
-        <Stat icon={<FiDownload />} title="Used Downloads" value="7" />
-        <Stat icon={<FiClock />} title="Watch Time" value="12h" />
-        <Stat icon={<FiVideo />} title="Videos Watched" value="42" />
-      </div>
-    </div>
+    </AuthGuard>
   );
 }
 
-/* STATS COMPONENT */
-function Stat({ title, value, icon }: any) {
+function Stat({ title, value, icon }: { title: string; value: string; icon: React.ReactNode }) {
   return (
-    <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
-      <div className="flex items-center justify-between text-white/60 text-sm">
+    <div className="p-3 sm:p-4 rounded-xl bg-card border border-border hover:bg-hover transition">
+      <div className="flex items-center justify-between text-secondaryText text-xs sm:text-sm">
         <span>{title}</span>
         <span>{icon}</span>
       </div>
 
-      <p className="text-xl font-bold mt-2">{value}</p>
+      <p className="text-lg sm:text-xl font-bold mt-2">{value}</p>
     </div>
   );
 }

@@ -23,12 +23,12 @@ const ChannelVideoUploader = () => {
         rounded-2xl
         border
         border-dashed
-        border-zinc-700
-        bg-zinc-900/40
+        border-border
+        bg-card/40
         p-4
         sm:p-6
         transition
-        hover:border-zinc-500
+        hover:border-border
       "
     >
       <div
@@ -51,11 +51,11 @@ const ChannelVideoUploader = () => {
             items-center
             justify-center
             rounded-full
-            bg-zinc-800
+            bg-hover
           "
         >
           <BiUpload
-            className="text-zinc-300"
+            className="text-text"
             size={30}
           />
         </div>
@@ -66,7 +66,7 @@ const ChannelVideoUploader = () => {
             className="
               text-lg
               font-semibold
-              text-white
+              text-text
             "
           >
             Upload a video
@@ -76,7 +76,7 @@ const ChannelVideoUploader = () => {
             className="
               mt-2
               text-sm
-              text-zinc-400
+              text-secondaryText
             "
           >
             Drag and drop video files to upload
@@ -86,7 +86,7 @@ const ChannelVideoUploader = () => {
             className="
               mt-1
               text-xs
-              text-zinc-500
+              text-secondaryText
             "
           >
             MP4, WebM, MOV or AVI • Up to
@@ -111,7 +111,7 @@ const ChannelVideoUploader = () => {
             text-black
             transition
             hover:scale-[1.02]
-            hover:bg-zinc-200
+            hover:bg-hover
             active:scale-[0.98]
           "
         >

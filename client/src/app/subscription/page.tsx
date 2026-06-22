@@ -72,19 +72,19 @@ export default function Page() {
   });
 
   return (
-    <section className="min-h-[100dvh] flex items-center py-8">
+    <div className="min-h-[100dvh] flex items-center py-8 bg-background">
       <div className="container mx-auto px-4">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-5 text-center">
-          <h1 className="text-3xl font-bold md:text-5xl lg:text-6xl">
+          <h1 className="text-3xl font-bold md:text-5xl lg:text-6xl text-text">
             Download Without Limits
           </h1>
 
-          <p className="max-w-2xl text-muted-foreground text-base md:text-lg">
+          <p className="max-w-2xl text-secondaryText text-base md:text-lg">
             Start free with limited downloads. Upgrade for full access.
           </p>
 
           {/* Toggle */}
-          <div className="flex items-center gap-3 text-sm md:text-base">
+          <div className="flex items-center gap-3 text-sm md:text-base text-text">
             <span>Monthly</span>
 
             <label className="relative inline-flex cursor-pointer items-center rounded-full">
@@ -95,7 +95,7 @@ export default function Page() {
                 className="peer sr-only"
               />
 
-              <div className="h-6 w-11 rounded-full bg-muted-foreground/30 transition peer-checked:bg-primary">
+              <div className="h-6 w-11 rounded-full bg-secondaryText/30 transition peer-checked:bg-green-600">
                 <div
                   className={`mt-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
                     isYearly ? "translate-x-5" : "translate-x-0.5"
@@ -107,7 +107,7 @@ export default function Page() {
             <span>Yearly</span>
 
             {isYearly && (
-              <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+              <span className="rounded-full bg-green-600/10 px-2 py-1 text-xs font-medium text-green-500">
                 Save 16%
               </span>
             )}
@@ -123,42 +123,42 @@ export default function Page() {
               return (
                 <div
                   key={plan.id}
-                  className={`flex w-full max-w-sm flex-col rounded-2xl border bg-background p-6 transition-all
+                  className={`flex w-full max-w-sm flex-col rounded-2xl border bg-card p-6 transition-all
                   ${
                     plan.popular
-                      ? "border-primary shadow-xl md:scale-105"
+                      ? "border-green-600 shadow-xl md:scale-105"
                       : "border-border shadow-sm"
                   }`}
                 >
                   {plan.popular && (
-                    <span className="mb-4 inline-flex w-fit rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
+                    <span className="mb-4 inline-flex w-fit rounded-full bg-green-600 px-3 py-1 text-xs font-medium text-white">
                       Most Popular
                     </span>
                   )}
 
                   <div>
-                    <h3 className="text-2xl font-bold">{plan.name}</h3>
+                    <h3 className="text-2xl font-bold text-text">{plan.name}</h3>
 
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="mt-2 text-sm text-secondaryText">
                       {plan.description}
                     </p>
 
                     <div className="mt-5">
-                      <span className="text-5xl font-bold">₹{price}</span>
-                      <span className="ml-2 text-muted-foreground">
+                      <span className="text-5xl font-bold text-text">₹{price}</span>
+                      <span className="ml-2 text-secondaryText">
                         {priceLabel}
                       </span>
                     </div>
                   </div>
 
-                  <hr className="my-6" />
+                  <hr className="my-6 border-border" />
 
                   {/* FEATURES */}
                   <div className="flex-1">
                     <ul className="space-y-3">
                       {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-center gap-3">
-                          <FaCheckCircle className="h-4 w-4 text-green-500" />
+                        <li key={index} className="flex items-center gap-3 text-text">
+                          <FaCheckCircle className="h-4 w-4 text-green-500 shrink-0" />
                           <span className="text-sm">{feature}</span>
                         </li>
                       ))}
@@ -173,8 +173,8 @@ export default function Page() {
                       className={`flex w-full items-center justify-center rounded-lg px-4 py-3 font-medium transition-all cursor-pointer
                       ${
                         plan.popular
-                          ? "bg-primary text-white hover:opacity-90"
-                          : "bg-secondary hover:bg-secondary/80"
+                          ? "bg-green-600 text-white hover:opacity-90"
+                          : "bg-hover text-text hover:bg-border"
                       }
                       ${!plan.onClick ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
@@ -187,11 +187,11 @@ export default function Page() {
             })}
           </div>
 
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-secondaryText">
             Secure payments powered by Razorpay
           </p>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

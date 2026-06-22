@@ -29,16 +29,16 @@ const Page = async ({ params }: Props) => {
         className="
               rounded-2xl
               border
-              border-zinc-800
-              bg-zinc-900/40
+              border-border
+              bg-card/40
               p-6
             "
       >
-        <h2 className="text-xl font-semibold text-white">
+        <h2 className="text-xl font-semibold text-text">
           Welcome to @{cleanUsername}, {}
         </h2>
 
-        <p className="mt-3 text-zinc-400">
+        <p className="mt-3 text-secondaryText">
           This is your YouTube clone channel page.
         </p>
       </div>

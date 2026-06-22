@@ -47,11 +47,11 @@ const ResultsPage = async ({ searchParams }: Props) => {
   return (
     <AppShell>
       <div className="px-6 py-4">
-        <h1 className="text-2xl font-bold text-white">Results</h1>
+        <h1 className="text-2xl font-bold text-text">Results</h1>
 
-        <p className="text-gray-400 my-2">
+        <p className="text-secondaryText my-2">
           Search Query:{" "}
-          <span className="text-white font-medium">{search_query}</span>
+          <span className="text-text font-medium">{search_query}</span>
         </p>
         <Suspense fallback={<VideoContainer videos={null} />}>
           <ResultsVideos searchQuery={search_query} />

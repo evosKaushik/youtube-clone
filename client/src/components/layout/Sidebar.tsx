@@ -56,6 +56,7 @@ const youSection = [
   {
     name: "Downloads",
     icon: <MdOutlineFileDownload size={24} />,
+    href: "/downloads",
   },
 ];
 
