@@ -10,7 +10,7 @@ A full-stack YouTube clone built with Next.js, Express, MongoDB, and WebRTC. Fea
 - **Tailwind CSS 4** — Utility-first styling
 - **Plyr** — Video player
 - **Recharts** — Analytics charts
-- **Socket.io Client** — Real-time communication
+- **Socket.io Client** — Real-time peer id share
 - **Zustand** — State management
 - **@react-oauth/google** — Google One Tap authentication
 
@@ -208,10 +208,12 @@ Migrated to **`@react-oauth/google`** with **`google-auth-library`** for the fol
 2. Set all `NEXT_PUBLIC_*` environment variables in Vercel dashboard
 3. Deploy
 
-### Backend (Render / Railway / AWS)
+### Backend Render
 1. Set all server environment variables
 2. Ensure CORS_ORIGINS includes your frontend URL
 3. Deploy
+4. first time will be slow as it goes under sleep if not active
+   
 
 ## 📄 License
 
