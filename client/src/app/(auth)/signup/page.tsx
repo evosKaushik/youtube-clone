@@ -23,7 +23,6 @@ const LoginCardSection = () => {
   const searchParams = useSearchParams();
   const { setUser } = useUser();
   const [showPassword, setShowPassword] = useState(false);
-  const { showPopup } = usePopup();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
