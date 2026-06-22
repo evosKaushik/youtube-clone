@@ -721,9 +721,9 @@ const LoginCardSection = () => {
         <div className="flex w-full sm:w-[90%] mx-auto justify-center">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            theme="filled_blue"
+            theme="outline"
             text="signin_with"
-            shape="pill"
+            shape="rectangular"
             onError={() => {
               console.log("Login Failed");
               toast.error("Google login failed. Please try again.");

@@ -16,7 +16,8 @@ const inter = Inter({
 });
 
 const GOOGLE_CLIENT_ID =
-  "761529584102-cu9i5gvl4vdfjkqdjfjpcb19rhfumqh1.apps.googleusercontent.com";
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+  "761529584102-7i3mkijmuhktkvvgqjh4l7ki1uusea8k.apps.googleusercontent.com";
 
 export const metadata: Metadata = {
   title: "YouTube Clone",
