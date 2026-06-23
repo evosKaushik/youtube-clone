@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getHistoryVideos } from "@/api/videoApi";
 import PlaylistVideoContainer from "@/features/playlists/components/PlaylistVideoContainer";
 import AuthGuard from "@/components/common/AuthGuard";
+import { Video } from "@/types/entities";
 
 import {
   RiHistoryLine,
@@ -11,20 +12,21 @@ import {
   RiDeleteBin6Line,
   RiSettings3Line,
 } from "react-icons/ri";
-import VideoContainer from "@/features/video/components/VideoContainer";
 
 export default function HistoryPage() {
-  const [history, setHistory] = useState([]);
+  const [videos, setVideos] = useState<Video[]>([]);
 
   useEffect(() => {
     const fetchHistory = async () => {
-      console.log("Fetching history...");
-
       const data = await getHistoryVideos();
 
-      console.log("API Response:", data);
-
-      setHistory(data || []);
+      if (data && Array.isArray(data)) {
+        // Extract the populated videoId from each history record
+        const mapped = data
+          .map((item: any) => item?.videoId)
+          .filter(Boolean);
+        setVideos(mapped);
+      }
     };
 
     fetchHistory();
@@ -54,6 +56,7 @@ export default function HistoryPage() {
             <h2 className="mb-5 text-xl font-semibold">Today</h2>
 
             <PlaylistVideoContainer
+              videos={videos}
               className="
                 flex
                 flex-col

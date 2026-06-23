@@ -288,7 +288,15 @@ export const getAllHistoryService = async (userId: string) => {
   if (!isValidObjectId(userId)) throw new ApiError(400, "Not valid User Id");
 
   const historyVideos = await VideoHistory.find({ userId })
-    .populate("videoId", "_id name thumbnailURL creatorId views")
+    .sort({ createdAt: -1 })
+    .populate({
+      path: "videoId",
+      select: "_id name description thumbnailURL videoURL creatorId views duration likes createdAt",
+      populate: {
+        path: "creatorId",
+        select: "channelName channelUsername profilePicture subscriberCount",
+      },
+    })
     .select("_id videoId totalWatchedSeconds createdAt")
     .lean();
 

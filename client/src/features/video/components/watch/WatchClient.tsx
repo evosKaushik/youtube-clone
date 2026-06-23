@@ -312,6 +312,7 @@ const WatchClient = ({
           onEnded={handleVideoEnded}
           onNextVideo={handleNextVideo}
           onOpenComments={handleOpenComments}
+          onUnauthenticated={() => router.push("/signup")}
         />
 
         {/* INFO */}

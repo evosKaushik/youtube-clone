@@ -61,12 +61,8 @@ const sendWatchHeartbeatApi = async (videoId: string) => {
 
         return data;
     } catch (error) {
-        // console.error(error);
-        if (axios.isAxiosError(error)) {
-            console.error(error.status);
-            toast.error(error.response?.data?.error || "Something went wrong")
-
-        }
+        // Silently fail — heartbeat is a background tracking mechanism,
+        // not critical for video playback. Don't show toasts or reload.
         return null;
     }
 };
@@ -79,11 +75,7 @@ const stopWatchApi = async (videoId: string) => {
 
         return data;
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error(error.status);
-            toast.error(error.response?.data?.error || "Something went wrong")
-
-        }
+        // Silently fail — stop is a background tracking call.
         return null;
     }
 };

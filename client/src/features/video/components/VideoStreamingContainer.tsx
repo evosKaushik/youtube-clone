@@ -12,9 +12,10 @@ type Props = {
   onEnded?: () => void;
   onNextVideo?: () => void;
   onOpenComments?: () => void;
+  onUnauthenticated?: () => void;
 };
 
-export default function VideoPlayer({ videoUrl, videoId, onEnded, onNextVideo, onOpenComments }: Props) {
+export default function VideoPlayer({ videoUrl, videoId, onEnded, onNextVideo, onOpenComments, onUnauthenticated }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<any>(null);
 
@@ -33,7 +34,19 @@ export default function VideoPlayer({ videoUrl, videoId, onEnded, onNextVideo, o
       const res = await sendWatchHeartbeatApi(videoId);
 
       if (!res) {
-        window.location.reload();
+        // Heartbeat failed — check if the user is still logged in.
+        // If localStorage has no "user" entry, they logged out, so
+        // redirect to signup (only authenticated users can watch).
+        const localUser =
+          typeof window !== "undefined" && localStorage.getItem("user");
+
+        if (!localUser) {
+          onUnauthenticated?.();
+          return;
+        }
+
+        // User is still logged in but heartbeat failed for another reason
+        // (e.g. watch limit, network issue) — silently ignore.
       }
     }, 10000);
   };
