@@ -3,19 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { indianStates } from "@/constant/constant";
 import { GoogleLogin } from "@react-oauth/google";
-import {
-  FaEye,
-  FaEyeSlash,
-  FaLock,
-  FaEnvelope,
-} from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaLock, FaEnvelope } from "react-icons/fa";
 import { getStateFromLocation } from "@/libs/utils";
 import toast from "react-hot-toast";
 import { usePopup } from "@/contexts/popupContext";
 import { useUser } from "@/libs/AuthContext";
 import Link from "next/link";
 import { registerApi, verifyOtpApi } from "@/api/userApi";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import axiosInstance from "@/api/axiosInstance";
 
 import GuestGuard from "@/components/common/GuestGuard";
@@ -154,7 +149,7 @@ const LoginCardSection = () => {
 
           if (data?.success) {
             toast.success("OTP verified successfully!");
-            router.push('/signup'); // Redirect to login page after successful OTP verification}
+            router.push("/signup"); // Redirect to login page after successful OTP verification}
           }
         } catch (error) {
           console.error(error);
@@ -220,8 +215,6 @@ const LoginCardSection = () => {
       toast.error("Google login failed. Please try again.");
     }
   };
-
-
 
   const handleForgotPassword = () => {
     console.log("🔑 Forgot Password");
@@ -315,14 +308,14 @@ const LoginCardSection = () => {
 
   return (
     <GuestGuard>
-    <section
-      className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
-      style={{
-        background: "var(--background)",
-        color: "var(--text)",
-      }}
-    >
-      <style>{`
+      <section
+        className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden"
+        style={{
+          background: "var(--background)",
+          color: "var(--text)",
+        }}
+      >
+        <style>{`
         .card-animate {
           opacity: 0;
           transform: translateY(24px);
@@ -343,26 +336,26 @@ const LoginCardSection = () => {
         }
       `}</style>
 
-      {/* Background Glow */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle at top, rgba(255,255,255,.08), transparent 60%)",
-        }}
-      />
+        {/* Background Glow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(circle at top, rgba(255,255,255,.08), transparent 60%)",
+          }}
+        />
 
-      <div className="accent-lines">
-        <div className="hline" />
-        <div className="hline" />
-        <div className="hline" />
-        <div className="vline" />
-        <div className="vline" />
-        <div className="vline" />
-      </div>
-      <canvas
-        ref={canvasRef}
-        className="
+        <div className="accent-lines">
+          <div className="hline" />
+          <div className="hline" />
+          <div className="hline" />
+          <div className="vline" />
+          <div className="vline" />
+          <div className="vline" />
+        </div>
+        <canvas
+          ref={canvasRef}
+          className="
     absolute
     inset-0
     w-full
@@ -370,10 +363,11 @@ const LoginCardSection = () => {
     opacity-50
     pointer-events-none
   "
-      />
-      {/* Card */}
-      <form
-        onSubmit={handleSubmit}          className="
+        />
+        {/* Card */}
+        <form
+          onSubmit={handleSubmit}
+          className="
     card-animate
           glass-card
           w-full
@@ -383,54 +377,54 @@ const LoginCardSection = () => {
           border
           shadow-2xl
         "
-        style={{
-          borderColor: "var(--border)",
-        }}
-      >
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">
-            Create your account
-          </h1>
+          style={{
+            borderColor: "var(--border)",
+          }}
+        >
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">
+              Create your account
+            </h1>
 
-          <p
-            className="mt-2 text-sm sm:text-base"
-            style={{
-              color: "var(--secondary-text)",
-            }}
-          >
-            Create your account and get started
-          </p>
-        </div>
-
-        {/* Name */}
-        <div className="mb-5">
-          <label className="block mb-2 text-sm font-medium">
-            Enter your Full Name
-          </label>
-
-          <div className="relative">
-            <FaEnvelope
-              className="absolute left-4 top-1/2 -translate-y-1/2"
-              color="gray"
-            />
-
-            <input
-              type="text"
-              disabled={loading}
-              value={fullName}
-              onChange={(e) => {
-                setFullName(e.target.value);
-
-                if (errors.fullName) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    fullName: "",
-                  }));
-                }
+            <p
+              className="mt-2 text-sm sm:text-base"
+              style={{
+                color: "var(--secondary-text)",
               }}
-              placeholder="John"
-              className="
+            >
+              Create your account and get started
+            </p>
+          </div>
+
+          {/* Name */}
+          <div className="mb-5">
+            <label className="block mb-2 text-sm font-medium">
+              Enter your Full Name
+            </label>
+
+            <div className="relative">
+              <FaEnvelope
+                className="absolute left-4 top-1/2 -translate-y-1/2"
+                color="gray"
+              />
+
+              <input
+                type="text"
+                disabled={loading}
+                value={fullName}
+                onChange={(e) => {
+                  setFullName(e.target.value);
+
+                  if (errors.fullName) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      fullName: "",
+                    }));
+                  }
+                }}
+                placeholder="John"
+                className="
     w-full
     h-12
     pl-12
@@ -440,45 +434,45 @@ const LoginCardSection = () => {
     outline-none
     transition-all
   "
-              style={{
-                background: "var(--background)",
-                borderColor: errors.fullName ? "#ef4444" : "var(--border)",
-                color: "var(--text)",
-              }}
-            />
+                style={{
+                  background: "var(--background)",
+                  borderColor: errors.fullName ? "#ef4444" : "var(--border)",
+                  color: "var(--text)",
+                }}
+              />
+            </div>
+            {errors.fullName && (
+              <p className="mt-1 text-sm text-red-500">{errors.fullName}</p>
+            )}
           </div>
-          {errors.fullName && (
-            <p className="mt-1 text-sm text-red-500">{errors.fullName}</p>
-          )}
-        </div>
-        {/* Username */}
-        <div className="mb-5">
-          <label className="block mb-2 text-sm font-medium">
-            Enter your Username
-          </label>
+          {/* Username */}
+          <div className="mb-5">
+            <label className="block mb-2 text-sm font-medium">
+              Enter your Username
+            </label>
 
-          <div className="relative">
-            <FaEnvelope
-              className="absolute left-4 top-1/2 -translate-y-1/2"
-              color="gray"
-            />
+            <div className="relative">
+              <FaEnvelope
+                className="absolute left-4 top-1/2 -translate-y-1/2"
+                color="gray"
+              />
 
-            <input
-              type="text"
-              disabled={loading}
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
+              <input
+                type="text"
+                disabled={loading}
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
 
-                if (errors.username) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    username: "",
-                  }));
-                }
-              }}
-              placeholder="John"
-              className="
+                  if (errors.username) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      username: "",
+                    }));
+                  }
+                }}
+                placeholder="John"
+                className="
     w-full
     h-12
     pl-12
@@ -488,45 +482,45 @@ const LoginCardSection = () => {
     outline-none
     transition-all
   "
-              style={{
-                background: "var(--background)",
-                borderColor: errors.username ? "#ef4444" : "var(--border)",
-                color: "var(--text)",
-              }}
-            />
+                style={{
+                  background: "var(--background)",
+                  borderColor: errors.username ? "#ef4444" : "var(--border)",
+                  color: "var(--text)",
+                }}
+              />
+            </div>
+            {errors.username && (
+              <p className="mt-1 text-sm text-red-500">{errors.username}</p>
+            )}
           </div>
-          {errors.username && (
-            <p className="mt-1 text-sm text-red-500">{errors.username}</p>
-          )}
-        </div>
-        {/* Email */}
-        <div className="mb-4">
-          <label className="block mb-2 text-sm font-medium">
-            Enter your Email
-          </label>
+          {/* Email */}
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium">
+              Enter your Email
+            </label>
 
-          <div className="relative">
-            <FaEnvelope
-              className="absolute left-4 top-1/2 -translate-y-1/2"
-              color="gray"
-            />
+            <div className="relative">
+              <FaEnvelope
+                className="absolute left-4 top-1/2 -translate-y-1/2"
+                color="gray"
+              />
 
-            <input
-              type="email"
-              disabled={loading}
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
+              <input
+                type="email"
+                disabled={loading}
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
 
-                if (errors.email) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    email: "",
-                  }));
-                }
-              }}
-              placeholder="you@example.com"
-              className="
+                  if (errors.email) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      email: "",
+                    }));
+                  }
+                }}
+                placeholder="you@example.com"
+                className="
     w-full
     h-12
     pl-12
@@ -536,42 +530,42 @@ const LoginCardSection = () => {
     outline-none
     transition-all
   "
-              style={{
-                background: "var(--background)",
-                borderColor: errors.email ? "#ef4444" : "var(--border)",
-                color: "var(--text)",
-              }}
-            />
+                style={{
+                  background: "var(--background)",
+                  borderColor: errors.email ? "#ef4444" : "var(--border)",
+                  color: "var(--text)",
+                }}
+              />
+            </div>
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+            )}
           </div>
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-          )}
-        </div>
-        {/* Password */}
-        <div className="mb-4">
-          <label className="block mb-2 text-sm font-medium">Password</label>
+          {/* Password */}
+          <div className="mb-4">
+            <label className="block mb-2 text-sm font-medium">Password</label>
 
-          <div className="relative">
-            <FaLock
-              className="absolute left-4 top-1/2 -translate-y-1/2"
-              color="gray"
-            />
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              disabled={loading}
-              onChange={(e) => {
-                setPassword(e.target.value);
+            <div className="relative">
+              <FaLock
+                className="absolute left-4 top-1/2 -translate-y-1/2"
+                color="gray"
+              />
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                disabled={loading}
+                onChange={(e) => {
+                  setPassword(e.target.value);
 
-                if (errors.password) {
-                  setErrors((prev) => ({
-                    ...prev,
-                    password: "",
-                  }));
-                }
-              }}
-              placeholder="••••••••"
-              className="
+                  if (errors.password) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      password: "",
+                    }));
+                  }
+                }}
+                placeholder="••••••••"
+                className="
     w-full
     h-12
     pl-12
@@ -581,51 +575,51 @@ const LoginCardSection = () => {
     outline-none
     transition-all
   "
-              style={{
-                background: "var(--background)",
-                borderColor: errors.password ? "#ef4444" : "var(--border)",
-                color: "var(--text)",
-              }}
-            />
+                style={{
+                  background: "var(--background)",
+                  borderColor: errors.password ? "#ef4444" : "var(--border)",
+                  color: "var(--text)",
+                }}
+              />
 
-            <button
-              type="button"
-              className="
+              <button
+                type="button"
+                className="
                 absolute
                 right-4
                 top-1/2
                 -translate-y-1/2
                 text-secondaryText
               "
-              onClick={() => setShowPassword((prev) => !prev)}
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </button>
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+            )}
           </div>
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-          )}
-        </div>
-        {/*Select State*/}
-        <div className="mb-4 flex flex-col sm:flex-row gap-2 w-full">
-          <select
-            value={state}
-            onChange={(e) => setState(e.target.value)}
-            className="h-12 rounded-xl border px-4 bg-card w-full sm:w-[70%]"
-            style={{
-              borderColor: errors.state ? "#ef4444" : "var(--border)",
-            }}
-          >
-            <option value="">Select State</option>
+          {/*Select State*/}
+          <div className="mb-4 flex flex-col sm:flex-row gap-2 w-full">
+            <select
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              className="h-12 rounded-xl border px-4 bg-card w-full sm:w-[70%]"
+              style={{
+                borderColor: errors.state ? "#ef4444" : "var(--border)",
+              }}
+            >
+              <option value="">Select State</option>
 
-            {indianStates.map((stateName) => (
-              <option key={stateName} value={stateName}>
-                {stateName}
-              </option>
-            ))}
-          </select>
-          <button
-            className={`
+              {indianStates.map((stateName) => (
+                <option key={stateName} value={stateName}>
+                  {stateName}
+                </option>
+              ))}
+            </select>
+            <button
+              className={`
               w-full sm:w-[30%]
               h-12
               rounded-xl
@@ -634,34 +628,34 @@ const LoginCardSection = () => {
               duration-300
               
             `}
-            onClick={handleAutoSelectStateClick}
-            style={{
-              background: "var(--text)",
-              color: "var(--background)",
-            }}
-          >
-            Auto Select
-          </button>
-        </div>
-        {errors.state && (
-          <p className="mt-1 text-sm text-red-500">{errors.state}</p>
-        )}
+              onClick={handleAutoSelectStateClick}
+              style={{
+                background: "var(--text)",
+                color: "var(--background)",
+              }}
+            >
+              Auto Select
+            </button>
+          </div>
+          {errors.state && (
+            <p className="mt-1 text-sm text-red-500">{errors.state}</p>
+          )}
 
-        <div className="flex items-center justify-end mb-6">
-          <button
-            type="button"
-            onClick={handleForgotPassword}
-            className="text-sm hover:underline"
-            style={{
-              color: "var(--secondary-text)",
-            }}
-          >
-            Forgot password?
-          </button>
-        </div>
-        {serverError && (
-          <div
-            className="
+          <div className="flex items-center justify-end mb-6">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className="text-sm hover:underline"
+              style={{
+                color: "var(--secondary-text)",
+              }}
+            >
+              Forgot password?
+            </button>
+          </div>
+          {serverError && (
+            <div
+              className="
               mb-4
               rounded-xl
               border
@@ -671,16 +665,16 @@ const LoginCardSection = () => {
               text-sm
               text-red-500
             "
-          >
-            {serverError}
-          </div>
-        )}
+            >
+              {serverError}
+            </div>
+          )}
 
-        {/* Continue */}
-        <button
-          type="submit"
-          disabled={loading}
-          className={`
+          {/* Continue */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`
             w-full
             h-12
             rounded-xl
@@ -689,70 +683,70 @@ const LoginCardSection = () => {
             duration-300
             ${loading ? "opacity-60 cursor-not-allowed" : "hover:scale-[1.02]"}
           `}
-          style={{
-            background: "var(--text)",
-            color: "var(--background)",
-          }}
-        >
-          {loading ? "Signing In..." : "Continue"}
-        </button>
-
-        {/* Divider */}
-        <div className="relative my-7">
-          <div
-            className="h-px"
             style={{
-              background: "var(--border)",
+              background: "var(--text)",
+              color: "var(--background)",
             }}
-          />
+          >
+            {loading ? "Signing In..." : "Continue"}
+          </button>
 
-          <span
-            className="absolute left-1/2 -translate-x-1/2 -top-3 px-3 text-xs uppercase"
+          {/* Divider */}
+          <div className="relative my-7">
+            <div
+              className="h-px"
+              style={{
+                background: "var(--border)",
+              }}
+            />
+
+            <span
+              className="absolute left-1/2 -translate-x-1/2 -top-3 px-3 text-xs uppercase"
+              style={{
+                background: "var(--card)",
+                color: "var(--secondary-text)",
+              }}
+            >
+              OR
+            </span>
+          </div>
+
+          {/* Social Login */}
+          <div className="flex w-full sm:w-[90%] mx-auto justify-center">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              theme="outline"
+              text="signin_with"
+              shape="rectangular"
+              onError={() => {
+                console.log("Login Failed");
+                toast.error("Google login failed. Please try again.");
+              }}
+              useOneTap
+              auto_select
+            />
+          </div>
+
+          {/* Footer */}
+          <div
+            className="mt-8 text-center text-sm"
             style={{
-              background: "var(--card)",
               color: "var(--secondary-text)",
             }}
           >
-            OR
-          </span>
-        </div>
-
-        {/* Social Login */}
-        <div className="flex w-full sm:w-[90%] mx-auto justify-center">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            theme="outline"
-            text="signin_with"
-            shape="rectangular"
-            auto_select
-            useOneTap
-            onError={() => {
-              console.log("Login Failed");
-              toast.error("Google login failed. Please try again.");
-            }}
-          />
-        </div>
-
-        {/* Footer */}
-        <div
-          className="mt-8 text-center text-sm"
-          style={{
-            color: "var(--secondary-text)",
-          }}
-        >
-          Already have an account?{" "}
-          <Link
-            href="/signup"
-            className="font-medium hover:underline"
-            style={{
-              color: "var(--text)",
-            }}
-          >
-            Sign up
-          </Link>
-        </div>
-      </form>
-    </section>
+            Already have an account?{" "}
+            <Link
+              href="/signup"
+              className="font-medium hover:underline"
+              style={{
+                color: "var(--text)",
+              }}
+            >
+              Sign up
+            </Link>
+          </div>
+        </form>
+      </section>
     </GuestGuard>
   );
 };

@@ -19,6 +19,8 @@ const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "761529584102-7i3mkijmuhktkvvgqjh4l7ki1uusea8k.apps.googleusercontent.com";
 
+
+
 export const metadata: Metadata = {
   title: "YouTube Clone",
   description: "Modern YouTube UI",
