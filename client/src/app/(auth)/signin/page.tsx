@@ -724,7 +724,8 @@ const LoginCardSection = () => {
             theme="outline"
             text="signin_with"
             shape="rectangular"
-            ux_mode="redirect"
+            auto_select
+            useOneTap
             onError={() => {
               console.log("Login Failed");
               toast.error("Google login failed. Please try again.");
