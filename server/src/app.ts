@@ -7,6 +7,7 @@ import commentRoutes from "./routes/comment.route.js";
 import playlistRoutes from "./routes/playlist.route.js";
 import translateRoute from "./routes/translate.route.js";
 import paymentRoute from "./routes/payment.route.js";
+import subscriptionRoutes from "./routes/subscription.route.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import http from "http";
 import { Server } from "socket.io";
@@ -42,6 +43,7 @@ app.use("/api/comments", commentRoutes);
 app.use("/api/playlist", playlistRoutes);
 app.use("/api/translate", translateRoute);
 app.use("/api/payments", paymentRoute);
+app.use("/api/subscriptions", subscriptionRoutes);
 
 app.get("/api/hello", (req: express.Request, res: express.Response) => {
   res.json({

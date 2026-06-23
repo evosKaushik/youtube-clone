@@ -10,6 +10,7 @@ import { useUser } from "@/libs/AuthContext";
 import { downloadVideoById, updateLikesApi, fetchVideoByIdApi } from "@/api/videoApi";
 import { addCommentApi } from "@/api/commentApi";
 import { addPlaylistApi, getPlaylistApi } from "@/api/playlistApi";
+import { subscribeToChannelApi, unsubscribeFromChannelApi, checkSubscriptionApi } from "@/api/subscriptionApi";
 import { formatViews } from "@/libs/utils";
 import { Comment, Video, PlaylistItem } from "@/types/entities";
 import toast from "react-hot-toast";
@@ -45,6 +46,8 @@ const WatchClient = ({
   const [commentLoading, setCommentLoading] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscribeLoading, setSubscribeLoading] = useState(false);
 
   // Filter out current video from suggestions
   const suggestedVideos = useMemo(
@@ -69,6 +72,17 @@ const WatchClient = ({
     };
     checkLikeStatus();
   }, [user, currentVideo?._id]);
+
+  // Check if user is subscribed to the creator
+  useEffect(() => {
+    const channelId = currentVideo?.creatorId?._id;
+    if (!user || !channelId) return;
+    const checkSub = async () => {
+      const data = await checkSubscriptionApi(channelId);
+      setIsSubscribed(data?.subscribed ?? false);
+    };
+    checkSub();
+  }, [user, currentVideo?.creatorId?._id]);
 
   // Check if user has saved this video to watch later
   useEffect(() => {
@@ -348,8 +362,37 @@ const WatchClient = ({
                 </p>
               </div>
 
-              <button className="h-10 px-5 rounded-full bg-text text-background font-semibold hover:opacity-90 transition">
-                Subscribe
+              <button
+                onClick={() => requireAuth(async () => {
+                  const channelId = currentVideo?.creatorId?._id;
+                  if (!channelId || subscribeLoading) return;
+                  setSubscribeLoading(true);
+                  try {
+                    if (isSubscribed) {
+                      const res = await unsubscribeFromChannelApi(channelId);
+                      if (res) {
+                        setIsSubscribed(false);
+                        setCurrentVideo((prev) => prev ? { ...prev, creatorId: { ...prev.creatorId, subscriberCount: res?.subscriberCount ?? (prev.creatorId?.subscriberCount ?? 1) - 1 } } : prev);
+                      }
+                    } else {
+                      const res = await subscribeToChannelApi(channelId);
+                      if (res) {
+                        setIsSubscribed(true);
+                        setCurrentVideo((prev) => prev ? { ...prev, creatorId: { ...prev.creatorId, subscriberCount: res?.subscriberCount ?? (prev.creatorId?.subscriberCount ?? 0) + 1 } } : prev);
+                      }
+                    }
+                  } finally {
+                    setSubscribeLoading(false);
+                  }
+                })}
+                disabled={subscribeLoading}
+                className={`h-10 px-5 rounded-full font-semibold transition ${
+                  isSubscribed
+                    ? "bg-card text-text border border-border hover:bg-hover"
+                    : "bg-text text-background hover:opacity-90"
+                }`}
+              >
+                {isSubscribed ? "Subscribed" : "Subscribe"}
               </button>
             </div>                      {/* ACTIONS */}
             <VideoActions

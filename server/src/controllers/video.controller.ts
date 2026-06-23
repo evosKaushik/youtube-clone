@@ -5,6 +5,7 @@ import {
   getAllVideosService,
   getVideoByIdService,
   searchVideosService,
+  searchSuggestionsService,
   downloadVideoService,
   getAllHistoryService,
   getAllDownloadsService,
@@ -64,6 +65,16 @@ const searchController = async (req: Request, res: Response, next: NextFunction)
     const { q } = req.query;
     const results = await searchVideosService(q as string);
     return res.status(200).json(new ApiResponse(200, { count: results.length, data: results }, "Search results fetched"));
+  } catch (error) {
+    next(error);
+  }
+};
+
+const searchSuggestionsController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { q } = req.query;
+    const suggestions = await searchSuggestionsService(q as string);
+    return res.status(200).json(new ApiResponse(200, suggestions, "Suggestions fetched"));
   } catch (error) {
     next(error);
   }
@@ -154,6 +165,7 @@ export {
   getAllVideos,
   getVideoById,
   searchController,
+  searchSuggestionsController,
   downloadVideoByVideoId,
   heartbeatController,
   stopWatchController,

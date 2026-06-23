@@ -120,10 +120,10 @@ const getTodayStatsApi = async () => {
     try {
         const { data } = await axiosInstance.get("/video/today-stats");
        
-        return data || { todayDownloads: 0, todayWatchSeconds: 0, totalDownloads: 0 };
+        return data || { todayDownloads: 0, todayWatchSeconds: 0, totalDownloads: 0, totalVideosWatched: 0, totalWatchTimeUsed: 0, watchTimeLimitMinutes: 5, downloadLimit: 0 };
     } catch (error) {
         console.error(error);
-        return { todayDownloads: 0, todayWatchSeconds: 0, totalDownloads: 0 };
+        return { todayDownloads: 0, todayWatchSeconds: 0, totalDownloads: 0, totalVideosWatched: 0, totalWatchTimeUsed: 0, watchTimeLimitMinutes: 5, downloadLimit: 0 };
     }
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,8 +23,8 @@ import { IoPersonOutline } from "react-icons/io5";
 
 import { useSidebarStore } from "@/store/useSidebarStore";
 import { usePathname } from "next/navigation";
-
-const subscriptions: { name: string; avatar: string; href: string }[] = [];
+import { useUser } from "@/libs/AuthContext";
+import { getMySubscriptionsApi } from "@/api/subscriptionApi";
 
 const youSection = [
   {
@@ -61,6 +62,8 @@ const youSection = [
 ];
 
 const Sidebar = () => {
+  const { user } = useUser();
+  const [subscriptions, setSubscriptions] = useState<{ _id: string; channel: { _id: string; channelName?: string; channelUsername?: string; profilePicture?: string } }[]>([]);
   const isOpen = useSidebarStore((s) => s.isOpen);
   const isOverlay = useSidebarStore((s) => s.isOverlay);
   const closeOverlay = useSidebarStore((s) => s.closeOverlay);
@@ -69,6 +72,19 @@ const Sidebar = () => {
   const isCallPage = pathname?.startsWith("/call");
 
   const showText = isOpen || isOverlay;
+
+  // Fetch subscriptions when user changes
+  useEffect(() => {
+    if (!user) {
+      setSubscriptions([]);
+      return;
+    }
+    getMySubscriptionsApi().then((data) => {
+      if (Array.isArray(data)) {
+        setSubscriptions(data);
+      }
+    });
+  }, [user]);
 
   // Don't render sidebar on the call page for fullscreen experience
   if (isCallPage) return null;
@@ -167,10 +183,10 @@ const Sidebar = () => {
             </div>
 
             <ul className="space-y-1">
-              {subscriptions.map((channel, index) => (
-                <li key={index}>
+              {subscriptions.map((sub) => (
+                <li key={sub._id}>
                   <Link
-                    href={channel.href}
+                    href={`/@${sub.channel?.channelUsername || sub.channel?._id}`}
                     className="
                         flex items-center gap-4
                         rounded-xl px-3 py-2.5
@@ -178,14 +194,14 @@ const Sidebar = () => {
                       "
                   >
                     <Image
-                      src={channel.avatar}
-                      alt={channel.name}
+                      src={sub.channel?.profilePicture || "https://github.com/shadcn.png"}
+                      alt={sub.channel?.channelName || "Channel"}
                       width={28}
                       height={28}
                       className="rounded-full"
                     />
 
-                    <span className="truncate text-[15px]">{channel.name}</span>
+                    <span className="truncate text-[15px]">{sub.channel?.channelName || sub.channel?.channelUsername || "Channel"}</span>
 
                     <div
                       className="

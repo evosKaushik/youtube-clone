@@ -12,7 +12,8 @@ import {
   getAllHistory,
   getAllDownloads,
   getDownloadCount,
-  getTodayStats
+  getTodayStats,
+  searchSuggestionsController
 } from "../controllers/video.controller.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -50,6 +51,7 @@ router.get("/today-stats", authMiddleware, getTodayStats)
 router.put("/like/:vid", authMiddleware, updateLikes);
 router.get("/", getAllVideos);
 router.get("/search", searchController);
+router.get("/suggestions", searchSuggestionsController);
 router.get("/:vid", getVideoById);
 router.get("/download/:videoId", authMiddleware,checkIsWatchLimitOver, downloadVideoByVideoId);
 router.post("/heartbeat", authMiddleware,checkIsWatchLimitOver, heartbeatController);

@@ -152,6 +152,21 @@ export const searchVideosService = async (q: string) => {
   return results;
 };
 
+export const searchSuggestionsService = async (q: string) => {
+  if (!q || q.trim().length < 2) return [];
+
+  const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const suggestions = await Video.find({
+    name: { $regex: escapedQuery, $options: "i" },
+  })
+    .select("_id name thumbnailURL")
+    .limit(6)
+    .lean();
+
+  return suggestions;
+};
+
 export const downloadVideoService = async (videoId: string, userId: string) => {
   if (Array.isArray(videoId) || !isValidObjectId(videoId)) {
     throw new ApiError(400, "Invalid video ID");
@@ -277,10 +292,32 @@ export const getTodayStatsService = async (userId: string) => {
   // Total downloads (all time)
   const totalDownloads = await DownloadModel.countDocuments({ userId });
 
+  // Total videos watched (all time — count of unique history records)
+  const totalVideosWatched = await VideoHistory.countDocuments({ userId });
+
+  // Total watch time used (all time — sum of all history records)
+  const allWatchHistories = await VideoHistory.find({ userId })
+    .select("totalWatchedSeconds")
+    .lean();
+
+  const totalWatchTimeUsed = allWatchHistories.reduce(
+    (sum, h) => sum + (h.totalWatchedSeconds || 0),
+    0
+  );
+
+  // Get the user's subscription limits
+  const user = await User.findById(userId).select("subscription").lean();
+  const watchTimeLimitMinutes = user?.subscription?.watchTimeInMinutes ?? 5;
+  const downloadLimit = user?.subscription?.noOfDownloads ?? 0;
+
   return {
     todayDownloads,
     todayWatchSeconds,
     totalDownloads,
+    totalVideosWatched,
+    totalWatchTimeUsed,
+    watchTimeLimitMinutes,
+    downloadLimit,
   };
 };
 

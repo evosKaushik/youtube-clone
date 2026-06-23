@@ -9,6 +9,7 @@ import {
   useCallback,
 } from "react";
 
+import { useRouter } from "next/navigation";
 import axiosInstance from "@/api/axiosInstance";
 
 type UserType = {
@@ -17,6 +18,8 @@ type UserType = {
   email: string;
   profilePicture?: string;
   username: string;
+  channelName?: string | null;
+  subscriberCount?: number;
   subscription: {
     plan: string;
     status: string;
@@ -49,8 +52,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const router = useRouter();
+
   const logout = async () => {
     saveUser(null);
+    router.push("/");
   };
 
   // Restore user from localStorage on mount

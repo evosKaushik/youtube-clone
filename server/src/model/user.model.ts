@@ -71,6 +71,10 @@ const userSchema = new mongoose.Schema(
         default: null
       }
     },
+    subscriberCount: {
+      type: Number,
+      default: 0,
+    },
     isCurrentWatchTimeExcised: {
       type: Boolean,
       default: false,

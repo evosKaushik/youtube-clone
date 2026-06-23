@@ -41,6 +41,10 @@ export default function ProfilePage() {
     todayDownloads: 0,
     todayWatchSeconds: 0,
     totalDownloads: 0,
+    totalVideosWatched: 0,
+    totalWatchTimeUsed: 0,
+    watchTimeLimitMinutes: 5,
+    downloadLimit: 0,
   });
   const [statsLoading, setStatsLoading] = useState(true);
 
@@ -156,22 +160,34 @@ export default function ProfilePage() {
   const name = user?.name ?? "User";
   const profilePic = user?.profilePicture || "https://github.com/shadcn.png";
   const username = user?.username ?? "user";
-  const downloadLimit = user?.subscription?.noOfDownloads ?? 0;
+  const subscriberCount = user?.subscriberCount ?? 0;
 
-  // Real stats from API (last 24 hours)
+  // Use API stats or fallback to subscription data from the user object
+  const downloadLimit = todayStats.downloadLimit ?? user?.subscription?.noOfDownloads ?? 0;
+  const watchLimitMinutes = todayStats.watchTimeLimitMinutes ?? user?.subscription?.watchTimeInMinutes ?? 5;
+
   const stats = {
-    videosWatched: 42,
+    videosWatched: todayStats.totalVideosWatched,
     downloadsUsed: todayStats.todayDownloads,
     totalDownloads: downloadLimit,
     watchTime: formatWatchTime(todayStats.todayWatchSeconds),
+    totalWatchTimeSeconds: todayStats.totalWatchTimeUsed,
+    watchTimeLimitSeconds: watchLimitMinutes * 60,
   };
 
-  const subscriptionData = [
-    { name: "Used", value: stats.downloadsUsed },
-    { name: "Remaining", value: Math.max(0, stats.totalDownloads - stats.downloadsUsed) },
-  ];
+  const downloadRemaining = downloadLimit === Infinity ? Infinity : Math.max(0, downloadLimit - stats.downloadsUsed);
+
+  // For free users (downloadLimit = 0) the chart would show 0/0 — render a message instead
+  const showDownloadChart = downloadLimit > 0;
+
 
   const isPremium = plan.toLowerCase() !== "free";
+  const isUnlimited = watchLimitMinutes === Infinity;
+
+  // Watch time progress percentage
+  const watchTimePercent = isUnlimited
+    ? 0
+    : Math.min(100, Math.round((stats.totalWatchTimeSeconds / stats.watchTimeLimitSeconds) * 100));
 
   return (
     <AuthGuard>
@@ -203,6 +219,11 @@ export default function ProfilePage() {
                   {plan} Plan
                 </span>
                 <span className="text-xs text-secondaryText">@{username}</span>
+                {user?.channelName && (
+                  <span className="text-xs text-secondaryText">
+                    {subscriberCount} subscriber{subscriberCount !== 1 ? "s" : ""}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -228,13 +249,56 @@ export default function ProfilePage() {
               </p>
 
               <p className="flex items-center gap-2">
-                <FiDownload className="shrink-0" /> Downloads Today: {stats.downloadsUsed}/{stats.totalDownloads}
+                <FiDownload className="shrink-0" /> Downloads Today: {stats.downloadsUsed}{downloadLimit === Infinity ? "" : ` / ${downloadLimit}`}
               </p>
 
               <p className="flex items-center gap-2">
-                <FiClock className="shrink-0" /> Watch Time: {stats.watchTime}
+                <FiClock className="shrink-0" /> Watch Time Today: {stats.watchTime}
               </p>
             </div>
+
+            {/* Watch Time Limit Progress */}
+            {!isUnlimited && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <h3 className="text-xs font-semibold text-secondaryText uppercase tracking-wider mb-3">
+                  Watch Time Used
+                </h3>
+                <div className="space-y-2 text-xs sm:text-sm text-secondaryText">
+                  <p className="flex items-center gap-2">
+                    <FiClock className="shrink-0 text-blue-500" /> Used: <span className="font-medium text-text">{formatWatchTime(stats.totalWatchTimeSeconds)}</span>
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <FiClock className="shrink-0 text-yellow-400" /> Limit: <span className="font-medium text-text">{watchLimitMinutes} min</span>
+                  </p>
+                  <div className="w-full bg-card rounded-full h-2 mt-2">
+                    <div
+                      className="h-2 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${watchTimePercent}%`,
+                        background: watchTimePercent > 80 ? "#ef4444" : watchTimePercent > 50 ? "#facc15" : "#22c55e",
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-secondaryText flex justify-between">
+                    <span>{watchTimePercent}% used</span>
+                    <span>{formatWatchTime(Math.max(0, stats.watchTimeLimitSeconds - stats.totalWatchTimeSeconds))} left</span>
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {isUnlimited && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <h3 className="text-xs font-semibold text-secondaryText uppercase tracking-wider mb-3">
+                  Watch Time
+                </h3>
+                <p className="text-xs sm:text-sm text-secondaryText flex items-center gap-2">
+                  <FiClock className="shrink-0 text-green-500" />
+                  Total Used: <span className="font-medium text-text">{formatWatchTime(stats.totalWatchTimeSeconds)}</span>
+                  <span className="text-green-500 text-xs">(Unlimited)</span>
+                </p>
+              </div>
+            )}
 
             <div className="mt-4 pt-4 border-t border-border">
               <h3 className="text-xs font-semibold text-secondaryText uppercase tracking-wider mb-3">
@@ -255,41 +319,57 @@ export default function ProfilePage() {
           <div className="p-4 sm:p-5 rounded-xl bg-card border border-border">
             <h2 className="text-base sm:text-lg font-semibold mb-4">Download Usage</h2>
 
-            <div className="h-48 sm:h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={subscriptionData}
-                    dataKey="value"
-                    outerRadius={80}
-                    innerRadius={40}
-                  >
-                    {subscriptionData.map((_, index) => (
-                      <Cell key={index} fill={COLORS[index]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      background: "var(--card)",
-                      border: "1px solid var(--border)",
-                      borderRadius: "8px",
-                      color: "var(--text)",
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+            {showDownloadChart ? (
+              <>
+                <div className="h-48 sm:h-56">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: "Used", value: stats.downloadsUsed },
+                          { name: "Remaining", value: downloadRemaining },
+                        ]}
+                        dataKey="value"
+                        outerRadius={80}
+                        innerRadius={40}
+                      >
+                        {[
+                          { name: "Used", value: stats.downloadsUsed },
+                          { name: "Remaining", value: downloadRemaining },
+                        ].map((_, index) => (
+                          <Cell key={index} fill={COLORS[index]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          background: "var(--card)",
+                          border: "1px solid var(--border)",
+                          borderRadius: "8px",
+                          color: "var(--text)",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
 
-            <div className="flex items-center justify-center gap-4 text-xs text-secondaryText mt-2">
-              <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
-                Used ({stats.downloadsUsed})
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                Remaining ({stats.totalDownloads - stats.downloadsUsed})
-              </span>
-            </div>
+                <div className="flex items-center justify-center gap-4 text-xs text-secondaryText mt-2">
+                  <span className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                    Used ({stats.downloadsUsed})
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                    Remaining ({downloadRemaining})
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-48 sm:h-56 text-secondaryText">
+                <FiDownload className="text-4xl mb-3 opacity-40" />
+                <p className="text-sm font-medium">No downloads available</p>
+                <p className="text-xs mt-1">Upgrade your plan to download videos</p>
+              </div>
+            )}
           </div>
 
           {/* ACTIONS */}
